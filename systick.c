@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "systick.h"
+#include "gpio.h"
 
 typedef struct systick_t{
   volatile int16_t Ticks;
@@ -82,6 +83,8 @@ void SysTick_ISR_Executables(void){
 
 
 ISR(TIMER0_OVF_vect){
+  GPIO0_Set(1);
   TCNT0  = SysTick.OVFUpdateValue;
   SysTick_ISR_Executables();
+  GPIO0_Set(0);
 }
