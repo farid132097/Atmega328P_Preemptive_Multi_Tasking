@@ -1,0 +1,291 @@
+   1               		.file	"systick.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	SysTick_Enable
+  18               	SysTick_Enable:
+  19               	.LFB6:
+  20               	.LM1:
+  21               	.LVL0:
+  22 0000 8F92      		push r8
+  23 0002 9F92      		push r9
+  24 0004 BF92      		push r11
+  25 0006 CF92      		push r12
+  26 0008 DF92      		push r13
+  27 000a EF92      		push r14
+  28 000c FF92      		push r15
+  29 000e 0F93      		push r16
+  30 0010 1F93      		push r17
+  31 0012 DF93      		push r29
+  32 0014 CF93      		push r28
+  33 0016 CDB7      		in r28,__SP_L__
+  34 0018 DEB7      		in r29,__SP_H__
+  35 001a 2A97      		sbiw r28,10
+  36 001c 0FB6      		in __tmp_reg__,__SREG__
+  37 001e F894      		cli
+  38 0020 DEBF      		out __SP_H__,r29
+  39 0022 0FBE      		out __SREG__,__tmp_reg__
+  40 0024 CDBF      		out __SP_L__,r28
+  41               	/* prologue: function */
+  42               	/* frame size = 10 */
+  43 0026 4C01      		movw r8,r24
+  44               	.LM2:
+  45 0028 DE01      		movw r26,r28
+  46 002a 1196      		adiw r26,1
+  47 002c E0E0      		ldi r30,lo8(C.0.1262)
+  48 002e F0E0      		ldi r31,hi8(C.0.1262)
+  49 0030 8AE0      		ldi r24,lo8(10)
+  50               	.LVL1:
+  51               	.L2:
+  52 0032 0190      		ld r0,Z+
+  53 0034 0D92      		st X+,r0
+  54 0036 8150      		subi r24,lo8(-(-1))
+  55 0038 01F4      		brne .L2
+  56               	.LM3:
+  57 003a 9401      		movw r18,r8
+  58 003c 40E0      		ldi r20,lo8(0)
+  59 003e 50E0      		ldi r21,hi8(0)
+  60               	.LVL2:
+  61 0040 60E0      		ldi r22,lo8(12000000)
+  62 0042 7BE1      		ldi r23,hi8(12000000)
+  63 0044 87EB      		ldi r24,hlo8(12000000)
+  64 0046 90E0      		ldi r25,hhi8(12000000)
+  65 0048 0E94 0000 		call __divmodsi4
+  66 004c B22E      		mov r11,r18
+  67 004e C32E      		mov r12,r19
+  68 0050 D42E      		mov r13,r20
+  69               	.LVL3:
+  70 0052 052F      		mov r16,r21
+  71 0054 7E01      		movw r14,r28
+  72 0056 0894      		sec
+  73 0058 E11C      		adc r14,__zero_reg__
+  74 005a F11C      		adc r15,__zero_reg__
+  75 005c C901      		movw r24,r18
+  76 005e DA01      		movw r26,r20
+  77 0060 9C01      		movw r18,r24
+  78 0062 AD01      		movw r20,r26
+  79               	.LVL4:
+  80 0064 10E0      		ldi r17,lo8(0)
+  81               	.LVL5:
+  82 0066 00C0      		rjmp .L3
+  83               	.LVL6:
+  84               	.L5:
+  85               	.LM4:
+  86 0068 F701      		movw r30,r14
+  87 006a 2191      		ld r18,Z+
+  88 006c 3191      		ld r19,Z+
+  89               	.LVL7:
+  90 006e 7F01      		movw r14,r30
+  91 0070 40E0      		ldi r20,lo8(0)
+  92 0072 50E0      		ldi r21,hi8(0)
+  93 0074 6B2D      		mov r22,r11
+  94 0076 7C2D      		mov r23,r12
+  95 0078 8D2D      		mov r24,r13
+  96               	.LVL8:
+  97 007a 902F      		mov r25,r16
+  98 007c 0E94 0000 		call __divmodsi4
+  99 0080 C901      		movw r24,r18
+ 100 0082 DA01      		movw r26,r20
+ 101 0084 9C01      		movw r18,r24
+ 102 0086 AD01      		movw r20,r26
+ 103               	.LVL9:
+ 104               	.LM5:
+ 105 0088 1F5F      		subi r17,lo8(-(1))
+ 106               	.LM6:
+ 107 008a 1530      		cpi r17,lo8(5)
+ 108 008c 01F0      		breq .L4
+ 109               	.LVL10:
+ 110               	.L3:
+ 111               	.LM7:
+ 112 008e 2F3F      		cpi r18,lo8(255)
+ 113 0090 3105      		cpc r19,__zero_reg__
+ 114 0092 4105      		cpc r20,__zero_reg__
+ 115 0094 5105      		cpc r21,__zero_reg__
+ 116 0096 01F0      		breq .+2
+ 117 0098 04F4      		brge .L5
+ 118               	.L4:
+ 119               	.LM8:
+ 120 009a 812F      		mov r24,r17
+ 121 009c 8150      		subi r24,lo8(-(-1))
+ 122               	.LVL11:
+ 123               	.LM9:
+ 124 009e 14BC      		out 68-32,__zero_reg__
+ 125               	.LM10:
+ 126 00a0 15BC      		out 69-32,__zero_reg__
+ 127               	.LM11:
+ 128 00a2 1092 6E00 		sts 110,__zero_reg__
+ 129               	.LM12:
+ 130 00a6 15BA      		out 53-32,__zero_reg__
+ 131               	.LM13:
+ 132 00a8 17BC      		out 71-32,__zero_reg__
+ 133               	.LM14:
+ 134 00aa 18BC      		out 72-32,__zero_reg__
+ 135               	.LM15:
+ 136 00ac 16BC      		out 70-32,__zero_reg__
+ 137               	.LM16:
+ 138 00ae 17BC      		out 71-32,__zero_reg__
+ 139               	.LM17:
+ 140 00b0 8823      		tst r24
+ 141 00b2 01F4      		brne .L6
+ 142               	.LM18:
+ 143 00b4 81E0      		ldi r24,lo8(1)
+ 144               	.LVL12:
+ 145 00b6 00C0      		rjmp .L13
+ 146               	.LVL13:
+ 147               	.L6:
+ 148               	.LM19:
+ 149 00b8 8130      		cpi r24,lo8(1)
+ 150 00ba 01F4      		brne .L8
+ 151               	.LM20:
+ 152 00bc 82E0      		ldi r24,lo8(2)
+ 153               	.LVL14:
+ 154 00be 00C0      		rjmp .L13
+ 155               	.LVL15:
+ 156               	.L8:
+ 157               	.LM21:
+ 158 00c0 8230      		cpi r24,lo8(2)
+ 159 00c2 01F4      		brne .L9
+ 160               	.LM22:
+ 161 00c4 83E0      		ldi r24,lo8(3)
+ 162               	.LVL16:
+ 163 00c6 00C0      		rjmp .L13
+ 164               	.LVL17:
+ 165               	.L9:
+ 166               	.LM23:
+ 167 00c8 8330      		cpi r24,lo8(3)
+ 168 00ca 01F4      		brne .L10
+ 169               	.LM24:
+ 170 00cc 84E0      		ldi r24,lo8(4)
+ 171               	.LVL18:
+ 172 00ce 00C0      		rjmp .L13
+ 173               	.LVL19:
+ 174               	.L10:
+ 175               	.LM25:
+ 176 00d0 8430      		cpi r24,lo8(4)
+ 177 00d2 01F4      		brne .L7
+ 178               	.LM26:
+ 179 00d4 85E0      		ldi r24,lo8(5)
+ 180               	.LVL20:
+ 181               	.L13:
+ 182 00d6 85BD      		out 69-32,r24
+ 183               	.LVL21:
+ 184               	.L7:
+ 185               	.LM27:
+ 186 00d8 8FEF      		ldi r24,lo8(255)
+ 187 00da 90E0      		ldi r25,hi8(255)
+ 188               	.LVL22:
+ 189 00dc 821B      		sub r24,r18
+ 190 00de 930B      		sbc r25,r19
+ 191 00e0 9093 0000 		sts (SysTick+2)+1,r25
+ 192 00e4 8093 0000 		sts SysTick+2,r24
+ 193               	.LM28:
+ 194 00e8 8091 0000 		lds r24,SysTick+2
+ 195 00ec 9091 0000 		lds r25,(SysTick+2)+1
+ 196 00f0 86BD      		out 70-32,r24
+ 197               	.LM29:
+ 198 00f2 81E0      		ldi r24,lo8(1)
+ 199 00f4 8093 6E00 		sts 110,r24
+ 200               	.LM30:
+ 201               	/* #APP */
+ 202               	 ;  71 "systick.c" 1
+ 203 00f8 7894      		sei
+ 204               	 ;  0 "" 2
+ 205               	.LM31:
+ 206               	/* #NOAPP */
+ 207 00fa 9092 0000 		sts (SysTick+4)+1,r9
+ 208 00fe 8092 0000 		sts SysTick+4,r8
+ 209               	/* epilogue start */
+ 210               	.LM32:
+ 211 0102 2A96      		adiw r28,10
+ 212 0104 0FB6      		in __tmp_reg__,__SREG__
+ 213 0106 F894      		cli
+ 214 0108 DEBF      		out __SP_H__,r29
+ 215 010a 0FBE      		out __SREG__,__tmp_reg__
+ 216 010c CDBF      		out __SP_L__,r28
+ 217 010e CF91      		pop r28
+ 218 0110 DF91      		pop r29
+ 219 0112 1F91      		pop r17
+ 220 0114 0F91      		pop r16
+ 221 0116 FF90      		pop r15
+ 222 0118 EF90      		pop r14
+ 223 011a DF90      		pop r13
+ 224 011c CF90      		pop r12
+ 225 011e BF90      		pop r11
+ 226 0120 9F90      		pop r9
+ 227 0122 8F90      		pop r8
+ 228               	.LVL23:
+ 229 0124 0895      		ret
+ 230               	.LFE6:
+ 232               	.global	SysTick_ISR_Executables
+ 234               	SysTick_ISR_Executables:
+ 235               	.LFB7:
+ 236               	.LM33:
+ 237               	/* prologue: function */
+ 238               	/* frame size = 0 */
+ 239               	/* epilogue start */
+ 240               	.LM34:
+ 241 0126 0895      		ret
+ 242               	.LFE7:
+ 244               	.global	__vector_16
+ 246               	__vector_16:
+ 247               	.LFB8:
+ 248               	.LM35:
+ 249 0128 1F92      		push __zero_reg__
+ 250 012a 0F92      		push r0
+ 251 012c 0FB6      		in r0,__SREG__
+ 252 012e 0F92      		push r0
+ 253 0130 1124      		clr __zero_reg__
+ 254 0132 8F93      		push r24
+ 255 0134 9F93      		push r25
+ 256               	/* prologue: Signal */
+ 257               	/* frame size = 0 */
+ 258               	.LM36:
+ 259 0136 8091 0000 		lds r24,SysTick+2
+ 260 013a 9091 0000 		lds r25,(SysTick+2)+1
+ 261 013e 86BD      		out 70-32,r24
+ 262               	/* epilogue start */
+ 263               	.LM37:
+ 264 0140 9F91      		pop r25
+ 265 0142 8F91      		pop r24
+ 266 0144 0F90      		pop r0
+ 267 0146 0FBE      		out __SREG__,r0
+ 268 0148 0F90      		pop r0
+ 269 014a 1F90      		pop __zero_reg__
+ 270 014c 1895      		reti
+ 271               	.LFE8:
+ 273               	.global	SysTick
+ 274               	.global	SysTick
+ 275               		.section .bss
+ 278               	SysTick:
+ 279 0000 0000 0000 		.skip 6,0
+ 279      0000 
+ 280               		.data
+ 283               	C.0.1262:
+ 284 0000 0100      		.word	1
+ 285 0002 0800      		.word	8
+ 286 0004 4000      		.word	64
+ 287 0006 0001      		.word	256
+ 288 0008 0004      		.word	1024
+ 329               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 systick.c
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:18     .text:00000000 SysTick_Enable
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:283    .data:00000000 C.0.1262
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:278    .bss:00000000 SysTick
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:234    .text:00000126 SysTick_ISR_Executables
+C:\Users\farid\AppData\Local\Temp/ccxnbJsS.s:246    .text:00000128 __vector_16
+
+UNDEFINED SYMBOLS
+__divmodsi4
+__do_copy_data
+__do_clear_bss
