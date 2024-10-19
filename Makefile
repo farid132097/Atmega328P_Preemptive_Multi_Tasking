@@ -80,7 +80,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c systick.c gpio.c
+SRC = $(TARGET).c systick.c gpio.c tasks.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

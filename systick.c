@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "systick.h"
+#include "tasks.h"
 #include "gpio.h"
 
 typedef struct systick_t{
@@ -75,8 +76,7 @@ void SysTick_Enable(uint16_t UpdateRateHz){
 
 
 void SysTick_ISR_Executables(void){
-  
-  
+  Task_ISR_Hanlder();
 }
 
 

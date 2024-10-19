@@ -1,0 +1,297 @@
+   1               		.file	"tasks.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	Task_Init
+  18               	Task_Init:
+  19               	.LFB6:
+  20               	.LM1:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	.LM2:
+  24 0000 1092 0000 		sts Tasks,__zero_reg__
+  25               	.LM3:
+  26 0004 1092 0000 		sts Tasks+1,__zero_reg__
+  27               	.LM4:
+  28 0008 80E0      		ldi r24,lo8(gs(Task0))
+  29 000a 90E0      		ldi r25,hi8(gs(Task0))
+  30 000c 9093 0000 		sts (Tasks+2)+1,r25
+  31 0010 8093 0000 		sts Tasks+2,r24
+  32               	.LM5:
+  33 0014 1092 0000 		sts Tasks+4,__zero_reg__
+  34               	.LM6:
+  35 0018 81E0      		ldi r24,lo8(1)
+  36 001a 8093 0000 		sts Tasks+5,r24
+  37               	.LM7:
+  38 001e 80E0      		ldi r24,lo8(gs(Task1))
+  39 0020 90E0      		ldi r25,hi8(gs(Task1))
+  40 0022 9093 0000 		sts (Tasks+6)+1,r25
+  41 0026 8093 0000 		sts Tasks+6,r24
+  42               	.LM8:
+  43 002a 1092 0000 		sts Tasks+8,__zero_reg__
+  44               	.LM9:
+  45 002e 82E0      		ldi r24,lo8(2)
+  46 0030 8093 0000 		sts Tasks+9,r24
+  47               	.LM10:
+  48 0034 80E0      		ldi r24,lo8(gs(Task2))
+  49 0036 90E0      		ldi r25,hi8(gs(Task2))
+  50 0038 9093 0000 		sts (Tasks+10)+1,r25
+  51 003c 8093 0000 		sts Tasks+10,r24
+  52               	/* epilogue start */
+  53               	.LM11:
+  54 0040 0895      		ret
+  55               	.LFE6:
+  57               	.global	Task_ISR_Hanlder
+  59               	Task_ISR_Hanlder:
+  60               	.LFB7:
+  61               	.LM12:
+  62               	/* prologue: function */
+  63               	/* frame size = 0 */
+  64               	.LM13:
+  65 0042 E091 0000 		lds r30,CurrentTask
+  66 0046 F0E0      		ldi r31,lo8(0)
+  67 0048 EE0F      		lsl r30
+  68 004a FF1F      		rol r31
+  69 004c EE0F      		lsl r30
+  70 004e FF1F      		rol r31
+  71 0050 E050      		subi r30,lo8(-(Tasks))
+  72 0052 F040      		sbci r31,hi8(-(Tasks))
+  73 0054 8081      		ld r24,Z
+  74 0056 8230      		cpi r24,lo8(2)
+  75 0058 01F4      		brne .L4
+  76               	.LM14:
+  77 005a E091 0000 		lds r30,CurrentTask
+  78 005e F0E0      		ldi r31,lo8(0)
+  79 0060 EE0F      		lsl r30
+  80 0062 FF1F      		rol r31
+  81 0064 EE0F      		lsl r30
+  82 0066 FF1F      		rol r31
+  83 0068 E050      		subi r30,lo8(-(Tasks))
+  84 006a F040      		sbci r31,hi8(-(Tasks))
+  85 006c 1082      		st Z,__zero_reg__
+  86               	.L4:
+  87               	.LM15:
+  88 006e 8091 0000 		lds r24,CurrentTask
+  89 0072 8F5F      		subi r24,lo8(-(1))
+  90 0074 8093 0000 		sts CurrentTask,r24
+  91               	.LM16:
+  92 0078 8091 0000 		lds r24,CurrentTask
+  93 007c 8330      		cpi r24,lo8(3)
+  94 007e 00F0      		brlo .L6
+  95               	.LM17:
+  96 0080 1092 0000 		sts CurrentTask,__zero_reg__
+  97               	.L6:
+  98 0084 0895      		ret
+  99               	.LFE7:
+ 101               	.global	Task_Mainloop_Hanlder
+ 103               	Task_Mainloop_Hanlder:
+ 104               	.LFB8:
+ 105               	.LM18:
+ 106               	/* prologue: function */
+ 107               	/* frame size = 0 */
+ 108               	.LM19:
+ 109 0086 E091 0000 		lds r30,CurrentTask
+ 110 008a F0E0      		ldi r31,lo8(0)
+ 111 008c EE0F      		lsl r30
+ 112 008e FF1F      		rol r31
+ 113 0090 EE0F      		lsl r30
+ 114 0092 FF1F      		rol r31
+ 115 0094 E050      		subi r30,lo8(-(Tasks))
+ 116 0096 F040      		sbci r31,hi8(-(Tasks))
+ 117 0098 E081      		ld r30,Z
+ 118 009a EE23      		tst r30
+ 119 009c 01F0      		breq .L9
+ 120 009e E130      		cpi r30,lo8(1)
+ 121 00a0 01F4      		brne .L11
+ 122 00a2 00C0      		rjmp .L12
+ 123               	.L9:
+ 124               	.LM20:
+ 125 00a4 E091 0000 		lds r30,CurrentTask
+ 126 00a8 F0E0      		ldi r31,lo8(0)
+ 127 00aa EE0F      		lsl r30
+ 128 00ac FF1F      		rol r31
+ 129 00ae EE0F      		lsl r30
+ 130 00b0 FF1F      		rol r31
+ 131 00b2 E050      		subi r30,lo8(-(Tasks))
+ 132 00b4 F040      		sbci r31,hi8(-(Tasks))
+ 133 00b6 81E0      		ldi r24,lo8(1)
+ 134 00b8 8083      		st Z,r24
+ 135 00ba 0895      		ret
+ 136               	.L12:
+ 137               	.LM21:
+ 138 00bc E091 0000 		lds r30,CurrentTask
+ 139 00c0 F0E0      		ldi r31,lo8(0)
+ 140 00c2 EE0F      		lsl r30
+ 141 00c4 FF1F      		rol r31
+ 142 00c6 EE0F      		lsl r30
+ 143 00c8 FF1F      		rol r31
+ 144 00ca E050      		subi r30,lo8(-(Tasks+2))
+ 145 00cc F040      		sbci r31,hi8(-(Tasks+2))
+ 146 00ce 0190      		ld __tmp_reg__,Z+
+ 147 00d0 F081      		ld r31,Z
+ 148 00d2 E02D      		mov r30,__tmp_reg__
+ 149 00d4 0995      		icall
+ 150               	.LM22:
+ 151 00d6 E091 0000 		lds r30,CurrentTask
+ 152 00da F0E0      		ldi r31,lo8(0)
+ 153 00dc EE0F      		lsl r30
+ 154 00de FF1F      		rol r31
+ 155 00e0 EE0F      		lsl r30
+ 156 00e2 FF1F      		rol r31
+ 157 00e4 E050      		subi r30,lo8(-(Tasks))
+ 158 00e6 F040      		sbci r31,hi8(-(Tasks))
+ 159 00e8 82E0      		ldi r24,lo8(2)
+ 160 00ea 8083      		st Z,r24
+ 161               	.L11:
+ 162 00ec 0895      		ret
+ 163               	.LFE8:
+ 165               	.global	Task2
+ 167               	Task2:
+ 168               	.LFB11:
+ 169               	.LM23:
+ 170               	/* prologue: function */
+ 171               	/* frame size = 0 */
+ 172               	.LM24:
+ 173 00ee 81E0      		ldi r24,lo8(1)
+ 174 00f0 0E94 0000 		call GPIO4_Set
+ 175               	.LBB44:
+ 176               	.LBB45:
+ 177               	.LBB46:
+ 178               	.LBB47:
+ 179               	.LBB48:
+ 180               	.LBB49:
+ 181               	.LM25:
+ 182 00f4 88E5      		ldi r24,lo8(600)
+ 183 00f6 92E0      		ldi r25,hi8(600)
+ 184               	.LVL0:
+ 185               	/* #APP */
+ 186               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
+ 187 00f8 0197      		1: sbiw r24,1
+ 188 00fa 01F4      		brne 1b
+ 189               	 ;  0 "" 2
+ 190               	/* #NOAPP */
+ 191               	.LBE49:
+ 192               	.LBE48:
+ 193               	.LBE47:
+ 194               	.LBE46:
+ 195               	.LBE45:
+ 196               	.LBE44:
+ 197               	.LM26:
+ 198 00fc 80E0      		ldi r24,lo8(0)
+ 199               	.LVL1:
+ 200 00fe 0E94 0000 		call GPIO4_Set
+ 201               	/* epilogue start */
+ 202               	.LM27:
+ 203 0102 0895      		ret
+ 204               	.LFE11:
+ 206               	.global	Task1
+ 208               	Task1:
+ 209               	.LFB10:
+ 210               	.LM28:
+ 211               	/* prologue: function */
+ 212               	/* frame size = 0 */
+ 213               	.LM29:
+ 214 0104 81E0      		ldi r24,lo8(1)
+ 215 0106 0E94 0000 		call GPIO3_Set
+ 216               	.LBB50:
+ 217               	.LBB51:
+ 218               	.LBB52:
+ 219               	.LBB53:
+ 220               	.LBB54:
+ 221               	.LBB55:
+ 222               	.LM30:
+ 223 010a 8CE2      		ldi r24,lo8(300)
+ 224 010c 91E0      		ldi r25,hi8(300)
+ 225               	.LVL2:
+ 226               	/* #APP */
+ 227               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
+ 228 010e 0197      		1: sbiw r24,1
+ 229 0110 01F4      		brne 1b
+ 230               	 ;  0 "" 2
+ 231               	/* #NOAPP */
+ 232               	.LBE55:
+ 233               	.LBE54:
+ 234               	.LBE53:
+ 235               	.LBE52:
+ 236               	.LBE51:
+ 237               	.LBE50:
+ 238               	.LM31:
+ 239 0112 80E0      		ldi r24,lo8(0)
+ 240               	.LVL3:
+ 241 0114 0E94 0000 		call GPIO3_Set
+ 242               	/* epilogue start */
+ 243               	.LM32:
+ 244 0118 0895      		ret
+ 245               	.LFE10:
+ 247               	.global	Task0
+ 249               	Task0:
+ 250               	.LFB9:
+ 251               	.LM33:
+ 252               	/* prologue: function */
+ 253               	/* frame size = 0 */
+ 254               	.LM34:
+ 255 011a 81E0      		ldi r24,lo8(1)
+ 256 011c 0E94 0000 		call GPIO2_Set
+ 257               	.LBB56:
+ 258               	.LBB57:
+ 259               	.LBB58:
+ 260               	.LBB59:
+ 261               	.LM35:
+ 262 0120 88EC      		ldi r24,lo8(-56)
+ 263               	.LVL4:
+ 264               	/* #APP */
+ 265               	 ;  83 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
+ 266 0122 8A95      		1: dec r24
+ 267 0124 01F4      		brne 1b
+ 268               	 ;  0 "" 2
+ 269               	/* #NOAPP */
+ 270               	.LBE59:
+ 271               	.LBE58:
+ 272               	.LBE57:
+ 273               	.LBE56:
+ 274               	.LM36:
+ 275 0126 80E0      		ldi r24,lo8(0)
+ 276               	.LVL5:
+ 277 0128 0E94 0000 		call GPIO2_Set
+ 278               	/* epilogue start */
+ 279               	.LM37:
+ 280 012c 0895      		ret
+ 281               	.LFE9:
+ 283               	.global	CurrentTask
+ 284               	.global	CurrentTask
+ 285               		.section .bss
+ 288               	CurrentTask:
+ 289 0000 00        		.skip 1,0
+ 290               	.global	PreviousTask
+ 291               	.global	PreviousTask
+ 294               	PreviousTask:
+ 295 0001 00        		.skip 1,0
+ 296               		.comm Tasks,12,1
+ 361               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 tasks.c
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:18     .text:00000000 Task_Init
+                            *COM*:0000000c Tasks
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:249    .text:0000011a Task0
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:208    .text:00000104 Task1
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:167    .text:000000ee Task2
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:59     .text:00000042 Task_ISR_Hanlder
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:288    .bss:00000000 CurrentTask
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:103    .text:00000086 Task_Mainloop_Hanlder
+C:\Users\farid\AppData\Local\Temp/cctUt74f.s:294    .bss:00000001 PreviousTask
+
+UNDEFINED SYMBOLS
+GPIO4_Set
+GPIO3_Set
+GPIO2_Set
+__do_clear_bss

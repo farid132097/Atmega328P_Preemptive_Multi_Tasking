@@ -36,8 +36,8 @@
   44               	.LM2:
   45 0028 DE01      		movw r26,r28
   46 002a 1196      		adiw r26,1
-  47 002c E0E0      		ldi r30,lo8(C.0.1274)
-  48 002e F0E0      		ldi r31,hi8(C.0.1274)
+  47 002c E0E0      		ldi r30,lo8(C.0.1286)
+  48 002e F0E0      		ldi r31,hi8(C.0.1286)
   49 0030 8AE0      		ldi r24,lo8(10)
   50               	.LVL1:
   51               	.L2:
@@ -191,7 +191,7 @@
  199 00f4 8093 6E00 		sts 110,r24
  200               	.LM30:
  201               	/* #APP */
- 202               	 ;  72 "systick.c" 1
+ 202               	 ;  73 "systick.c" 1
  203 00f8 7894      		sei
  204               	 ;  0 "" 2
  205               	.LM31:
@@ -226,93 +226,102 @@
  236               	.LM33:
  237               	/* prologue: function */
  238               	/* frame size = 0 */
- 239               	/* epilogue start */
- 240               	.LM34:
- 241 0126 0895      		ret
- 242               	.LFE7:
- 244               	.global	__vector_16
- 246               	__vector_16:
- 247               	.LFB8:
- 248               	.LM35:
- 249 0128 1F92      		push __zero_reg__
- 250 012a 0F92      		push r0
- 251 012c 0FB6      		in r0,__SREG__
+ 239               	.LM34:
+ 240 0126 0E94 0000 		call Task_ISR_Hanlder
+ 241               	/* epilogue start */
+ 242               	.LM35:
+ 243 012a 0895      		ret
+ 244               	.LFE7:
+ 246               	.global	__vector_16
+ 248               	__vector_16:
+ 249               	.LFB8:
+ 250               	.LM36:
+ 251 012c 1F92      		push __zero_reg__
  252 012e 0F92      		push r0
- 253 0130 1124      		clr __zero_reg__
- 254 0132 2F93      		push r18
- 255 0134 3F93      		push r19
- 256 0136 4F93      		push r20
- 257 0138 5F93      		push r21
- 258 013a 6F93      		push r22
- 259 013c 7F93      		push r23
- 260 013e 8F93      		push r24
- 261 0140 9F93      		push r25
- 262 0142 AF93      		push r26
- 263 0144 BF93      		push r27
- 264 0146 EF93      		push r30
- 265 0148 FF93      		push r31
- 266               	/* prologue: Signal */
- 267               	/* frame size = 0 */
- 268               	.LM36:
- 269 014a 81E0      		ldi r24,lo8(1)
- 270 014c 0E94 0000 		call GPIO0_Set
- 271               	.LM37:
- 272 0150 8091 0000 		lds r24,SysTick+2
- 273 0154 9091 0000 		lds r25,(SysTick+2)+1
- 274 0158 86BD      		out 70-32,r24
- 275               	.LM38:
- 276 015a 80E0      		ldi r24,lo8(0)
- 277 015c 0E94 0000 		call GPIO0_Set
- 278               	/* epilogue start */
+ 253 0130 0FB6      		in r0,__SREG__
+ 254 0132 0F92      		push r0
+ 255 0134 1124      		clr __zero_reg__
+ 256 0136 2F93      		push r18
+ 257 0138 3F93      		push r19
+ 258 013a 4F93      		push r20
+ 259 013c 5F93      		push r21
+ 260 013e 6F93      		push r22
+ 261 0140 7F93      		push r23
+ 262 0142 8F93      		push r24
+ 263 0144 9F93      		push r25
+ 264 0146 AF93      		push r26
+ 265 0148 BF93      		push r27
+ 266 014a EF93      		push r30
+ 267 014c FF93      		push r31
+ 268               	/* prologue: Signal */
+ 269               	/* frame size = 0 */
+ 270               	.LM37:
+ 271 014e 81E0      		ldi r24,lo8(1)
+ 272 0150 0E94 0000 		call GPIO0_Set
+ 273               	.LM38:
+ 274 0154 8091 0000 		lds r24,SysTick+2
+ 275 0158 9091 0000 		lds r25,(SysTick+2)+1
+ 276 015c 86BD      		out 70-32,r24
+ 277               	.LBB4:
+ 278               	.LBB5:
  279               	.LM39:
- 280 0160 FF91      		pop r31
- 281 0162 EF91      		pop r30
- 282 0164 BF91      		pop r27
- 283 0166 AF91      		pop r26
- 284 0168 9F91      		pop r25
- 285 016a 8F91      		pop r24
- 286 016c 7F91      		pop r23
- 287 016e 6F91      		pop r22
- 288 0170 5F91      		pop r21
- 289 0172 4F91      		pop r20
- 290 0174 3F91      		pop r19
- 291 0176 2F91      		pop r18
- 292 0178 0F90      		pop r0
- 293 017a 0FBE      		out __SREG__,r0
- 294 017c 0F90      		pop r0
- 295 017e 1F90      		pop __zero_reg__
- 296 0180 1895      		reti
- 297               	.LFE8:
- 299               	.global	SysTick
- 300               	.global	SysTick
- 301               		.section .bss
- 304               	SysTick:
- 305 0000 0000 0000 		.skip 6,0
- 305      0000 
- 306               		.data
- 309               	C.0.1274:
- 310 0000 0100      		.word	1
- 311 0002 0800      		.word	8
- 312 0004 4000      		.word	64
- 313 0006 0001      		.word	256
- 314 0008 0004      		.word	1024
- 355               	.Letext0:
+ 280 015e 0E94 0000 		call Task_ISR_Hanlder
+ 281               	.LBE5:
+ 282               	.LBE4:
+ 283               	.LM40:
+ 284 0162 80E0      		ldi r24,lo8(0)
+ 285 0164 0E94 0000 		call GPIO0_Set
+ 286               	/* epilogue start */
+ 287               	.LM41:
+ 288 0168 FF91      		pop r31
+ 289 016a EF91      		pop r30
+ 290 016c BF91      		pop r27
+ 291 016e AF91      		pop r26
+ 292 0170 9F91      		pop r25
+ 293 0172 8F91      		pop r24
+ 294 0174 7F91      		pop r23
+ 295 0176 6F91      		pop r22
+ 296 0178 5F91      		pop r21
+ 297 017a 4F91      		pop r20
+ 298 017c 3F91      		pop r19
+ 299 017e 2F91      		pop r18
+ 300 0180 0F90      		pop r0
+ 301 0182 0FBE      		out __SREG__,r0
+ 302 0184 0F90      		pop r0
+ 303 0186 1F90      		pop __zero_reg__
+ 304 0188 1895      		reti
+ 305               	.LFE8:
+ 307               	.global	SysTick
+ 308               	.global	SysTick
+ 309               		.section .bss
+ 312               	SysTick:
+ 313 0000 0000 0000 		.skip 6,0
+ 313      0000 
+ 314               		.data
+ 317               	C.0.1286:
+ 318 0000 0100      		.word	1
+ 319 0002 0800      		.word	8
+ 320 0004 4000      		.word	64
+ 321 0006 0001      		.word	256
+ 322 0008 0004      		.word	1024
+ 363               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 systick.c
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:18     .text:00000000 SysTick_Enable
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:309    .data:00000000 C.0.1274
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:304    .bss:00000000 SysTick
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:234    .text:00000126 SysTick_ISR_Executables
-C:\Users\farid\AppData\Local\Temp/cc6AppDN.s:246    .text:00000128 __vector_16
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:18     .text:00000000 SysTick_Enable
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:317    .data:00000000 C.0.1286
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:312    .bss:00000000 SysTick
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:234    .text:00000126 SysTick_ISR_Executables
+C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:248    .text:0000012c __vector_16
 
 UNDEFINED SYMBOLS
 __divmodsi4
+Task_ISR_Hanlder
 GPIO0_Set
 __do_copy_data
 __do_clear_bss

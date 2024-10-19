@@ -1,5 +1,7 @@
-main.o: main.c systick.h gpio.h
+main.o: main.c systick.h tasks.h gpio.h
 
 systick.h:
+
+tasks.h:
 
 gpio.h:
