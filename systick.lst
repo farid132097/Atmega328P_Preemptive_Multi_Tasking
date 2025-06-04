@@ -36,8 +36,8 @@
   44               	.LM2:
   45 0028 DE01      		movw r26,r28
   46 002a 1196      		adiw r26,1
-  47 002c E0E0      		ldi r30,lo8(C.0.1298)
-  48 002e F0E0      		ldi r31,hi8(C.0.1298)
+  47 002c E0E0      		ldi r30,lo8(C.0.1282)
+  48 002e F0E0      		ldi r31,hi8(C.0.1282)
   49 0030 8AE0      		ldi r24,lo8(10)
   50               	.LVL1:
   51               	.L2:
@@ -220,99 +220,33 @@
  228               	.LVL23:
  229 0124 0895      		ret
  230               	.LFE6:
- 232               	.global	__vector_16
- 234               	__vector_16:
- 235               	.LFB7:
- 236               	.LM33:
- 237 0126 1F92      		push __zero_reg__
- 238 0128 0F92      		push r0
- 239 012a 0FB6      		in r0,__SREG__
- 240 012c 0F92      		push r0
- 241 012e 1124      		clr __zero_reg__
- 242 0130 2F93      		push r18
- 243 0132 3F93      		push r19
- 244 0134 4F93      		push r20
- 245 0136 5F93      		push r21
- 246 0138 6F93      		push r22
- 247 013a 7F93      		push r23
- 248 013c 8F93      		push r24
- 249 013e 9F93      		push r25
- 250 0140 AF93      		push r26
- 251 0142 BF93      		push r27
- 252 0144 EF93      		push r30
- 253 0146 FF93      		push r31
- 254               	/* prologue: Signal */
- 255               	/* frame size = 0 */
- 256               	.LM34:
- 257 0148 8091 0000 		lds r24,SysTick+2
- 258 014c 9091 0000 		lds r25,(SysTick+2)+1
- 259 0150 86BD      		out 70-32,r24
- 260               	.LM35:
- 261 0152 0E94 0000 		call task_switch
- 262               	.LM36:
- 263 0156 0E94 0000 		call GPIO0_Toggle
- 264               	/* epilogue start */
- 265               	.LM37:
- 266 015a FF91      		pop r31
- 267 015c EF91      		pop r30
- 268 015e BF91      		pop r27
- 269 0160 AF91      		pop r26
- 270 0162 9F91      		pop r25
- 271 0164 8F91      		pop r24
- 272 0166 7F91      		pop r23
- 273 0168 6F91      		pop r22
- 274 016a 5F91      		pop r21
- 275 016c 4F91      		pop r20
- 276 016e 3F91      		pop r19
- 277 0170 2F91      		pop r18
- 278 0172 0F90      		pop r0
- 279 0174 0FBE      		out __SREG__,r0
- 280 0176 0F90      		pop r0
- 281 0178 1F90      		pop __zero_reg__
- 282 017a 1895      		reti
- 283               	.LFE7:
- 285               	.global	SysTick
- 286               	.global	SysTick
- 287               		.section .bss
- 290               	SysTick:
- 291 0000 0000 0000 		.skip 6,0
- 291      0000 
- 292               		.data
- 295               	C.0.1298:
- 296 0000 0100      		.word	1
- 297 0002 0800      		.word	8
- 298 0004 4000      		.word	64
- 299 0006 0001      		.word	256
- 300 0008 0004      		.word	1024
- 301               		.comm task1_stack,128,1
- 302               		.comm task2_stack,128,1
- 303               		.comm task1_tcb,2,1
- 304               		.comm task2_tcb,2,1
- 305               		.comm currentTask,2,1
- 306               		.comm nextTask,2,1
- 339               	.Letext0:
+ 232               	.global	SysTick
+ 233               	.global	SysTick
+ 234               		.section .bss
+ 237               	SysTick:
+ 238 0000 0000 0000 		.skip 6,0
+ 238      0000 
+ 239               		.data
+ 242               	C.0.1282:
+ 243 0000 0100      		.word	1
+ 244 0002 0800      		.word	8
+ 245 0004 4000      		.word	64
+ 246 0006 0001      		.word	256
+ 247 0008 0004      		.word	1024
+ 272               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 systick.c
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:18     .text:00000000 SysTick_Enable
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:295    .data:00000000 C.0.1298
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:290    .bss:00000000 SysTick
-C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:234    .text:00000126 __vector_16
-                            *COM*:00000080 task1_stack
-                            *COM*:00000080 task2_stack
-                            *COM*:00000002 task1_tcb
-                            *COM*:00000002 task2_tcb
-                            *COM*:00000002 currentTask
-                            *COM*:00000002 nextTask
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:18     .text:00000000 SysTick_Enable
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:242    .data:00000000 C.0.1282
+C:\Users\farid\AppData\Local\Temp/cczcumtb.s:237    .bss:00000000 SysTick
 
 UNDEFINED SYMBOLS
 __divmodsi4
-task_switch
-GPIO0_Toggle
 __do_copy_data
 __do_clear_bss

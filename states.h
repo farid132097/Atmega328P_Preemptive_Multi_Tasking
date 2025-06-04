@@ -1,8 +1,6 @@
 
 
-
-#define STACK_SIZE 128
-
+/*
 #define SAVE_CONTEXT0()              \
     asm volatile (                   \
         "push r0              \n\t"  \
@@ -263,20 +261,37 @@
         : "m"(nextTask->stackPointer), "m"(*((uint8_t**)&nextTask->stackPointer) + 1) \
         : "r26", "r27"                         \
     )
+	
+#define SAVE_CONTEXT_SIMP()         \
+    asm volatile (                  \
+        "in r26, __SP_L__     \n\t" \
+        "in r27, __SP_H__     \n\t" \
+        "sts current_sp, r26  \n\t" \
+        "sts current_sp+1, r27\n\t" \
+    );
 
+#define RESTORE_CONTEXT_SIMP()       \
+    asm volatile (                   \
+        "lds r26, next_sp      \n\t" \
+        "lds r27, next_sp+1    \n\t" \
+        "out __SP_L__, r26     \n\t" \
+        "out __SP_H__, r27     \n\t" \
+    );
+
+#define STACK_SIZE 64
+
+// Task stacks
 uint8_t task1_stack[STACK_SIZE];
 uint8_t task2_stack[STACK_SIZE];
 
+// Stack pointers
+uint8_t *task1_sp;
+uint8_t *task2_sp;
 
-typedef struct {
-    uint8_t *stackPointer; // saved SP for the task
-} TCB;
+uint8_t *current_sp;
+uint8_t *next_sp;
 
-TCB task1_tcb;
-TCB task2_tcb;
+void init_stack(void (*task_func)(void), uint8_t *stack, uint8_t **sp_out) ;
+void task_switch(void) ;
+*/
 
-TCB *currentTask;
-TCB *nextTask;
-
-void init_stack(TCB *tcb, uint8_t *stack, void (*task_func)(void)) ;
-void task_switch(void);

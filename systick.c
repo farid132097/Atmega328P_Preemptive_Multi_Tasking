@@ -77,11 +77,11 @@ void SysTick_Enable(uint16_t UpdateRateHz){
 
 
 
-
+/*
 ISR(TIMER0_OVF_vect){
-  TCNT0  = SysTick.OVFUpdateValue;
-  task_switch();
+  //TCNT0  = SysTick.OVFUpdateValue;
+  //task_switch();
   GPIO0_Toggle();
   //GPIO1_Toggle();
 }
-
+*/

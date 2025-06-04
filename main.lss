@@ -3,29 +3,27 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000000a  00800100  000004f2  00000586  2**0
+  0 .data         0000000a  00800100  0000039a  0000042e  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         000004f2  00000000  00000000  00000094  2**1
+  1 .text         0000039a  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          0000010e  0080010a  0080010a  00000590  2**0
+  2 .bss          00000009  0080010a  0080010a  00000438  2**0
                   ALLOC
-  3 .debug_aranges 00000080  00000000  00000000  00000590  2**0
+  3 .debug_aranges 00000060  00000000  00000000  00000438  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_pubnames 00000267  00000000  00000000  00000610  2**0
+  4 .debug_pubnames 0000015a  00000000  00000000  00000498  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000824  00000000  00000000  00000877  2**0
+  5 .debug_info   000005ae  00000000  00000000  000005f2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000415  00000000  00000000  0000109b  2**0
+  6 .debug_abbrev 000002c1  00000000  00000000  00000ba0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000006d0  00000000  00000000  000014b0  2**0
+  7 .debug_line   0000061a  00000000  00000000  00000e61  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000160  00000000  00000000  00001b80  2**2
+  8 .debug_frame  00000140  00000000  00000000  0000147c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000296  00000000  00000000  00001ce0  2**0
+  9 .debug_str    0000024e  00000000  00000000  000015bc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000231  00000000  00000000  00001f76  2**0
-                  CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000090  00000000  00000000  000021a7  2**0
+ 10 .debug_loc    00000119  00000000  00000000  0000180a  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -47,7 +45,7 @@ Disassembly of section .text:
   34:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   38:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   3c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
-  40:	0c 94 4c 01 	jmp	0x298	; 0x298 <__vector_16>
+  40:	0c 94 6d 00 	jmp	0xda	; 0xda <__vector_16>
   44:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   48:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   4c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
@@ -70,8 +68,8 @@ Disassembly of section .text:
   74:	11 e0       	ldi	r17, 0x01	; 1
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
-  7a:	e2 ef       	ldi	r30, 0xF2	; 242
-  7c:	f4 e0       	ldi	r31, 0x04	; 4
+  7a:	ea e9       	ldi	r30, 0x9A	; 154
+  7c:	f3 e0       	ldi	r31, 0x03	; 3
   7e:	02 c0       	rjmp	.+4      	; 0x84 <.do_copy_data_start>
 
 00000080 <.do_copy_data_loop>:
@@ -84,7 +82,7 @@ Disassembly of section .text:
   88:	d9 f7       	brne	.-10     	; 0x80 <.do_copy_data_loop>
 
 0000008a <__do_clear_bss>:
-  8a:	12 e0       	ldi	r17, 0x02	; 2
+  8a:	11 e0       	ldi	r17, 0x01	; 1
   8c:	aa e0       	ldi	r26, 0x0A	; 10
   8e:	b1 e0       	ldi	r27, 0x01	; 1
   90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
@@ -93,876 +91,670 @@ Disassembly of section .text:
   92:	1d 92       	st	X+, r1
 
 00000094 <.do_clear_bss_start>:
-  94:	a8 31       	cpi	r26, 0x18	; 24
+  94:	a3 31       	cpi	r26, 0x13	; 19
   96:	b1 07       	cpc	r27, r17
   98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
-  9a:	0e 94 53 00 	call	0xa6	; 0xa6 <main>
-  9e:	0c 94 77 02 	jmp	0x4ee	; 0x4ee <_exit>
+  9a:	0e 94 7c 00 	call	0xf8	; 0xf8 <main>
+  9e:	0c 94 cb 01 	jmp	0x396	; 0x396 <_exit>
 
 000000a2 <__bad_interrupt>:
   a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
-000000a6 <main>:
-		_delay_ms(500);
-    }
-}
+000000a6 <task1>:
 
+volatile TaskFunc current_task;
+volatile uint8_t task_flag = 0;  // Set by timer ISR to switch tasks
 
-int main(void){
-  a6:	0f 93       	push	r16
-  a8:	1f 93       	push	r17
-  
-  SysTick_Enable(100);
-  aa:	84 e6       	ldi	r24, 0x64	; 100
-  ac:	90 e0       	ldi	r25, 0x00	; 0
-  ae:	0e 94 b9 00 	call	0x172	; 0x172 <SysTick_Enable>
-  GPIO_Init();
-  b2:	0e 94 77 01 	call	0x2ee	; 0x2ee <GPIO_Init>
-  
-  currentTask = &task1_tcb;
-  b6:	80 e1       	ldi	r24, 0x10	; 16
-  b8:	91 e0       	ldi	r25, 0x01	; 1
-  ba:	90 93 95 01 	sts	0x0195, r25
-  be:	80 93 94 01 	sts	0x0194, r24
-  nextTask = &task2_tcb;
-  c2:	06 e1       	ldi	r16, 0x16	; 22
-  c4:	12 e0       	ldi	r17, 0x02	; 2
-  c6:	10 93 93 01 	sts	0x0193, r17
-  ca:	00 93 92 01 	sts	0x0192, r16
-
-  init_stack(&task1_tcb, task1_stack, task1);
-  ce:	66 e9       	ldi	r22, 0x96	; 150
-  d0:	71 e0       	ldi	r23, 0x01	; 1
-  d2:	4b ea       	ldi	r20, 0xAB	; 171
-  d4:	50 e0       	ldi	r21, 0x00	; 0
-  d6:	0e 94 be 01 	call	0x37c	; 0x37c <init_stack>
-  init_stack(&task2_tcb, task2_stack, task2);
-  da:	c8 01       	movw	r24, r16
-  dc:	62 e1       	ldi	r22, 0x12	; 18
-  de:	71 e0       	ldi	r23, 0x01	; 1
-  e0:	4d e9       	ldi	r20, 0x9D	; 157
-  e2:	50 e0       	ldi	r21, 0x00	; 0
-  e4:	0e 94 be 01 	call	0x37c	; 0x37c <init_stack>
-
-  // Start first task by restoring its context
-  RESTORE_CONTEXT1();
-  e8:	a0 91 92 01 	lds	r26, 0x0192
-  ec:	b0 91 93 01 	lds	r27, 0x0193
-  f0:	ad bf       	out	0x3d, r26	; 61
-  f2:	be bf       	out	0x3e, r27	; 62
-  f4:	ff 91       	pop	r31
-  f6:	ef 91       	pop	r30
-  f8:	df 91       	pop	r29
-  fa:	cf 91       	pop	r28
-  fc:	bf 91       	pop	r27
-  fe:	af 91       	pop	r26
- 100:	9f 91       	pop	r25
- 102:	8f 91       	pop	r24
- 104:	7f 91       	pop	r23
- 106:	6f 91       	pop	r22
- 108:	5f 91       	pop	r21
- 10a:	4f 91       	pop	r20
- 10c:	3f 91       	pop	r19
- 10e:	2f 91       	pop	r18
- 110:	1f 91       	pop	r17
- 112:	0f 91       	pop	r16
- 114:	ff 90       	pop	r15
- 116:	ef 90       	pop	r14
- 118:	df 90       	pop	r13
- 11a:	cf 90       	pop	r12
- 11c:	bf 90       	pop	r11
- 11e:	af 90       	pop	r10
- 120:	9f 90       	pop	r9
- 122:	8f 90       	pop	r8
- 124:	7f 90       	pop	r7
- 126:	6f 90       	pop	r6
- 128:	5f 90       	pop	r5
- 12a:	4f 90       	pop	r4
- 12c:	3f 90       	pop	r3
- 12e:	2f 90       	pop	r2
- 130:	1f 90       	pop	r1
- 132:	0f 90       	pop	r0
- 134:	0f be       	out	0x3f, r0	; 63
- 136:	0f 90       	pop	r0
- 138:	ff cf       	rjmp	.-2      	; 0x138 <main+0x92>
-
-0000013a <task2>:
-        GPIO0_Toggle();
-		_delay_ms(100);
-    }
-}
-
-void task2(void) {
- 13a:	cf 93       	push	r28
- 13c:	df 93       	push	r29
+void task1(void) {
+    PORTD ^= (1 << PD5);  // Toggle PD5 LED
+  a6:	8b b1       	in	r24, 0x0b	; 11
+  a8:	90 e2       	ldi	r25, 0x20	; 32
+  aa:	89 27       	eor	r24, r25
+  ac:	8b b9       	out	0x0b, r24	; 11
     milliseconds can be achieved.
  */
 void
 _delay_loop_2(uint16_t __count)
 {
 	__asm__ volatile (
- 13e:	c8 ec       	ldi	r28, 0xC8	; 200
- 140:	d0 e0       	ldi	r29, 0x00	; 0
-	
-	
-	
+  ae:	80 e2       	ldi	r24, 0x20	; 32
+  b0:	9e e4       	ldi	r25, 0x4E	; 78
+  b2:	01 97       	sbiw	r24, 0x01	; 1
+  b4:	f1 f7       	brne	.-4      	; 0xb2 <task1+0xc>
+    _delay_ms(10);        // Short delay
+}
+  b6:	08 95       	ret
+
+000000b8 <task2>:
+
+void task2(void) {
+    PORTD ^= (1 << PD6);  // Toggle PD6 LED
+  b8:	8b b1       	in	r24, 0x0b	; 11
+  ba:	90 e4       	ldi	r25, 0x40	; 64
+  bc:	89 27       	eor	r24, r25
+  be:	8b b9       	out	0x0b, r24	; 11
+  c0:	80 e2       	ldi	r24, 0x20	; 32
+  c2:	9e e4       	ldi	r25, 0x4E	; 78
+  c4:	01 97       	sbiw	r24, 0x01	; 1
+  c6:	f1 f7       	brne	.-4      	; 0xc4 <task2+0xc>
+    _delay_ms(10);
+}
+  c8:	08 95       	ret
+
+000000ca <timer0_init>:
+
+void timer0_init(void) {
+    // Normal mode, prescaler 64
+    TCCR0A = 0x00;
+  ca:	14 bc       	out	0x24, r1	; 36
+    TCCR0B = (1 << CS01) | (1 << CS00);
+  cc:	83 e0       	ldi	r24, 0x03	; 3
+  ce:	85 bd       	out	0x25, r24	; 37
+
+    TIMSK0 = (1 << TOIE0);  // Enable Timer0 overflow interrupt
+  d0:	81 e0       	ldi	r24, 0x01	; 1
+  d2:	80 93 6e 00 	sts	0x006E, r24
+    TCNT0 = 0;              // Reset timer counter
+  d6:	16 bc       	out	0x26, r1	; 38
+}
+  d8:	08 95       	ret
+
+000000da <__vector_16>:
+
+ISR(TIMER0_OVF_vect) {
+  da:	1f 92       	push	r1
+  dc:	0f 92       	push	r0
+  de:	0f b6       	in	r0, 0x3f	; 63
+  e0:	0f 92       	push	r0
+  e2:	11 24       	eor	r1, r1
+  e4:	8f 93       	push	r24
+    task_flag = 1;  // Signal main loop to switch tasks
+  e6:	81 e0       	ldi	r24, 0x01	; 1
+  e8:	80 93 0a 01 	sts	0x010A, r24
+}
+  ec:	8f 91       	pop	r24
+  ee:	0f 90       	pop	r0
+  f0:	0f be       	out	0x3f, r0	; 63
+  f2:	0f 90       	pop	r0
+  f4:	1f 90       	pop	r1
+  f6:	18 95       	reti
+
+000000f8 <main>:
+
+int main(void) {
+  f8:	0f 93       	push	r16
+  fa:	1f 93       	push	r17
+  fc:	cf 93       	push	r28
+  fe:	df 93       	push	r29
+    DDRD |= (1 << PD5) | (1 << PD6);   // Set PD5 and PD6 as outputs
+ 100:	8a b1       	in	r24, 0x0a	; 10
+ 102:	80 66       	ori	r24, 0x60	; 96
+ 104:	8a b9       	out	0x0a, r24	; 10
+    PORTD &= ~((1 << PD5) | (1 << PD6)); // Start with pins low
+ 106:	8b b1       	in	r24, 0x0b	; 11
+ 108:	8f 79       	andi	r24, 0x9F	; 159
+ 10a:	8b b9       	out	0x0b, r24	; 11
+
+    current_task = task1;    // Start with task1
+ 10c:	83 e5       	ldi	r24, 0x53	; 83
+ 10e:	90 e0       	ldi	r25, 0x00	; 0
+ 110:	90 93 12 01 	sts	0x0112, r25
+ 114:	80 93 11 01 	sts	0x0111, r24
+    _delay_ms(10);
+}
+
+void timer0_init(void) {
+    // Normal mode, prescaler 64
+    TCCR0A = 0x00;
+ 118:	14 bc       	out	0x24, r1	; 36
+    TCCR0B = (1 << CS01) | (1 << CS00);
+ 11a:	83 e0       	ldi	r24, 0x03	; 3
+ 11c:	85 bd       	out	0x25, r24	; 37
+
+    TIMSK0 = (1 << TOIE0);  // Enable Timer0 overflow interrupt
+ 11e:	81 e0       	ldi	r24, 0x01	; 1
+ 120:	80 93 6e 00 	sts	0x006E, r24
+    TCNT0 = 0;              // Reset timer counter
+ 124:	16 bc       	out	0x26, r1	; 38
+    PORTD &= ~((1 << PD5) | (1 << PD6)); // Start with pins low
+
+    current_task = task1;    // Start with task1
+
+    timer0_init();
+    sei();                  // Enable global interrupts
+ 126:	78 94       	sei
+
     while (1) {
-        GPIO1_Toggle();
- 142:	0e 94 94 01 	call	0x328	; 0x328 <GPIO1_Toggle>
- 146:	88 e8       	ldi	r24, 0x88	; 136
- 148:	93 e1       	ldi	r25, 0x13	; 19
- 14a:	fe 01       	movw	r30, r28
- 14c:	31 97       	sbiw	r30, 0x01	; 1
- 14e:	f1 f7       	brne	.-4      	; 0x14c <task2+0x12>
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 150:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 152:	d9 f7       	brne	.-10     	; 0x14a <task2+0x10>
- 154:	f6 cf       	rjmp	.-20     	; 0x142 <task2+0x8>
+        if (task_flag) {
+            task_flag = 0;
+            // Switch tasks
+            if (current_task == task1)
+ 128:	03 e5       	ldi	r16, 0x53	; 83
+ 12a:	10 e0       	ldi	r17, 0x00	; 0
+                current_task = task2;
+ 12c:	cc e5       	ldi	r28, 0x5C	; 92
+ 12e:	d0 e0       	ldi	r29, 0x00	; 0
 
-00000156 <task1>:
-#include "tasks.h"
-#include "gpio.h"
+    timer0_init();
+    sei();                  // Enable global interrupts
 
-
-
-void task1(void) {
- 156:	cf 93       	push	r28
- 158:	df 93       	push	r29
- 15a:	c8 ec       	ldi	r28, 0xC8	; 200
- 15c:	d0 e0       	ldi	r29, 0x00	; 0
-    
-	
-	
     while (1) {
-        GPIO0_Toggle();
- 15e:	0e 94 88 01 	call	0x310	; 0x310 <GPIO0_Toggle>
- 162:	88 ee       	ldi	r24, 0xE8	; 232
- 164:	93 e0       	ldi	r25, 0x03	; 3
- 166:	fe 01       	movw	r30, r28
- 168:	31 97       	sbiw	r30, 0x01	; 1
- 16a:	f1 f7       	brne	.-4      	; 0x168 <task1+0x12>
-		{
-			// wait 1/10 ms
-			_delay_loop_2(((F_CPU) / 4e3) / 10);
-			__ticks --;
- 16c:	01 97       	sbiw	r24, 0x01	; 1
-		__ticks = 1;
-	else if (__tmp > 65535)
-	{
-		//	__ticks = requested delay in 1/10 ms
-		__ticks = (uint16_t) (__ms * 10.0);
-		while(__ticks)
- 16e:	d9 f7       	brne	.-10     	; 0x166 <task1+0x10>
- 170:	f6 cf       	rjmp	.-20     	; 0x15e <task1+0x8>
+        if (task_flag) {
+ 130:	80 91 0a 01 	lds	r24, 0x010A
+ 134:	88 23       	and	r24, r24
+ 136:	91 f0       	breq	.+36     	; 0x15c <main+0x64>
+            task_flag = 0;
+ 138:	10 92 0a 01 	sts	0x010A, r1
+            // Switch tasks
+            if (current_task == task1)
+ 13c:	80 91 11 01 	lds	r24, 0x0111
+ 140:	90 91 12 01 	lds	r25, 0x0112
+ 144:	83 55       	subi	r24, 0x53	; 83
+ 146:	90 40       	sbci	r25, 0x00	; 0
+ 148:	29 f4       	brne	.+10     	; 0x154 <main+0x5c>
+                current_task = task2;
+ 14a:	d0 93 12 01 	sts	0x0112, r29
+ 14e:	c0 93 11 01 	sts	0x0111, r28
+ 152:	04 c0       	rjmp	.+8      	; 0x15c <main+0x64>
+            else
+                current_task = task1;
+ 154:	10 93 12 01 	sts	0x0112, r17
+ 158:	00 93 11 01 	sts	0x0111, r16
+        }
+        current_task();  // Run current task
+ 15c:	e0 91 11 01 	lds	r30, 0x0111
+ 160:	f0 91 12 01 	lds	r31, 0x0112
+ 164:	09 95       	icall
+ 166:	e4 cf       	rjmp	.-56     	; 0x130 <main+0x38>
 
-00000172 <SysTick_Enable>:
+00000168 <SysTick_Enable>:
   .OVFUpdateValue = 0,
   .UpdateRate = 0
 };
 
 
 void SysTick_Enable(uint16_t UpdateRateHz){
- 172:	8f 92       	push	r8
- 174:	9f 92       	push	r9
- 176:	bf 92       	push	r11
- 178:	cf 92       	push	r12
- 17a:	df 92       	push	r13
- 17c:	ef 92       	push	r14
- 17e:	ff 92       	push	r15
- 180:	0f 93       	push	r16
- 182:	1f 93       	push	r17
- 184:	df 93       	push	r29
- 186:	cf 93       	push	r28
- 188:	cd b7       	in	r28, 0x3d	; 61
- 18a:	de b7       	in	r29, 0x3e	; 62
- 18c:	2a 97       	sbiw	r28, 0x0a	; 10
- 18e:	0f b6       	in	r0, 0x3f	; 63
- 190:	f8 94       	cli
- 192:	de bf       	out	0x3e, r29	; 62
- 194:	0f be       	out	0x3f, r0	; 63
- 196:	cd bf       	out	0x3d, r28	; 61
- 198:	4c 01       	movw	r8, r24
+ 168:	8f 92       	push	r8
+ 16a:	9f 92       	push	r9
+ 16c:	bf 92       	push	r11
+ 16e:	cf 92       	push	r12
+ 170:	df 92       	push	r13
+ 172:	ef 92       	push	r14
+ 174:	ff 92       	push	r15
+ 176:	0f 93       	push	r16
+ 178:	1f 93       	push	r17
+ 17a:	df 93       	push	r29
+ 17c:	cf 93       	push	r28
+ 17e:	cd b7       	in	r28, 0x3d	; 61
+ 180:	de b7       	in	r29, 0x3e	; 62
+ 182:	2a 97       	sbiw	r28, 0x0a	; 10
+ 184:	0f b6       	in	r0, 0x3f	; 63
+ 186:	f8 94       	cli
+ 188:	de bf       	out	0x3e, r29	; 62
+ 18a:	0f be       	out	0x3f, r0	; 63
+ 18c:	cd bf       	out	0x3d, r28	; 61
+ 18e:	4c 01       	movw	r8, r24
   uint8_t  clock_div_index = 0;
   uint16_t clock_div_factor[5] = {1, 8, 64, 256, 1024};
- 19a:	de 01       	movw	r26, r28
- 19c:	11 96       	adiw	r26, 0x01	; 1
- 19e:	e0 e0       	ldi	r30, 0x00	; 0
- 1a0:	f1 e0       	ldi	r31, 0x01	; 1
- 1a2:	8a e0       	ldi	r24, 0x0A	; 10
- 1a4:	01 90       	ld	r0, Z+
- 1a6:	0d 92       	st	X+, r0
- 1a8:	81 50       	subi	r24, 0x01	; 1
- 1aa:	e1 f7       	brne	.-8      	; 0x1a4 <SysTick_Enable+0x32>
+ 190:	de 01       	movw	r26, r28
+ 192:	11 96       	adiw	r26, 0x01	; 1
+ 194:	e0 e0       	ldi	r30, 0x00	; 0
+ 196:	f1 e0       	ldi	r31, 0x01	; 1
+ 198:	8a e0       	ldi	r24, 0x0A	; 10
+ 19a:	01 90       	ld	r0, Z+
+ 19c:	0d 92       	st	X+, r0
+ 19e:	81 50       	subi	r24, 0x01	; 1
+ 1a0:	e1 f7       	brne	.-8      	; 0x19a <SysTick_Enable+0x32>
   int32_t  temp, curr_freq;
 
   temp = F_CPU;
   temp /= UpdateRateHz;
- 1ac:	94 01       	movw	r18, r8
- 1ae:	40 e0       	ldi	r20, 0x00	; 0
- 1b0:	50 e0       	ldi	r21, 0x00	; 0
- 1b2:	60 e0       	ldi	r22, 0x00	; 0
- 1b4:	72 e1       	ldi	r23, 0x12	; 18
- 1b6:	8a e7       	ldi	r24, 0x7A	; 122
- 1b8:	90 e0       	ldi	r25, 0x00	; 0
- 1ba:	0e 94 3a 02 	call	0x474	; 0x474 <__divmodsi4>
- 1be:	b2 2e       	mov	r11, r18
- 1c0:	c3 2e       	mov	r12, r19
- 1c2:	d4 2e       	mov	r13, r20
- 1c4:	05 2f       	mov	r16, r21
- 1c6:	7e 01       	movw	r14, r28
- 1c8:	08 94       	sec
- 1ca:	e1 1c       	adc	r14, r1
- 1cc:	f1 1c       	adc	r15, r1
- 1ce:	c9 01       	movw	r24, r18
- 1d0:	da 01       	movw	r26, r20
- 1d2:	9c 01       	movw	r18, r24
- 1d4:	ad 01       	movw	r20, r26
- 1d6:	10 e0       	ldi	r17, 0x00	; 0
- 1d8:	13 c0       	rjmp	.+38     	; 0x200 <SysTick_Enable+0x8e>
+ 1a2:	94 01       	movw	r18, r8
+ 1a4:	40 e0       	ldi	r20, 0x00	; 0
+ 1a6:	50 e0       	ldi	r21, 0x00	; 0
+ 1a8:	60 e0       	ldi	r22, 0x00	; 0
+ 1aa:	72 e1       	ldi	r23, 0x12	; 18
+ 1ac:	8a e7       	ldi	r24, 0x7A	; 122
+ 1ae:	90 e0       	ldi	r25, 0x00	; 0
+ 1b0:	0e 94 8e 01 	call	0x31c	; 0x31c <__divmodsi4>
+ 1b4:	b2 2e       	mov	r11, r18
+ 1b6:	c3 2e       	mov	r12, r19
+ 1b8:	d4 2e       	mov	r13, r20
+ 1ba:	05 2f       	mov	r16, r21
+ 1bc:	7e 01       	movw	r14, r28
+ 1be:	08 94       	sec
+ 1c0:	e1 1c       	adc	r14, r1
+ 1c2:	f1 1c       	adc	r15, r1
+ 1c4:	c9 01       	movw	r24, r18
+ 1c6:	da 01       	movw	r26, r20
+ 1c8:	9c 01       	movw	r18, r24
+ 1ca:	ad 01       	movw	r20, r26
+ 1cc:	10 e0       	ldi	r17, 0x00	; 0
+ 1ce:	13 c0       	rjmp	.+38     	; 0x1f6 <SysTick_Enable+0x8e>
   clock_div_index = 0;
   curr_freq = temp;
 	
   while( curr_freq > 0xFF ){
 	curr_freq  = temp;
 	curr_freq /= clock_div_factor[clock_div_index];
- 1da:	f7 01       	movw	r30, r14
- 1dc:	21 91       	ld	r18, Z+
- 1de:	31 91       	ld	r19, Z+
- 1e0:	7f 01       	movw	r14, r30
- 1e2:	40 e0       	ldi	r20, 0x00	; 0
- 1e4:	50 e0       	ldi	r21, 0x00	; 0
- 1e6:	6b 2d       	mov	r22, r11
- 1e8:	7c 2d       	mov	r23, r12
- 1ea:	8d 2d       	mov	r24, r13
- 1ec:	90 2f       	mov	r25, r16
- 1ee:	0e 94 3a 02 	call	0x474	; 0x474 <__divmodsi4>
- 1f2:	c9 01       	movw	r24, r18
- 1f4:	da 01       	movw	r26, r20
- 1f6:	9c 01       	movw	r18, r24
- 1f8:	ad 01       	movw	r20, r26
+ 1d0:	f7 01       	movw	r30, r14
+ 1d2:	21 91       	ld	r18, Z+
+ 1d4:	31 91       	ld	r19, Z+
+ 1d6:	7f 01       	movw	r14, r30
+ 1d8:	40 e0       	ldi	r20, 0x00	; 0
+ 1da:	50 e0       	ldi	r21, 0x00	; 0
+ 1dc:	6b 2d       	mov	r22, r11
+ 1de:	7c 2d       	mov	r23, r12
+ 1e0:	8d 2d       	mov	r24, r13
+ 1e2:	90 2f       	mov	r25, r16
+ 1e4:	0e 94 8e 01 	call	0x31c	; 0x31c <__divmodsi4>
+ 1e8:	c9 01       	movw	r24, r18
+ 1ea:	da 01       	movw	r26, r20
+ 1ec:	9c 01       	movw	r18, r24
+ 1ee:	ad 01       	movw	r20, r26
 	clock_div_index++;
- 1fa:	1f 5f       	subi	r17, 0xFF	; 255
+ 1f0:	1f 5f       	subi	r17, 0xFF	; 255
 	if(clock_div_index == 5){
- 1fc:	15 30       	cpi	r17, 0x05	; 5
- 1fe:	31 f0       	breq	.+12     	; 0x20c <SysTick_Enable+0x9a>
+ 1f2:	15 30       	cpi	r17, 0x05	; 5
+ 1f4:	31 f0       	breq	.+12     	; 0x202 <SysTick_Enable+0x9a>
   temp /= UpdateRateHz;
 	
   clock_div_index = 0;
   curr_freq = temp;
 	
   while( curr_freq > 0xFF ){
- 200:	2f 3f       	cpi	r18, 0xFF	; 255
- 202:	31 05       	cpc	r19, r1
- 204:	41 05       	cpc	r20, r1
- 206:	51 05       	cpc	r21, r1
- 208:	09 f0       	breq	.+2      	; 0x20c <SysTick_Enable+0x9a>
- 20a:	3c f7       	brge	.-50     	; 0x1da <SysTick_Enable+0x68>
+ 1f6:	2f 3f       	cpi	r18, 0xFF	; 255
+ 1f8:	31 05       	cpc	r19, r1
+ 1fa:	41 05       	cpc	r20, r1
+ 1fc:	51 05       	cpc	r21, r1
+ 1fe:	09 f0       	breq	.+2      	; 0x202 <SysTick_Enable+0x9a>
+ 200:	3c f7       	brge	.-50     	; 0x1d0 <SysTick_Enable+0x68>
 	if(clock_div_index == 5){
 	  break;
 	}
   }
 	
   clock_div_index -= 1;
- 20c:	81 2f       	mov	r24, r17
- 20e:	81 50       	subi	r24, 0x01	; 1
+ 202:	81 2f       	mov	r24, r17
+ 204:	81 50       	subi	r24, 0x01	; 1
 	
   TCCR0A = 0x00;
- 210:	14 bc       	out	0x24, r1	; 36
+ 206:	14 bc       	out	0x24, r1	; 36
   TCCR0B = 0x00;
- 212:	15 bc       	out	0x25, r1	; 37
+ 208:	15 bc       	out	0x25, r1	; 37
   TIMSK0 = 0x00;
- 214:	10 92 6e 00 	sts	0x006E, r1
+ 20a:	10 92 6e 00 	sts	0x006E, r1
   TIFR0  = 0x00;
- 218:	15 ba       	out	0x15, r1	; 21
+ 20e:	15 ba       	out	0x15, r1	; 21
   OCR0A  = 0x00;
- 21a:	17 bc       	out	0x27, r1	; 39
+ 210:	17 bc       	out	0x27, r1	; 39
   OCR0B  = 0x00;
- 21c:	18 bc       	out	0x28, r1	; 40
+ 212:	18 bc       	out	0x28, r1	; 40
   TCNT0  = 0x00;
- 21e:	16 bc       	out	0x26, r1	; 38
+ 214:	16 bc       	out	0x26, r1	; 38
   OCR0A  = 0x00;
- 220:	17 bc       	out	0x27, r1	; 39
+ 216:	17 bc       	out	0x27, r1	; 39
   
   if(clock_div_index == 0){
- 222:	88 23       	and	r24, r24
- 224:	11 f4       	brne	.+4      	; 0x22a <SysTick_Enable+0xb8>
+ 218:	88 23       	and	r24, r24
+ 21a:	11 f4       	brne	.+4      	; 0x220 <SysTick_Enable+0xb8>
 	TCCR0B = (1<<CS00);
- 226:	81 e0       	ldi	r24, 0x01	; 1
- 228:	0f c0       	rjmp	.+30     	; 0x248 <SysTick_Enable+0xd6>
+ 21c:	81 e0       	ldi	r24, 0x01	; 1
+ 21e:	0f c0       	rjmp	.+30     	; 0x23e <SysTick_Enable+0xd6>
   }
   else if(clock_div_index == 1){
- 22a:	81 30       	cpi	r24, 0x01	; 1
- 22c:	11 f4       	brne	.+4      	; 0x232 <SysTick_Enable+0xc0>
+ 220:	81 30       	cpi	r24, 0x01	; 1
+ 222:	11 f4       	brne	.+4      	; 0x228 <SysTick_Enable+0xc0>
 	TCCR0B = (1<<CS01);
- 22e:	82 e0       	ldi	r24, 0x02	; 2
- 230:	0b c0       	rjmp	.+22     	; 0x248 <SysTick_Enable+0xd6>
+ 224:	82 e0       	ldi	r24, 0x02	; 2
+ 226:	0b c0       	rjmp	.+22     	; 0x23e <SysTick_Enable+0xd6>
   }
   else if(clock_div_index == 2){
- 232:	82 30       	cpi	r24, 0x02	; 2
- 234:	11 f4       	brne	.+4      	; 0x23a <SysTick_Enable+0xc8>
+ 228:	82 30       	cpi	r24, 0x02	; 2
+ 22a:	11 f4       	brne	.+4      	; 0x230 <SysTick_Enable+0xc8>
 	TCCR0B = (1<<CS00)|(1<<CS01);
- 236:	83 e0       	ldi	r24, 0x03	; 3
- 238:	07 c0       	rjmp	.+14     	; 0x248 <SysTick_Enable+0xd6>
+ 22c:	83 e0       	ldi	r24, 0x03	; 3
+ 22e:	07 c0       	rjmp	.+14     	; 0x23e <SysTick_Enable+0xd6>
   }
   else if(clock_div_index == 3){
- 23a:	83 30       	cpi	r24, 0x03	; 3
- 23c:	11 f4       	brne	.+4      	; 0x242 <SysTick_Enable+0xd0>
+ 230:	83 30       	cpi	r24, 0x03	; 3
+ 232:	11 f4       	brne	.+4      	; 0x238 <SysTick_Enable+0xd0>
 	TCCR0B = (1<<CS02);
- 23e:	84 e0       	ldi	r24, 0x04	; 4
- 240:	03 c0       	rjmp	.+6      	; 0x248 <SysTick_Enable+0xd6>
+ 234:	84 e0       	ldi	r24, 0x04	; 4
+ 236:	03 c0       	rjmp	.+6      	; 0x23e <SysTick_Enable+0xd6>
   }
   else if(clock_div_index == 4){
- 242:	84 30       	cpi	r24, 0x04	; 4
- 244:	11 f4       	brne	.+4      	; 0x24a <SysTick_Enable+0xd8>
+ 238:	84 30       	cpi	r24, 0x04	; 4
+ 23a:	11 f4       	brne	.+4      	; 0x240 <SysTick_Enable+0xd8>
 	TCCR0B = (1<<CS00)|(1<<CS02);
- 246:	85 e0       	ldi	r24, 0x05	; 5
- 248:	85 bd       	out	0x25, r24	; 37
+ 23c:	85 e0       	ldi	r24, 0x05	; 5
+ 23e:	85 bd       	out	0x25, r24	; 37
   }
   
   SysTick.OVFUpdateValue = (0xFF-curr_freq);
- 24a:	8f ef       	ldi	r24, 0xFF	; 255
- 24c:	90 e0       	ldi	r25, 0x00	; 0
- 24e:	82 1b       	sub	r24, r18
- 250:	93 0b       	sbc	r25, r19
- 252:	90 93 0d 01 	sts	0x010D, r25
- 256:	80 93 0c 01 	sts	0x010C, r24
+ 240:	8f ef       	ldi	r24, 0xFF	; 255
+ 242:	90 e0       	ldi	r25, 0x00	; 0
+ 244:	82 1b       	sub	r24, r18
+ 246:	93 0b       	sbc	r25, r19
+ 248:	90 93 0e 01 	sts	0x010E, r25
+ 24c:	80 93 0d 01 	sts	0x010D, r24
   TCNT0  = SysTick.OVFUpdateValue;
- 25a:	80 91 0c 01 	lds	r24, 0x010C
- 25e:	90 91 0d 01 	lds	r25, 0x010D
- 262:	86 bd       	out	0x26, r24	; 38
+ 250:	80 91 0d 01 	lds	r24, 0x010D
+ 254:	90 91 0e 01 	lds	r25, 0x010E
+ 258:	86 bd       	out	0x26, r24	; 38
   TIMSK0 = (1<<TOIE0);
- 264:	81 e0       	ldi	r24, 0x01	; 1
- 266:	80 93 6e 00 	sts	0x006E, r24
+ 25a:	81 e0       	ldi	r24, 0x01	; 1
+ 25c:	80 93 6e 00 	sts	0x006E, r24
   sei();
- 26a:	78 94       	sei
+ 260:	78 94       	sei
   SysTick.UpdateRate = UpdateRateHz;
- 26c:	90 92 0f 01 	sts	0x010F, r9
- 270:	80 92 0e 01 	sts	0x010E, r8
+ 262:	90 92 10 01 	sts	0x0110, r9
+ 266:	80 92 0f 01 	sts	0x010F, r8
 }
- 274:	2a 96       	adiw	r28, 0x0a	; 10
- 276:	0f b6       	in	r0, 0x3f	; 63
- 278:	f8 94       	cli
- 27a:	de bf       	out	0x3e, r29	; 62
- 27c:	0f be       	out	0x3f, r0	; 63
- 27e:	cd bf       	out	0x3d, r28	; 61
- 280:	cf 91       	pop	r28
- 282:	df 91       	pop	r29
- 284:	1f 91       	pop	r17
- 286:	0f 91       	pop	r16
- 288:	ff 90       	pop	r15
- 28a:	ef 90       	pop	r14
- 28c:	df 90       	pop	r13
- 28e:	cf 90       	pop	r12
- 290:	bf 90       	pop	r11
- 292:	9f 90       	pop	r9
- 294:	8f 90       	pop	r8
- 296:	08 95       	ret
+ 26a:	2a 96       	adiw	r28, 0x0a	; 10
+ 26c:	0f b6       	in	r0, 0x3f	; 63
+ 26e:	f8 94       	cli
+ 270:	de bf       	out	0x3e, r29	; 62
+ 272:	0f be       	out	0x3f, r0	; 63
+ 274:	cd bf       	out	0x3d, r28	; 61
+ 276:	cf 91       	pop	r28
+ 278:	df 91       	pop	r29
+ 27a:	1f 91       	pop	r17
+ 27c:	0f 91       	pop	r16
+ 27e:	ff 90       	pop	r15
+ 280:	ef 90       	pop	r14
+ 282:	df 90       	pop	r13
+ 284:	cf 90       	pop	r12
+ 286:	bf 90       	pop	r11
+ 288:	9f 90       	pop	r9
+ 28a:	8f 90       	pop	r8
+ 28c:	08 95       	ret
 
-00000298 <__vector_16>:
-
-
-
-
-
-ISR(TIMER0_OVF_vect){
- 298:	1f 92       	push	r1
- 29a:	0f 92       	push	r0
- 29c:	0f b6       	in	r0, 0x3f	; 63
- 29e:	0f 92       	push	r0
- 2a0:	11 24       	eor	r1, r1
- 2a2:	2f 93       	push	r18
- 2a4:	3f 93       	push	r19
- 2a6:	4f 93       	push	r20
- 2a8:	5f 93       	push	r21
- 2aa:	6f 93       	push	r22
- 2ac:	7f 93       	push	r23
- 2ae:	8f 93       	push	r24
- 2b0:	9f 93       	push	r25
- 2b2:	af 93       	push	r26
- 2b4:	bf 93       	push	r27
- 2b6:	ef 93       	push	r30
- 2b8:	ff 93       	push	r31
-  TCNT0  = SysTick.OVFUpdateValue;
- 2ba:	80 91 0c 01 	lds	r24, 0x010C
- 2be:	90 91 0d 01 	lds	r25, 0x010D
- 2c2:	86 bd       	out	0x26, r24	; 38
-  task_switch();
- 2c4:	0e 94 d7 01 	call	0x3ae	; 0x3ae <task_switch>
-  GPIO0_Toggle();
- 2c8:	0e 94 88 01 	call	0x310	; 0x310 <GPIO0_Toggle>
-  //GPIO1_Toggle();
-}
- 2cc:	ff 91       	pop	r31
- 2ce:	ef 91       	pop	r30
- 2d0:	bf 91       	pop	r27
- 2d2:	af 91       	pop	r26
- 2d4:	9f 91       	pop	r25
- 2d6:	8f 91       	pop	r24
- 2d8:	7f 91       	pop	r23
- 2da:	6f 91       	pop	r22
- 2dc:	5f 91       	pop	r21
- 2de:	4f 91       	pop	r20
- 2e0:	3f 91       	pop	r19
- 2e2:	2f 91       	pop	r18
- 2e4:	0f 90       	pop	r0
- 2e6:	0f be       	out	0x3f, r0	; 63
- 2e8:	0f 90       	pop	r0
- 2ea:	1f 90       	pop	r1
- 2ec:	18 95       	reti
-
-000002ee <GPIO_Init>:
+0000028e <GPIO_Init>:
 #include <util/delay.h>
 #include "gpio.h"
 
 
 void GPIO_Init(void){
   GPIO0_DDR  |=  (1<<GPIO0_bp);
- 2ee:	55 9a       	sbi	0x0a, 5	; 10
+ 28e:	55 9a       	sbi	0x0a, 5	; 10
   GPIO0_PORT &=~ (1<<GPIO0_bp);
- 2f0:	5d 98       	cbi	0x0b, 5	; 11
+ 290:	5d 98       	cbi	0x0b, 5	; 11
   
   GPIO1_DDR  |=  (1<<GPIO1_bp);
- 2f2:	56 9a       	sbi	0x0a, 6	; 10
+ 292:	56 9a       	sbi	0x0a, 6	; 10
   GPIO1_PORT &=~ (1<<GPIO1_bp);
- 2f4:	5e 98       	cbi	0x0b, 6	; 11
+ 294:	5e 98       	cbi	0x0b, 6	; 11
   
   GPIO2_DDR  |=  (1<<GPIO2_bp);
- 2f6:	38 9a       	sbi	0x07, 0	; 7
+ 296:	38 9a       	sbi	0x07, 0	; 7
   GPIO2_PORT &=~ (1<<GPIO2_bp);
- 2f8:	40 98       	cbi	0x08, 0	; 8
+ 298:	40 98       	cbi	0x08, 0	; 8
   
   GPIO3_DDR  |=  (1<<GPIO3_bp);
- 2fa:	39 9a       	sbi	0x07, 1	; 7
+ 29a:	39 9a       	sbi	0x07, 1	; 7
   GPIO3_PORT &=~ (1<<GPIO3_bp);
- 2fc:	41 98       	cbi	0x08, 1	; 8
+ 29c:	41 98       	cbi	0x08, 1	; 8
   
   GPIO4_DDR  |=  (1<<GPIO4_bp);
- 2fe:	3a 9a       	sbi	0x07, 2	; 7
+ 29e:	3a 9a       	sbi	0x07, 2	; 7
   GPIO4_PORT &=~ (1<<GPIO4_bp);
- 300:	42 98       	cbi	0x08, 2	; 8
+ 2a0:	42 98       	cbi	0x08, 2	; 8
 }
- 302:	08 95       	ret
+ 2a2:	08 95       	ret
 
-00000304 <GPIO0_Set>:
+000002a4 <GPIO0_Set>:
 
 
 
 
 void GPIO0_Set(uint8_t val){
   if(val == 0){
- 304:	88 23       	and	r24, r24
- 306:	11 f4       	brne	.+4      	; 0x30c <GPIO0_Set+0x8>
+ 2a4:	88 23       	and	r24, r24
+ 2a6:	11 f4       	brne	.+4      	; 0x2ac <GPIO0_Set+0x8>
     GPIO0_PORT &=~ (1<<GPIO0_bp);
- 308:	5d 98       	cbi	0x0b, 5	; 11
- 30a:	08 95       	ret
+ 2a8:	5d 98       	cbi	0x0b, 5	; 11
+ 2aa:	08 95       	ret
   }
   else{
     GPIO0_PORT |=  (1<<GPIO0_bp);
- 30c:	5d 9a       	sbi	0x0b, 5	; 11
- 30e:	08 95       	ret
+ 2ac:	5d 9a       	sbi	0x0b, 5	; 11
+ 2ae:	08 95       	ret
 
-00000310 <GPIO0_Toggle>:
+000002b0 <GPIO0_Toggle>:
   }
 }
 
 void GPIO0_Toggle(void){
   if(GPIO0_PORT & (1<<GPIO0_bp)){
- 310:	5d 9b       	sbis	0x0b, 5	; 11
- 312:	02 c0       	rjmp	.+4      	; 0x318 <GPIO0_Toggle+0x8>
+ 2b0:	5d 9b       	sbis	0x0b, 5	; 11
+ 2b2:	02 c0       	rjmp	.+4      	; 0x2b8 <GPIO0_Toggle+0x8>
     GPIO0_PORT &=~ (1<<GPIO0_bp);
- 314:	5d 98       	cbi	0x0b, 5	; 11
- 316:	08 95       	ret
+ 2b4:	5d 98       	cbi	0x0b, 5	; 11
+ 2b6:	08 95       	ret
   }
   else{
     GPIO0_PORT |=  (1<<GPIO0_bp);
- 318:	5d 9a       	sbi	0x0b, 5	; 11
- 31a:	08 95       	ret
+ 2b8:	5d 9a       	sbi	0x0b, 5	; 11
+ 2ba:	08 95       	ret
 
-0000031c <GPIO1_Set>:
+000002bc <GPIO1_Set>:
 
 
 
 
 void GPIO1_Set(uint8_t val){
   if(val == 0){
- 31c:	88 23       	and	r24, r24
- 31e:	11 f4       	brne	.+4      	; 0x324 <GPIO1_Set+0x8>
+ 2bc:	88 23       	and	r24, r24
+ 2be:	11 f4       	brne	.+4      	; 0x2c4 <GPIO1_Set+0x8>
     GPIO1_PORT &=~ (1<<GPIO1_bp);
- 320:	5e 98       	cbi	0x0b, 6	; 11
- 322:	08 95       	ret
+ 2c0:	5e 98       	cbi	0x0b, 6	; 11
+ 2c2:	08 95       	ret
   }
   else{
     GPIO1_PORT |=  (1<<GPIO1_bp);
- 324:	5e 9a       	sbi	0x0b, 6	; 11
- 326:	08 95       	ret
+ 2c4:	5e 9a       	sbi	0x0b, 6	; 11
+ 2c6:	08 95       	ret
 
-00000328 <GPIO1_Toggle>:
+000002c8 <GPIO1_Toggle>:
   }
 }
 
 void GPIO1_Toggle(void){
   if(GPIO1_PORT & (1<<GPIO1_bp)){
- 328:	5e 9b       	sbis	0x0b, 6	; 11
- 32a:	02 c0       	rjmp	.+4      	; 0x330 <GPIO1_Toggle+0x8>
+ 2c8:	5e 9b       	sbis	0x0b, 6	; 11
+ 2ca:	02 c0       	rjmp	.+4      	; 0x2d0 <GPIO1_Toggle+0x8>
     GPIO1_PORT &=~ (1<<GPIO1_bp);
- 32c:	5e 98       	cbi	0x0b, 6	; 11
- 32e:	08 95       	ret
+ 2cc:	5e 98       	cbi	0x0b, 6	; 11
+ 2ce:	08 95       	ret
   }
   else{
     GPIO1_PORT |=  (1<<GPIO1_bp);
- 330:	5e 9a       	sbi	0x0b, 6	; 11
- 332:	08 95       	ret
+ 2d0:	5e 9a       	sbi	0x0b, 6	; 11
+ 2d2:	08 95       	ret
 
-00000334 <GPIO2_Set>:
+000002d4 <GPIO2_Set>:
 
 
 
 
 void GPIO2_Set(uint8_t val){
   if(val == 0){
- 334:	88 23       	and	r24, r24
- 336:	11 f4       	brne	.+4      	; 0x33c <GPIO2_Set+0x8>
+ 2d4:	88 23       	and	r24, r24
+ 2d6:	11 f4       	brne	.+4      	; 0x2dc <GPIO2_Set+0x8>
     GPIO2_PORT &=~ (1<<GPIO2_bp);
- 338:	40 98       	cbi	0x08, 0	; 8
- 33a:	08 95       	ret
+ 2d8:	40 98       	cbi	0x08, 0	; 8
+ 2da:	08 95       	ret
   }
   else{
     GPIO2_PORT |=  (1<<GPIO2_bp);
- 33c:	40 9a       	sbi	0x08, 0	; 8
- 33e:	08 95       	ret
+ 2dc:	40 9a       	sbi	0x08, 0	; 8
+ 2de:	08 95       	ret
 
-00000340 <GPIO2_Toggle>:
+000002e0 <GPIO2_Toggle>:
   }
 }
 
 void GPIO2_Toggle(void){
   if(GPIO2_PORT & (1<<GPIO2_bp)){
- 340:	40 9b       	sbis	0x08, 0	; 8
- 342:	02 c0       	rjmp	.+4      	; 0x348 <GPIO2_Toggle+0x8>
+ 2e0:	40 9b       	sbis	0x08, 0	; 8
+ 2e2:	02 c0       	rjmp	.+4      	; 0x2e8 <GPIO2_Toggle+0x8>
     GPIO2_PORT &=~ (1<<GPIO2_bp);
- 344:	40 98       	cbi	0x08, 0	; 8
- 346:	08 95       	ret
+ 2e4:	40 98       	cbi	0x08, 0	; 8
+ 2e6:	08 95       	ret
   }
   else{
     GPIO2_PORT |=  (1<<GPIO2_bp);
- 348:	40 9a       	sbi	0x08, 0	; 8
- 34a:	08 95       	ret
+ 2e8:	40 9a       	sbi	0x08, 0	; 8
+ 2ea:	08 95       	ret
 
-0000034c <GPIO3_Set>:
+000002ec <GPIO3_Set>:
 
 
 
 
 void GPIO3_Set(uint8_t val){
   if(val == 0){
- 34c:	88 23       	and	r24, r24
- 34e:	11 f4       	brne	.+4      	; 0x354 <GPIO3_Set+0x8>
+ 2ec:	88 23       	and	r24, r24
+ 2ee:	11 f4       	brne	.+4      	; 0x2f4 <GPIO3_Set+0x8>
     GPIO3_PORT &=~ (1<<GPIO3_bp);
- 350:	41 98       	cbi	0x08, 1	; 8
- 352:	08 95       	ret
+ 2f0:	41 98       	cbi	0x08, 1	; 8
+ 2f2:	08 95       	ret
   }
   else{
     GPIO3_PORT |=  (1<<GPIO3_bp);
- 354:	41 9a       	sbi	0x08, 1	; 8
- 356:	08 95       	ret
+ 2f4:	41 9a       	sbi	0x08, 1	; 8
+ 2f6:	08 95       	ret
 
-00000358 <GPIO3_Toggle>:
+000002f8 <GPIO3_Toggle>:
   }
 }
 
 void GPIO3_Toggle(void){
   if(GPIO3_PORT & (1<<GPIO3_bp)){
- 358:	41 9b       	sbis	0x08, 1	; 8
- 35a:	02 c0       	rjmp	.+4      	; 0x360 <GPIO3_Toggle+0x8>
+ 2f8:	41 9b       	sbis	0x08, 1	; 8
+ 2fa:	02 c0       	rjmp	.+4      	; 0x300 <GPIO3_Toggle+0x8>
     GPIO3_PORT &=~ (1<<GPIO3_bp);
- 35c:	41 98       	cbi	0x08, 1	; 8
- 35e:	08 95       	ret
+ 2fc:	41 98       	cbi	0x08, 1	; 8
+ 2fe:	08 95       	ret
   }
   else{
     GPIO3_PORT |=  (1<<GPIO3_bp);
- 360:	41 9a       	sbi	0x08, 1	; 8
- 362:	08 95       	ret
+ 300:	41 9a       	sbi	0x08, 1	; 8
+ 302:	08 95       	ret
 
-00000364 <GPIO4_Set>:
+00000304 <GPIO4_Set>:
 
 
 
 
 void GPIO4_Set(uint8_t val){
   if(val == 0){
- 364:	88 23       	and	r24, r24
- 366:	11 f4       	brne	.+4      	; 0x36c <GPIO4_Set+0x8>
+ 304:	88 23       	and	r24, r24
+ 306:	11 f4       	brne	.+4      	; 0x30c <GPIO4_Set+0x8>
     GPIO4_PORT &=~ (1<<GPIO4_bp);
- 368:	42 98       	cbi	0x08, 2	; 8
- 36a:	08 95       	ret
+ 308:	42 98       	cbi	0x08, 2	; 8
+ 30a:	08 95       	ret
   }
   else{
     GPIO4_PORT |=  (1<<GPIO4_bp);
- 36c:	42 9a       	sbi	0x08, 2	; 8
- 36e:	08 95       	ret
+ 30c:	42 9a       	sbi	0x08, 2	; 8
+ 30e:	08 95       	ret
 
-00000370 <GPIO4_Toggle>:
+00000310 <GPIO4_Toggle>:
   }
 }
 
 void GPIO4_Toggle(void){
   if(GPIO4_PORT & (1<<GPIO4_bp)){
- 370:	42 9b       	sbis	0x08, 2	; 8
- 372:	02 c0       	rjmp	.+4      	; 0x378 <GPIO4_Toggle+0x8>
+ 310:	42 9b       	sbis	0x08, 2	; 8
+ 312:	02 c0       	rjmp	.+4      	; 0x318 <GPIO4_Toggle+0x8>
     GPIO4_PORT &=~ (1<<GPIO4_bp);
- 374:	42 98       	cbi	0x08, 2	; 8
- 376:	08 95       	ret
+ 314:	42 98       	cbi	0x08, 2	; 8
+ 316:	08 95       	ret
   }
   else{
     GPIO4_PORT |=  (1<<GPIO4_bp);
- 378:	42 9a       	sbi	0x08, 2	; 8
- 37a:	08 95       	ret
+ 318:	42 9a       	sbi	0x08, 2	; 8
+ 31a:	08 95       	ret
 
-0000037c <init_stack>:
-#include "states.h"
+0000031c <__divmodsi4>:
+ 31c:	97 fb       	bst	r25, 7
+ 31e:	09 2e       	mov	r0, r25
+ 320:	05 26       	eor	r0, r21
+ 322:	0e d0       	rcall	.+28     	; 0x340 <__divmodsi4_neg1>
+ 324:	57 fd       	sbrc	r21, 7
+ 326:	04 d0       	rcall	.+8      	; 0x330 <__divmodsi4_neg2>
+ 328:	14 d0       	rcall	.+40     	; 0x352 <__udivmodsi4>
+ 32a:	0a d0       	rcall	.+20     	; 0x340 <__divmodsi4_neg1>
+ 32c:	00 1c       	adc	r0, r0
+ 32e:	38 f4       	brcc	.+14     	; 0x33e <__divmodsi4_exit>
 
+00000330 <__divmodsi4_neg2>:
+ 330:	50 95       	com	r21
+ 332:	40 95       	com	r20
+ 334:	30 95       	com	r19
+ 336:	21 95       	neg	r18
+ 338:	3f 4f       	sbci	r19, 0xFF	; 255
+ 33a:	4f 4f       	sbci	r20, 0xFF	; 255
+ 33c:	5f 4f       	sbci	r21, 0xFF	; 255
 
+0000033e <__divmodsi4_exit>:
+ 33e:	08 95       	ret
 
+00000340 <__divmodsi4_neg1>:
+ 340:	f6 f7       	brtc	.-4      	; 0x33e <__divmodsi4_exit>
+ 342:	90 95       	com	r25
+ 344:	80 95       	com	r24
+ 346:	70 95       	com	r23
+ 348:	61 95       	neg	r22
+ 34a:	7f 4f       	sbci	r23, 0xFF	; 255
+ 34c:	8f 4f       	sbci	r24, 0xFF	; 255
+ 34e:	9f 4f       	sbci	r25, 0xFF	; 255
+ 350:	08 95       	ret
 
-void init_stack(TCB *tcb, uint8_t *stack, void (*task_func)(void)) {
- 37c:	cf 93       	push	r28
- 37e:	df 93       	push	r29
- 380:	ec 01       	movw	r28, r24
-    uint8_t *sp = stack + STACK_SIZE - 1;
- 382:	fb 01       	movw	r30, r22
- 384:	e1 58       	subi	r30, 0x81	; 129
- 386:	ff 4f       	sbci	r31, 0xFF	; 255
+00000352 <__udivmodsi4>:
+ 352:	a1 e2       	ldi	r26, 0x21	; 33
+ 354:	1a 2e       	mov	r1, r26
+ 356:	aa 1b       	sub	r26, r26
+ 358:	bb 1b       	sub	r27, r27
+ 35a:	fd 01       	movw	r30, r26
+ 35c:	0d c0       	rjmp	.+26     	; 0x378 <__udivmodsi4_ep>
 
-    // Initial return address (PC) = address of task_func
-    uint16_t addr = (uint16_t)task_func;
-    *sp-- = (addr & 0xFF);
- 388:	40 83       	st	Z, r20
-    *sp-- = (addr >> 8) & 0xFF;
- 38a:	52 93       	st	-Z, r21
+0000035e <__udivmodsi4_loop>:
+ 35e:	aa 1f       	adc	r26, r26
+ 360:	bb 1f       	adc	r27, r27
+ 362:	ee 1f       	adc	r30, r30
+ 364:	ff 1f       	adc	r31, r31
+ 366:	a2 17       	cp	r26, r18
+ 368:	b3 07       	cpc	r27, r19
+ 36a:	e4 07       	cpc	r30, r20
+ 36c:	f5 07       	cpc	r31, r21
+ 36e:	20 f0       	brcs	.+8      	; 0x378 <__udivmodsi4_ep>
+ 370:	a2 1b       	sub	r26, r18
+ 372:	b3 0b       	sbc	r27, r19
+ 374:	e4 0b       	sbc	r30, r20
+ 376:	f5 0b       	sbc	r31, r21
 
-    // Push initial registers (r0 to r31) and SREG onto stack with default values
-    // Set SREG with interrupts enabled (I-bit = 1)
-    *sp-- = 0x80; // SREG
- 38c:	80 e8       	ldi	r24, 0x80	; 128
- 38e:	82 93       	st	-Z, r24
- 390:	31 97       	sbiw	r30, 0x01	; 1
- 392:	df 01       	movw	r26, r30
+00000378 <__udivmodsi4_ep>:
+ 378:	66 1f       	adc	r22, r22
+ 37a:	77 1f       	adc	r23, r23
+ 37c:	88 1f       	adc	r24, r24
+ 37e:	99 1f       	adc	r25, r25
+ 380:	1a 94       	dec	r1
+ 382:	69 f7       	brne	.-38     	; 0x35e <__udivmodsi4_loop>
+ 384:	60 95       	com	r22
+ 386:	70 95       	com	r23
+ 388:	80 95       	com	r24
+ 38a:	90 95       	com	r25
+ 38c:	9b 01       	movw	r18, r22
+ 38e:	ac 01       	movw	r20, r24
+ 390:	bd 01       	movw	r22, r26
+ 392:	cf 01       	movw	r24, r30
+ 394:	08 95       	ret
 
-    for (int i = 0; i < 32; i++) {
- 394:	64 5a       	subi	r22, 0xA4	; 164
- 396:	7f 4f       	sbci	r23, 0xFF	; 255
-        *sp-- = 0; // R0-R31 = 0
- 398:	1c 92       	st	X, r1
- 39a:	11 97       	sbiw	r26, 0x01	; 1
+00000396 <_exit>:
+ 396:	f8 94       	cli
 
-    // Push initial registers (r0 to r31) and SREG onto stack with default values
-    // Set SREG with interrupts enabled (I-bit = 1)
-    *sp-- = 0x80; // SREG
-
-    for (int i = 0; i < 32; i++) {
- 39c:	a6 17       	cp	r26, r22
- 39e:	b7 07       	cpc	r27, r23
- 3a0:	d9 f7       	brne	.-10     	; 0x398 <init_stack+0x1c>
-        *sp-- = 0; // R0-R31 = 0
-    }
-
-    tcb->stackPointer = sp + 1;
- 3a2:	7f 97       	sbiw	r30, 0x1f	; 31
- 3a4:	f9 83       	std	Y+1, r31	; 0x01
- 3a6:	e8 83       	st	Y, r30
-}
- 3a8:	df 91       	pop	r29
- 3aa:	cf 91       	pop	r28
- 3ac:	08 95       	ret
-
-000003ae <task_switch>:
-
-void task_switch(void) {
-    SAVE_CONTEXT1();
- 3ae:	0f 92       	push	r0
- 3b0:	0f b6       	in	r0, 0x3f	; 63
- 3b2:	f8 94       	cli
- 3b4:	0f 92       	push	r0
- 3b6:	1f 92       	push	r1
- 3b8:	11 24       	eor	r1, r1
- 3ba:	2f 92       	push	r2
- 3bc:	3f 92       	push	r3
- 3be:	4f 92       	push	r4
- 3c0:	5f 92       	push	r5
- 3c2:	6f 92       	push	r6
- 3c4:	7f 92       	push	r7
- 3c6:	8f 92       	push	r8
- 3c8:	9f 92       	push	r9
- 3ca:	af 92       	push	r10
- 3cc:	bf 92       	push	r11
- 3ce:	cf 92       	push	r12
- 3d0:	df 92       	push	r13
- 3d2:	ef 92       	push	r14
- 3d4:	ff 92       	push	r15
- 3d6:	0f 93       	push	r16
- 3d8:	1f 93       	push	r17
- 3da:	2f 93       	push	r18
- 3dc:	3f 93       	push	r19
- 3de:	4f 93       	push	r20
- 3e0:	5f 93       	push	r21
- 3e2:	6f 93       	push	r22
- 3e4:	7f 93       	push	r23
- 3e6:	8f 93       	push	r24
- 3e8:	9f 93       	push	r25
- 3ea:	af 93       	push	r26
- 3ec:	bf 93       	push	r27
- 3ee:	cf 93       	push	r28
- 3f0:	df 93       	push	r29
- 3f2:	ef 93       	push	r30
- 3f4:	ff 93       	push	r31
- 3f6:	ad b7       	in	r26, 0x3d	; 61
- 3f8:	be b7       	in	r27, 0x3e	; 62
- 3fa:	a0 93 94 01 	sts	0x0194, r26
- 3fe:	b0 93 95 01 	sts	0x0195, r27
-
-    // Switch task pointers
-    TCB *temp = currentTask;
- 402:	20 91 94 01 	lds	r18, 0x0194
- 406:	30 91 95 01 	lds	r19, 0x0195
-    currentTask = nextTask;
- 40a:	80 91 92 01 	lds	r24, 0x0192
- 40e:	90 91 93 01 	lds	r25, 0x0193
- 412:	90 93 95 01 	sts	0x0195, r25
- 416:	80 93 94 01 	sts	0x0194, r24
-    nextTask = temp;
- 41a:	30 93 93 01 	sts	0x0193, r19
- 41e:	20 93 92 01 	sts	0x0192, r18
-
-    RESTORE_CONTEXT1();
- 422:	a0 91 92 01 	lds	r26, 0x0192
- 426:	b0 91 93 01 	lds	r27, 0x0193
- 42a:	ad bf       	out	0x3d, r26	; 61
- 42c:	be bf       	out	0x3e, r27	; 62
- 42e:	ff 91       	pop	r31
- 430:	ef 91       	pop	r30
- 432:	df 91       	pop	r29
- 434:	cf 91       	pop	r28
- 436:	bf 91       	pop	r27
- 438:	af 91       	pop	r26
- 43a:	9f 91       	pop	r25
- 43c:	8f 91       	pop	r24
- 43e:	7f 91       	pop	r23
- 440:	6f 91       	pop	r22
- 442:	5f 91       	pop	r21
- 444:	4f 91       	pop	r20
- 446:	3f 91       	pop	r19
- 448:	2f 91       	pop	r18
- 44a:	1f 91       	pop	r17
- 44c:	0f 91       	pop	r16
- 44e:	ff 90       	pop	r15
- 450:	ef 90       	pop	r14
- 452:	df 90       	pop	r13
- 454:	cf 90       	pop	r12
- 456:	bf 90       	pop	r11
- 458:	af 90       	pop	r10
- 45a:	9f 90       	pop	r9
- 45c:	8f 90       	pop	r8
- 45e:	7f 90       	pop	r7
- 460:	6f 90       	pop	r6
- 462:	5f 90       	pop	r5
- 464:	4f 90       	pop	r4
- 466:	3f 90       	pop	r3
- 468:	2f 90       	pop	r2
- 46a:	1f 90       	pop	r1
- 46c:	0f 90       	pop	r0
- 46e:	0f be       	out	0x3f, r0	; 63
- 470:	0f 90       	pop	r0
-}
- 472:	08 95       	ret
-
-00000474 <__divmodsi4>:
- 474:	97 fb       	bst	r25, 7
- 476:	09 2e       	mov	r0, r25
- 478:	05 26       	eor	r0, r21
- 47a:	0e d0       	rcall	.+28     	; 0x498 <__divmodsi4_neg1>
- 47c:	57 fd       	sbrc	r21, 7
- 47e:	04 d0       	rcall	.+8      	; 0x488 <__divmodsi4_neg2>
- 480:	14 d0       	rcall	.+40     	; 0x4aa <__udivmodsi4>
- 482:	0a d0       	rcall	.+20     	; 0x498 <__divmodsi4_neg1>
- 484:	00 1c       	adc	r0, r0
- 486:	38 f4       	brcc	.+14     	; 0x496 <__divmodsi4_exit>
-
-00000488 <__divmodsi4_neg2>:
- 488:	50 95       	com	r21
- 48a:	40 95       	com	r20
- 48c:	30 95       	com	r19
- 48e:	21 95       	neg	r18
- 490:	3f 4f       	sbci	r19, 0xFF	; 255
- 492:	4f 4f       	sbci	r20, 0xFF	; 255
- 494:	5f 4f       	sbci	r21, 0xFF	; 255
-
-00000496 <__divmodsi4_exit>:
- 496:	08 95       	ret
-
-00000498 <__divmodsi4_neg1>:
- 498:	f6 f7       	brtc	.-4      	; 0x496 <__divmodsi4_exit>
- 49a:	90 95       	com	r25
- 49c:	80 95       	com	r24
- 49e:	70 95       	com	r23
- 4a0:	61 95       	neg	r22
- 4a2:	7f 4f       	sbci	r23, 0xFF	; 255
- 4a4:	8f 4f       	sbci	r24, 0xFF	; 255
- 4a6:	9f 4f       	sbci	r25, 0xFF	; 255
- 4a8:	08 95       	ret
-
-000004aa <__udivmodsi4>:
- 4aa:	a1 e2       	ldi	r26, 0x21	; 33
- 4ac:	1a 2e       	mov	r1, r26
- 4ae:	aa 1b       	sub	r26, r26
- 4b0:	bb 1b       	sub	r27, r27
- 4b2:	fd 01       	movw	r30, r26
- 4b4:	0d c0       	rjmp	.+26     	; 0x4d0 <__udivmodsi4_ep>
-
-000004b6 <__udivmodsi4_loop>:
- 4b6:	aa 1f       	adc	r26, r26
- 4b8:	bb 1f       	adc	r27, r27
- 4ba:	ee 1f       	adc	r30, r30
- 4bc:	ff 1f       	adc	r31, r31
- 4be:	a2 17       	cp	r26, r18
- 4c0:	b3 07       	cpc	r27, r19
- 4c2:	e4 07       	cpc	r30, r20
- 4c4:	f5 07       	cpc	r31, r21
- 4c6:	20 f0       	brcs	.+8      	; 0x4d0 <__udivmodsi4_ep>
- 4c8:	a2 1b       	sub	r26, r18
- 4ca:	b3 0b       	sbc	r27, r19
- 4cc:	e4 0b       	sbc	r30, r20
- 4ce:	f5 0b       	sbc	r31, r21
-
-000004d0 <__udivmodsi4_ep>:
- 4d0:	66 1f       	adc	r22, r22
- 4d2:	77 1f       	adc	r23, r23
- 4d4:	88 1f       	adc	r24, r24
- 4d6:	99 1f       	adc	r25, r25
- 4d8:	1a 94       	dec	r1
- 4da:	69 f7       	brne	.-38     	; 0x4b6 <__udivmodsi4_loop>
- 4dc:	60 95       	com	r22
- 4de:	70 95       	com	r23
- 4e0:	80 95       	com	r24
- 4e2:	90 95       	com	r25
- 4e4:	9b 01       	movw	r18, r22
- 4e6:	ac 01       	movw	r20, r24
- 4e8:	bd 01       	movw	r22, r26
- 4ea:	cf 01       	movw	r24, r30
- 4ec:	08 95       	ret
-
-000004ee <_exit>:
- 4ee:	f8 94       	cli
-
-000004f0 <__stop_program>:
- 4f0:	ff cf       	rjmp	.-2      	; 0x4f0 <__stop_program>
+00000398 <__stop_program>:
+ 398:	ff cf       	rjmp	.-2      	; 0x398 <__stop_program>
