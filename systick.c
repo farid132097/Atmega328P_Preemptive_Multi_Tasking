@@ -4,7 +4,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include "systick.h"
-#include "tasks.h"
+#include "states.h"
 #include "gpio.h"
 
 typedef struct systick_t{
@@ -50,7 +50,7 @@ void SysTick_Enable(uint16_t UpdateRateHz){
   OCR0B  = 0x00;
   TCNT0  = 0x00;
   OCR0A  = 0x00;
-	
+  
   if(clock_div_index == 0){
 	TCCR0B = (1<<CS00);
   }
@@ -75,16 +75,13 @@ void SysTick_Enable(uint16_t UpdateRateHz){
 }
 
 
-void SysTick_ISR_Executables(void){
-  Task_ISR_Hanlder();
-}
-
 
 
 
 ISR(TIMER0_OVF_vect){
-  GPIO0_Set(1);
   TCNT0  = SysTick.OVFUpdateValue;
-  SysTick_ISR_Executables();
-  GPIO0_Set(0);
+  task_switch();
+  GPIO0_Toggle();
+  //GPIO1_Toggle();
 }
+

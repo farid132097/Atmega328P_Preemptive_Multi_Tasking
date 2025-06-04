@@ -13,13 +13,13 @@
   21               	/* prologue: function */
   22               	/* frame size = 0 */
   23               	.LM2:
-  24 0000 509A      		sbi 42-32,0
+  24 0000 559A      		sbi 42-32,5
   25               	.LM3:
-  26 0002 5898      		cbi 43-32,0
+  26 0002 5D98      		cbi 43-32,5
   27               	.LM4:
-  28 0004 519A      		sbi 42-32,1
+  28 0004 569A      		sbi 42-32,6
   29               	.LM5:
-  30 0006 5998      		cbi 43-32,1
+  30 0006 5E98      		cbi 43-32,6
   31               	.LM6:
   32 0008 389A      		sbi 39-32,0
   33               	.LM7:
@@ -47,99 +47,189 @@
   57 0016 8823      		tst r24
   58 0018 01F4      		brne .L4
   59               	.LM15:
-  60 001a 5898      		cbi 43-32,0
+  60 001a 5D98      		cbi 43-32,5
   61 001c 0895      		ret
   62               	.L4:
   63               	.LM16:
-  64 001e 589A      		sbi 43-32,0
+  64 001e 5D9A      		sbi 43-32,5
   65 0020 0895      		ret
   66               	.LFE7:
-  68               	.global	GPIO1_Set
-  70               	GPIO1_Set:
+  68               	.global	GPIO0_Toggle
+  70               	GPIO0_Toggle:
   71               	.LFB8:
   72               	.LM17:
-  73               	.LVL1:
-  74               	/* prologue: function */
-  75               	/* frame size = 0 */
-  76               	.LM18:
-  77 0022 8823      		tst r24
-  78 0024 01F4      		brne .L8
-  79               	.LM19:
-  80 0026 5998      		cbi 43-32,1
-  81 0028 0895      		ret
-  82               	.L8:
-  83               	.LM20:
-  84 002a 599A      		sbi 43-32,1
-  85 002c 0895      		ret
-  86               	.LFE8:
-  88               	.global	GPIO2_Set
-  90               	GPIO2_Set:
-  91               	.LFB9:
-  92               	.LM21:
-  93               	.LVL2:
-  94               	/* prologue: function */
-  95               	/* frame size = 0 */
-  96               	.LM22:
-  97 002e 8823      		tst r24
-  98 0030 01F4      		brne .L12
-  99               	.LM23:
- 100 0032 4098      		cbi 40-32,0
- 101 0034 0895      		ret
- 102               	.L12:
- 103               	.LM24:
- 104 0036 409A      		sbi 40-32,0
- 105 0038 0895      		ret
- 106               	.LFE9:
- 108               	.global	GPIO3_Set
- 110               	GPIO3_Set:
- 111               	.LFB10:
- 112               	.LM25:
- 113               	.LVL3:
- 114               	/* prologue: function */
- 115               	/* frame size = 0 */
- 116               	.LM26:
- 117 003a 8823      		tst r24
- 118 003c 01F4      		brne .L16
- 119               	.LM27:
- 120 003e 4198      		cbi 40-32,1
- 121 0040 0895      		ret
- 122               	.L16:
- 123               	.LM28:
- 124 0042 419A      		sbi 40-32,1
- 125 0044 0895      		ret
- 126               	.LFE10:
- 128               	.global	GPIO4_Set
- 130               	GPIO4_Set:
- 131               	.LFB11:
- 132               	.LM29:
- 133               	.LVL4:
- 134               	/* prologue: function */
- 135               	/* frame size = 0 */
- 136               	.LM30:
- 137 0046 8823      		tst r24
- 138 0048 01F4      		brne .L20
- 139               	.LM31:
- 140 004a 4298      		cbi 40-32,2
- 141 004c 0895      		ret
- 142               	.L20:
- 143               	.LM32:
- 144 004e 429A      		sbi 40-32,2
- 145 0050 0895      		ret
- 146               	.LFE11:
- 212               	.Letext0:
+  73               	/* prologue: function */
+  74               	/* frame size = 0 */
+  75               	.LM18:
+  76 0022 5D9B      		sbis 43-32,5
+  77 0024 00C0      		rjmp .L8
+  78               	.LM19:
+  79 0026 5D98      		cbi 43-32,5
+  80 0028 0895      		ret
+  81               	.L8:
+  82               	.LM20:
+  83 002a 5D9A      		sbi 43-32,5
+  84 002c 0895      		ret
+  85               	.LFE8:
+  87               	.global	GPIO1_Set
+  89               	GPIO1_Set:
+  90               	.LFB9:
+  91               	.LM21:
+  92               	.LVL1:
+  93               	/* prologue: function */
+  94               	/* frame size = 0 */
+  95               	.LM22:
+  96 002e 8823      		tst r24
+  97 0030 01F4      		brne .L12
+  98               	.LM23:
+  99 0032 5E98      		cbi 43-32,6
+ 100 0034 0895      		ret
+ 101               	.L12:
+ 102               	.LM24:
+ 103 0036 5E9A      		sbi 43-32,6
+ 104 0038 0895      		ret
+ 105               	.LFE9:
+ 107               	.global	GPIO1_Toggle
+ 109               	GPIO1_Toggle:
+ 110               	.LFB10:
+ 111               	.LM25:
+ 112               	/* prologue: function */
+ 113               	/* frame size = 0 */
+ 114               	.LM26:
+ 115 003a 5E9B      		sbis 43-32,6
+ 116 003c 00C0      		rjmp .L16
+ 117               	.LM27:
+ 118 003e 5E98      		cbi 43-32,6
+ 119 0040 0895      		ret
+ 120               	.L16:
+ 121               	.LM28:
+ 122 0042 5E9A      		sbi 43-32,6
+ 123 0044 0895      		ret
+ 124               	.LFE10:
+ 126               	.global	GPIO2_Set
+ 128               	GPIO2_Set:
+ 129               	.LFB11:
+ 130               	.LM29:
+ 131               	.LVL2:
+ 132               	/* prologue: function */
+ 133               	/* frame size = 0 */
+ 134               	.LM30:
+ 135 0046 8823      		tst r24
+ 136 0048 01F4      		brne .L20
+ 137               	.LM31:
+ 138 004a 4098      		cbi 40-32,0
+ 139 004c 0895      		ret
+ 140               	.L20:
+ 141               	.LM32:
+ 142 004e 409A      		sbi 40-32,0
+ 143 0050 0895      		ret
+ 144               	.LFE11:
+ 146               	.global	GPIO2_Toggle
+ 148               	GPIO2_Toggle:
+ 149               	.LFB12:
+ 150               	.LM33:
+ 151               	/* prologue: function */
+ 152               	/* frame size = 0 */
+ 153               	.LM34:
+ 154 0052 409B      		sbis 40-32,0
+ 155 0054 00C0      		rjmp .L24
+ 156               	.LM35:
+ 157 0056 4098      		cbi 40-32,0
+ 158 0058 0895      		ret
+ 159               	.L24:
+ 160               	.LM36:
+ 161 005a 409A      		sbi 40-32,0
+ 162 005c 0895      		ret
+ 163               	.LFE12:
+ 165               	.global	GPIO3_Set
+ 167               	GPIO3_Set:
+ 168               	.LFB13:
+ 169               	.LM37:
+ 170               	.LVL3:
+ 171               	/* prologue: function */
+ 172               	/* frame size = 0 */
+ 173               	.LM38:
+ 174 005e 8823      		tst r24
+ 175 0060 01F4      		brne .L28
+ 176               	.LM39:
+ 177 0062 4198      		cbi 40-32,1
+ 178 0064 0895      		ret
+ 179               	.L28:
+ 180               	.LM40:
+ 181 0066 419A      		sbi 40-32,1
+ 182 0068 0895      		ret
+ 183               	.LFE13:
+ 185               	.global	GPIO3_Toggle
+ 187               	GPIO3_Toggle:
+ 188               	.LFB14:
+ 189               	.LM41:
+ 190               	/* prologue: function */
+ 191               	/* frame size = 0 */
+ 192               	.LM42:
+ 193 006a 419B      		sbis 40-32,1
+ 194 006c 00C0      		rjmp .L32
+ 195               	.LM43:
+ 196 006e 4198      		cbi 40-32,1
+ 197 0070 0895      		ret
+ 198               	.L32:
+ 199               	.LM44:
+ 200 0072 419A      		sbi 40-32,1
+ 201 0074 0895      		ret
+ 202               	.LFE14:
+ 204               	.global	GPIO4_Set
+ 206               	GPIO4_Set:
+ 207               	.LFB15:
+ 208               	.LM45:
+ 209               	.LVL4:
+ 210               	/* prologue: function */
+ 211               	/* frame size = 0 */
+ 212               	.LM46:
+ 213 0076 8823      		tst r24
+ 214 0078 01F4      		brne .L36
+ 215               	.LM47:
+ 216 007a 4298      		cbi 40-32,2
+ 217 007c 0895      		ret
+ 218               	.L36:
+ 219               	.LM48:
+ 220 007e 429A      		sbi 40-32,2
+ 221 0080 0895      		ret
+ 222               	.LFE15:
+ 224               	.global	GPIO4_Toggle
+ 226               	GPIO4_Toggle:
+ 227               	.LFB16:
+ 228               	.LM49:
+ 229               	/* prologue: function */
+ 230               	/* frame size = 0 */
+ 231               	.LM50:
+ 232 0082 429B      		sbis 40-32,2
+ 233 0084 00C0      		rjmp .L40
+ 234               	.LM51:
+ 235 0086 4298      		cbi 40-32,2
+ 236 0088 0895      		ret
+ 237               	.L40:
+ 238               	.LM52:
+ 239 008a 429A      		sbi 40-32,2
+ 240 008c 0895      		ret
+ 241               	.LFE16:
+ 347               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 gpio.c
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:18     .text:00000000 GPIO_Init
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:50     .text:00000016 GPIO0_Set
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:70     .text:00000022 GPIO1_Set
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:90     .text:0000002e GPIO2_Set
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:110    .text:0000003a GPIO3_Set
-C:\Users\farid\AppData\Local\Temp/cc9RGcnb.s:130    .text:00000046 GPIO4_Set
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:18     .text:00000000 GPIO_Init
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:50     .text:00000016 GPIO0_Set
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:70     .text:00000022 GPIO0_Toggle
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:89     .text:0000002e GPIO1_Set
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:109    .text:0000003a GPIO1_Toggle
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:128    .text:00000046 GPIO2_Set
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:148    .text:00000052 GPIO2_Toggle
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:167    .text:0000005e GPIO3_Set
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:187    .text:0000006a GPIO3_Toggle
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:206    .text:00000076 GPIO4_Set
+C:\Users\farid\AppData\Local\Temp/ccyu2Fxm.s:226    .text:00000082 GPIO4_Toggle
 
 NO UNDEFINED SYMBOLS

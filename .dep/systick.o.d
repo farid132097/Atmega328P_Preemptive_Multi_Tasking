@@ -1,7 +1,7 @@
-systick.o: systick.c systick.h tasks.h gpio.h
+systick.o: systick.c systick.h states.h gpio.h
 
 systick.h:
 
-tasks.h:
+states.h:
 
 gpio.h:

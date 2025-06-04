@@ -3,27 +3,29 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         0000000a  00800100  00000444  000004d8  2**0
+  0 .data         0000000a  00800100  000004f2  00000586  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000444  00000000  00000000  00000094  2**1
+  1 .text         000004f2  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000014  0080010a  0080010a  000004e2  2**0
+  2 .bss          0000010e  0080010a  0080010a  00000590  2**0
                   ALLOC
-  3 .debug_aranges 00000080  00000000  00000000  000004e2  2**0
+  3 .debug_aranges 00000080  00000000  00000000  00000590  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_pubnames 00000176  00000000  00000000  00000562  2**0
+  4 .debug_pubnames 00000267  00000000  00000000  00000610  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000672  00000000  00000000  000006d8  2**0
+  5 .debug_info   00000824  00000000  00000000  00000877  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000313  00000000  00000000  00000d4a  2**0
+  6 .debug_abbrev 00000415  00000000  00000000  0000109b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000005cf  00000000  00000000  0000105d  2**0
+  7 .debug_line   000006d0  00000000  00000000  000014b0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000140  00000000  00000000  0000162c  2**2
+  8 .debug_frame  00000160  00000000  00000000  00001b80  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000002bd  00000000  00000000  0000176c  2**0
+  9 .debug_str    00000296  00000000  00000000  00001ce0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000015c  00000000  00000000  00001a29  2**0
+ 10 .debug_loc    00000231  00000000  00000000  00001f76  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000090  00000000  00000000  000021a7  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -45,7 +47,7 @@ Disassembly of section .text:
   34:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   38:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   3c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
-  40:	0c 94 f4 00 	jmp	0x1e8	; 0x1e8 <__vector_16>
+  40:	0c 94 4c 01 	jmp	0x298	; 0x298 <__vector_16>
   44:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   48:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
   4c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
@@ -68,7 +70,7 @@ Disassembly of section .text:
   74:	11 e0       	ldi	r17, 0x01	; 1
   76:	a0 e0       	ldi	r26, 0x00	; 0
   78:	b1 e0       	ldi	r27, 0x01	; 1
-  7a:	e4 e4       	ldi	r30, 0x44	; 68
+  7a:	e2 ef       	ldi	r30, 0xF2	; 242
   7c:	f4 e0       	ldi	r31, 0x04	; 4
   7e:	02 c0       	rjmp	.+4      	; 0x84 <.do_copy_data_start>
 
@@ -82,7 +84,7 @@ Disassembly of section .text:
   88:	d9 f7       	brne	.-10     	; 0x80 <.do_copy_data_loop>
 
 0000008a <__do_clear_bss>:
-  8a:	11 e0       	ldi	r17, 0x01	; 1
+  8a:	12 e0       	ldi	r17, 0x02	; 2
   8c:	aa e0       	ldi	r26, 0x0A	; 10
   8e:	b1 e0       	ldi	r27, 0x01	; 1
   90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
@@ -91,716 +93,876 @@ Disassembly of section .text:
   92:	1d 92       	st	X+, r1
 
 00000094 <.do_clear_bss_start>:
-  94:	ae 31       	cpi	r26, 0x1E	; 30
+  94:	a8 31       	cpi	r26, 0x18	; 24
   96:	b1 07       	cpc	r27, r17
   98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
   9a:	0e 94 53 00 	call	0xa6	; 0xa6 <main>
-  9e:	0c 94 20 02 	jmp	0x440	; 0x440 <_exit>
+  9e:	0c 94 77 02 	jmp	0x4ee	; 0x4ee <_exit>
 
 000000a2 <__bad_interrupt>:
   a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000a6 <main>:
-
+		_delay_ms(500);
+    }
+}
 
 
 int main(void){
+  a6:	0f 93       	push	r16
+  a8:	1f 93       	push	r17
   
-  SysTick_Enable(1000);
-  a6:	88 ee       	ldi	r24, 0xE8	; 232
-  a8:	93 e0       	ldi	r25, 0x03	; 3
-  aa:	0e 94 5e 00 	call	0xbc	; 0xbc <SysTick_Enable>
+  SysTick_Enable(100);
+  aa:	84 e6       	ldi	r24, 0x64	; 100
+  ac:	90 e0       	ldi	r25, 0x00	; 0
+  ae:	0e 94 b9 00 	call	0x172	; 0x172 <SysTick_Enable>
   GPIO_Init();
-  ae:	0e 94 23 01 	call	0x246	; 0x246 <GPIO_Init>
-  Task_Init();
-  b2:	0e 94 4c 01 	call	0x298	; 0x298 <Task_Init>
+  b2:	0e 94 77 01 	call	0x2ee	; 0x2ee <GPIO_Init>
   
-  
-while(1){
-        
-		Task_Mainloop_Hanlder();
-  b6:	0e 94 8f 01 	call	0x31e	; 0x31e <Task_Mainloop_Hanlder>
-  ba:	fd cf       	rjmp	.-6      	; 0xb6 <main+0x10>
+  currentTask = &task1_tcb;
+  b6:	80 e1       	ldi	r24, 0x10	; 16
+  b8:	91 e0       	ldi	r25, 0x01	; 1
+  ba:	90 93 95 01 	sts	0x0195, r25
+  be:	80 93 94 01 	sts	0x0194, r24
+  nextTask = &task2_tcb;
+  c2:	06 e1       	ldi	r16, 0x16	; 22
+  c4:	12 e0       	ldi	r17, 0x02	; 2
+  c6:	10 93 93 01 	sts	0x0193, r17
+  ca:	00 93 92 01 	sts	0x0192, r16
 
-000000bc <SysTick_Enable>:
-  .OVFUpdateValue = 0,
-  .UpdateRate = 0
-};
+  init_stack(&task1_tcb, task1_stack, task1);
+  ce:	66 e9       	ldi	r22, 0x96	; 150
+  d0:	71 e0       	ldi	r23, 0x01	; 1
+  d2:	4b ea       	ldi	r20, 0xAB	; 171
+  d4:	50 e0       	ldi	r21, 0x00	; 0
+  d6:	0e 94 be 01 	call	0x37c	; 0x37c <init_stack>
+  init_stack(&task2_tcb, task2_stack, task2);
+  da:	c8 01       	movw	r24, r16
+  dc:	62 e1       	ldi	r22, 0x12	; 18
+  de:	71 e0       	ldi	r23, 0x01	; 1
+  e0:	4d e9       	ldi	r20, 0x9D	; 157
+  e2:	50 e0       	ldi	r21, 0x00	; 0
+  e4:	0e 94 be 01 	call	0x37c	; 0x37c <init_stack>
 
+  // Start first task by restoring its context
+  RESTORE_CONTEXT1();
+  e8:	a0 91 92 01 	lds	r26, 0x0192
+  ec:	b0 91 93 01 	lds	r27, 0x0193
+  f0:	ad bf       	out	0x3d, r26	; 61
+  f2:	be bf       	out	0x3e, r27	; 62
+  f4:	ff 91       	pop	r31
+  f6:	ef 91       	pop	r30
+  f8:	df 91       	pop	r29
+  fa:	cf 91       	pop	r28
+  fc:	bf 91       	pop	r27
+  fe:	af 91       	pop	r26
+ 100:	9f 91       	pop	r25
+ 102:	8f 91       	pop	r24
+ 104:	7f 91       	pop	r23
+ 106:	6f 91       	pop	r22
+ 108:	5f 91       	pop	r21
+ 10a:	4f 91       	pop	r20
+ 10c:	3f 91       	pop	r19
+ 10e:	2f 91       	pop	r18
+ 110:	1f 91       	pop	r17
+ 112:	0f 91       	pop	r16
+ 114:	ff 90       	pop	r15
+ 116:	ef 90       	pop	r14
+ 118:	df 90       	pop	r13
+ 11a:	cf 90       	pop	r12
+ 11c:	bf 90       	pop	r11
+ 11e:	af 90       	pop	r10
+ 120:	9f 90       	pop	r9
+ 122:	8f 90       	pop	r8
+ 124:	7f 90       	pop	r7
+ 126:	6f 90       	pop	r6
+ 128:	5f 90       	pop	r5
+ 12a:	4f 90       	pop	r4
+ 12c:	3f 90       	pop	r3
+ 12e:	2f 90       	pop	r2
+ 130:	1f 90       	pop	r1
+ 132:	0f 90       	pop	r0
+ 134:	0f be       	out	0x3f, r0	; 63
+ 136:	0f 90       	pop	r0
+ 138:	ff cf       	rjmp	.-2      	; 0x138 <main+0x92>
 
-void SysTick_Enable(uint16_t UpdateRateHz){
-  bc:	8f 92       	push	r8
-  be:	9f 92       	push	r9
-  c0:	bf 92       	push	r11
-  c2:	cf 92       	push	r12
-  c4:	df 92       	push	r13
-  c6:	ef 92       	push	r14
-  c8:	ff 92       	push	r15
-  ca:	0f 93       	push	r16
-  cc:	1f 93       	push	r17
-  ce:	df 93       	push	r29
-  d0:	cf 93       	push	r28
-  d2:	cd b7       	in	r28, 0x3d	; 61
-  d4:	de b7       	in	r29, 0x3e	; 62
-  d6:	2a 97       	sbiw	r28, 0x0a	; 10
-  d8:	0f b6       	in	r0, 0x3f	; 63
-  da:	f8 94       	cli
-  dc:	de bf       	out	0x3e, r29	; 62
-  de:	0f be       	out	0x3f, r0	; 63
-  e0:	cd bf       	out	0x3d, r28	; 61
-  e2:	4c 01       	movw	r8, r24
-  uint8_t  clock_div_index = 0;
-  uint16_t clock_div_factor[5] = {1, 8, 64, 256, 1024};
-  e4:	de 01       	movw	r26, r28
-  e6:	11 96       	adiw	r26, 0x01	; 1
-  e8:	e0 e0       	ldi	r30, 0x00	; 0
-  ea:	f1 e0       	ldi	r31, 0x01	; 1
-  ec:	8a e0       	ldi	r24, 0x0A	; 10
-  ee:	01 90       	ld	r0, Z+
-  f0:	0d 92       	st	X+, r0
-  f2:	81 50       	subi	r24, 0x01	; 1
-  f4:	e1 f7       	brne	.-8      	; 0xee <SysTick_Enable+0x32>
-  int32_t  temp, curr_freq;
-
-  temp = F_CPU;
-  temp /= UpdateRateHz;
-  f6:	94 01       	movw	r18, r8
-  f8:	40 e0       	ldi	r20, 0x00	; 0
-  fa:	50 e0       	ldi	r21, 0x00	; 0
-  fc:	60 e0       	ldi	r22, 0x00	; 0
-  fe:	7b e1       	ldi	r23, 0x1B	; 27
- 100:	87 eb       	ldi	r24, 0xB7	; 183
- 102:	90 e0       	ldi	r25, 0x00	; 0
- 104:	0e 94 e3 01 	call	0x3c6	; 0x3c6 <__divmodsi4>
- 108:	b2 2e       	mov	r11, r18
- 10a:	c3 2e       	mov	r12, r19
- 10c:	d4 2e       	mov	r13, r20
- 10e:	05 2f       	mov	r16, r21
- 110:	7e 01       	movw	r14, r28
- 112:	08 94       	sec
- 114:	e1 1c       	adc	r14, r1
- 116:	f1 1c       	adc	r15, r1
- 118:	c9 01       	movw	r24, r18
- 11a:	da 01       	movw	r26, r20
- 11c:	9c 01       	movw	r18, r24
- 11e:	ad 01       	movw	r20, r26
- 120:	10 e0       	ldi	r17, 0x00	; 0
- 122:	13 c0       	rjmp	.+38     	; 0x14a <SysTick_Enable+0x8e>
-  clock_div_index = 0;
-  curr_freq = temp;
-	
-  while( curr_freq > 0xFF ){
-	curr_freq  = temp;
-	curr_freq /= clock_div_factor[clock_div_index];
- 124:	f7 01       	movw	r30, r14
- 126:	21 91       	ld	r18, Z+
- 128:	31 91       	ld	r19, Z+
- 12a:	7f 01       	movw	r14, r30
- 12c:	40 e0       	ldi	r20, 0x00	; 0
- 12e:	50 e0       	ldi	r21, 0x00	; 0
- 130:	6b 2d       	mov	r22, r11
- 132:	7c 2d       	mov	r23, r12
- 134:	8d 2d       	mov	r24, r13
- 136:	90 2f       	mov	r25, r16
- 138:	0e 94 e3 01 	call	0x3c6	; 0x3c6 <__divmodsi4>
- 13c:	c9 01       	movw	r24, r18
- 13e:	da 01       	movw	r26, r20
- 140:	9c 01       	movw	r18, r24
- 142:	ad 01       	movw	r20, r26
-	clock_div_index++;
- 144:	1f 5f       	subi	r17, 0xFF	; 255
-	if(clock_div_index == 5){
- 146:	15 30       	cpi	r17, 0x05	; 5
- 148:	31 f0       	breq	.+12     	; 0x156 <SysTick_Enable+0x9a>
-  temp /= UpdateRateHz;
-	
-  clock_div_index = 0;
-  curr_freq = temp;
-	
-  while( curr_freq > 0xFF ){
- 14a:	2f 3f       	cpi	r18, 0xFF	; 255
- 14c:	31 05       	cpc	r19, r1
- 14e:	41 05       	cpc	r20, r1
- 150:	51 05       	cpc	r21, r1
- 152:	09 f0       	breq	.+2      	; 0x156 <SysTick_Enable+0x9a>
- 154:	3c f7       	brge	.-50     	; 0x124 <SysTick_Enable+0x68>
-	if(clock_div_index == 5){
-	  break;
-	}
-  }
-	
-  clock_div_index -= 1;
- 156:	81 2f       	mov	r24, r17
- 158:	81 50       	subi	r24, 0x01	; 1
-	
-  TCCR0A = 0x00;
- 15a:	14 bc       	out	0x24, r1	; 36
-  TCCR0B = 0x00;
- 15c:	15 bc       	out	0x25, r1	; 37
-  TIMSK0 = 0x00;
- 15e:	10 92 6e 00 	sts	0x006E, r1
-  TIFR0  = 0x00;
- 162:	15 ba       	out	0x15, r1	; 21
-  OCR0A  = 0x00;
- 164:	17 bc       	out	0x27, r1	; 39
-  OCR0B  = 0x00;
- 166:	18 bc       	out	0x28, r1	; 40
-  TCNT0  = 0x00;
- 168:	16 bc       	out	0x26, r1	; 38
-  OCR0A  = 0x00;
- 16a:	17 bc       	out	0x27, r1	; 39
-	
-  if(clock_div_index == 0){
- 16c:	88 23       	and	r24, r24
- 16e:	11 f4       	brne	.+4      	; 0x174 <SysTick_Enable+0xb8>
-	TCCR0B = (1<<CS00);
- 170:	81 e0       	ldi	r24, 0x01	; 1
- 172:	0f c0       	rjmp	.+30     	; 0x192 <SysTick_Enable+0xd6>
-  }
-  else if(clock_div_index == 1){
- 174:	81 30       	cpi	r24, 0x01	; 1
- 176:	11 f4       	brne	.+4      	; 0x17c <SysTick_Enable+0xc0>
-	TCCR0B = (1<<CS01);
- 178:	82 e0       	ldi	r24, 0x02	; 2
- 17a:	0b c0       	rjmp	.+22     	; 0x192 <SysTick_Enable+0xd6>
-  }
-  else if(clock_div_index == 2){
- 17c:	82 30       	cpi	r24, 0x02	; 2
- 17e:	11 f4       	brne	.+4      	; 0x184 <SysTick_Enable+0xc8>
-	TCCR0B = (1<<CS00)|(1<<CS01);
- 180:	83 e0       	ldi	r24, 0x03	; 3
- 182:	07 c0       	rjmp	.+14     	; 0x192 <SysTick_Enable+0xd6>
-  }
-  else if(clock_div_index == 3){
- 184:	83 30       	cpi	r24, 0x03	; 3
- 186:	11 f4       	brne	.+4      	; 0x18c <SysTick_Enable+0xd0>
-	TCCR0B = (1<<CS02);
- 188:	84 e0       	ldi	r24, 0x04	; 4
- 18a:	03 c0       	rjmp	.+6      	; 0x192 <SysTick_Enable+0xd6>
-  }
-  else if(clock_div_index == 4){
- 18c:	84 30       	cpi	r24, 0x04	; 4
- 18e:	11 f4       	brne	.+4      	; 0x194 <SysTick_Enable+0xd8>
-	TCCR0B = (1<<CS00)|(1<<CS02);
- 190:	85 e0       	ldi	r24, 0x05	; 5
- 192:	85 bd       	out	0x25, r24	; 37
-  }
-  
-  SysTick.OVFUpdateValue = (0xFF-curr_freq);
- 194:	8f ef       	ldi	r24, 0xFF	; 255
- 196:	90 e0       	ldi	r25, 0x00	; 0
- 198:	82 1b       	sub	r24, r18
- 19a:	93 0b       	sbc	r25, r19
- 19c:	90 93 0d 01 	sts	0x010D, r25
- 1a0:	80 93 0c 01 	sts	0x010C, r24
-  TCNT0  = SysTick.OVFUpdateValue;
- 1a4:	80 91 0c 01 	lds	r24, 0x010C
- 1a8:	90 91 0d 01 	lds	r25, 0x010D
- 1ac:	86 bd       	out	0x26, r24	; 38
-  TIMSK0 = (1<<TOIE0);
- 1ae:	81 e0       	ldi	r24, 0x01	; 1
- 1b0:	80 93 6e 00 	sts	0x006E, r24
-  sei();
- 1b4:	78 94       	sei
-  SysTick.UpdateRate = UpdateRateHz;
- 1b6:	90 92 0f 01 	sts	0x010F, r9
- 1ba:	80 92 0e 01 	sts	0x010E, r8
-}
- 1be:	2a 96       	adiw	r28, 0x0a	; 10
- 1c0:	0f b6       	in	r0, 0x3f	; 63
- 1c2:	f8 94       	cli
- 1c4:	de bf       	out	0x3e, r29	; 62
- 1c6:	0f be       	out	0x3f, r0	; 63
- 1c8:	cd bf       	out	0x3d, r28	; 61
- 1ca:	cf 91       	pop	r28
- 1cc:	df 91       	pop	r29
- 1ce:	1f 91       	pop	r17
- 1d0:	0f 91       	pop	r16
- 1d2:	ff 90       	pop	r15
- 1d4:	ef 90       	pop	r14
- 1d6:	df 90       	pop	r13
- 1d8:	cf 90       	pop	r12
- 1da:	bf 90       	pop	r11
- 1dc:	9f 90       	pop	r9
- 1de:	8f 90       	pop	r8
- 1e0:	08 95       	ret
-
-000001e2 <SysTick_ISR_Executables>:
-
-
-void SysTick_ISR_Executables(void){
-  Task_ISR_Hanlder();
- 1e2:	0e 94 6d 01 	call	0x2da	; 0x2da <Task_ISR_Hanlder>
-}
- 1e6:	08 95       	ret
-
-000001e8 <__vector_16>:
-
-
-
-
-ISR(TIMER0_OVF_vect){
- 1e8:	1f 92       	push	r1
- 1ea:	0f 92       	push	r0
- 1ec:	0f b6       	in	r0, 0x3f	; 63
- 1ee:	0f 92       	push	r0
- 1f0:	11 24       	eor	r1, r1
- 1f2:	2f 93       	push	r18
- 1f4:	3f 93       	push	r19
- 1f6:	4f 93       	push	r20
- 1f8:	5f 93       	push	r21
- 1fa:	6f 93       	push	r22
- 1fc:	7f 93       	push	r23
- 1fe:	8f 93       	push	r24
- 200:	9f 93       	push	r25
- 202:	af 93       	push	r26
- 204:	bf 93       	push	r27
- 206:	ef 93       	push	r30
- 208:	ff 93       	push	r31
-  GPIO0_Set(1);
- 20a:	81 e0       	ldi	r24, 0x01	; 1
- 20c:	0e 94 2e 01 	call	0x25c	; 0x25c <GPIO0_Set>
-  TCNT0  = SysTick.OVFUpdateValue;
- 210:	80 91 0c 01 	lds	r24, 0x010C
- 214:	90 91 0d 01 	lds	r25, 0x010D
- 218:	86 bd       	out	0x26, r24	; 38
-  SysTick.UpdateRate = UpdateRateHz;
+0000013a <task2>:
+        GPIO0_Toggle();
+		_delay_ms(100);
+    }
 }
 
-
-void SysTick_ISR_Executables(void){
-  Task_ISR_Hanlder();
- 21a:	0e 94 6d 01 	call	0x2da	; 0x2da <Task_ISR_Hanlder>
-
-ISR(TIMER0_OVF_vect){
-  GPIO0_Set(1);
-  TCNT0  = SysTick.OVFUpdateValue;
-  SysTick_ISR_Executables();
-  GPIO0_Set(0);
- 21e:	80 e0       	ldi	r24, 0x00	; 0
- 220:	0e 94 2e 01 	call	0x25c	; 0x25c <GPIO0_Set>
- 224:	ff 91       	pop	r31
- 226:	ef 91       	pop	r30
- 228:	bf 91       	pop	r27
- 22a:	af 91       	pop	r26
- 22c:	9f 91       	pop	r25
- 22e:	8f 91       	pop	r24
- 230:	7f 91       	pop	r23
- 232:	6f 91       	pop	r22
- 234:	5f 91       	pop	r21
- 236:	4f 91       	pop	r20
- 238:	3f 91       	pop	r19
- 23a:	2f 91       	pop	r18
- 23c:	0f 90       	pop	r0
- 23e:	0f be       	out	0x3f, r0	; 63
- 240:	0f 90       	pop	r0
- 242:	1f 90       	pop	r1
- 244:	18 95       	reti
-
-00000246 <GPIO_Init>:
-#include <util/delay.h>
-#include "gpio.h"
-
-
-void GPIO_Init(void){
-  GPIO0_DDR  |=  (1<<GPIO0_bp);
- 246:	50 9a       	sbi	0x0a, 0	; 10
-  GPIO0_PORT &=~ (1<<GPIO0_bp);
- 248:	58 98       	cbi	0x0b, 0	; 11
-  
-  GPIO1_DDR  |=  (1<<GPIO1_bp);
- 24a:	51 9a       	sbi	0x0a, 1	; 10
-  GPIO1_PORT &=~ (1<<GPIO1_bp);
- 24c:	59 98       	cbi	0x0b, 1	; 11
-  
-  GPIO2_DDR  |=  (1<<GPIO2_bp);
- 24e:	38 9a       	sbi	0x07, 0	; 7
-  GPIO2_PORT &=~ (1<<GPIO2_bp);
- 250:	40 98       	cbi	0x08, 0	; 8
-  
-  GPIO3_DDR  |=  (1<<GPIO3_bp);
- 252:	39 9a       	sbi	0x07, 1	; 7
-  GPIO3_PORT &=~ (1<<GPIO3_bp);
- 254:	41 98       	cbi	0x08, 1	; 8
-  
-  GPIO4_DDR  |=  (1<<GPIO4_bp);
- 256:	3a 9a       	sbi	0x07, 2	; 7
-  GPIO4_PORT &=~ (1<<GPIO4_bp);
- 258:	42 98       	cbi	0x08, 2	; 8
-}
- 25a:	08 95       	ret
-
-0000025c <GPIO0_Set>:
-
-void GPIO0_Set(uint8_t val){
-  if(val == 0){
- 25c:	88 23       	and	r24, r24
- 25e:	11 f4       	brne	.+4      	; 0x264 <GPIO0_Set+0x8>
-    GPIO0_PORT &=~ (1<<GPIO0_bp);
- 260:	58 98       	cbi	0x0b, 0	; 11
- 262:	08 95       	ret
-  }
-  else{
-    GPIO0_PORT |=  (1<<GPIO0_bp);
- 264:	58 9a       	sbi	0x0b, 0	; 11
- 266:	08 95       	ret
-
-00000268 <GPIO1_Set>:
-  }
-}
-
-void GPIO1_Set(uint8_t val){
-  if(val == 0){
- 268:	88 23       	and	r24, r24
- 26a:	11 f4       	brne	.+4      	; 0x270 <GPIO1_Set+0x8>
-    GPIO1_PORT &=~ (1<<GPIO1_bp);
- 26c:	59 98       	cbi	0x0b, 1	; 11
- 26e:	08 95       	ret
-  }
-  else{
-    GPIO1_PORT |=  (1<<GPIO1_bp);
- 270:	59 9a       	sbi	0x0b, 1	; 11
- 272:	08 95       	ret
-
-00000274 <GPIO2_Set>:
-  }
-}
-
-void GPIO2_Set(uint8_t val){
-  if(val == 0){
- 274:	88 23       	and	r24, r24
- 276:	11 f4       	brne	.+4      	; 0x27c <GPIO2_Set+0x8>
-    GPIO2_PORT &=~ (1<<GPIO2_bp);
- 278:	40 98       	cbi	0x08, 0	; 8
- 27a:	08 95       	ret
-  }
-  else{
-    GPIO2_PORT |=  (1<<GPIO2_bp);
- 27c:	40 9a       	sbi	0x08, 0	; 8
- 27e:	08 95       	ret
-
-00000280 <GPIO3_Set>:
-  }
-}
-
-void GPIO3_Set(uint8_t val){
-  if(val == 0){
- 280:	88 23       	and	r24, r24
- 282:	11 f4       	brne	.+4      	; 0x288 <GPIO3_Set+0x8>
-    GPIO3_PORT &=~ (1<<GPIO3_bp);
- 284:	41 98       	cbi	0x08, 1	; 8
- 286:	08 95       	ret
-  }
-  else{
-    GPIO3_PORT |=  (1<<GPIO3_bp);
- 288:	41 9a       	sbi	0x08, 1	; 8
- 28a:	08 95       	ret
-
-0000028c <GPIO4_Set>:
-  }
-}
-
-void GPIO4_Set(uint8_t val){
-  if(val == 0){
- 28c:	88 23       	and	r24, r24
- 28e:	11 f4       	brne	.+4      	; 0x294 <GPIO4_Set+0x8>
-    GPIO4_PORT &=~ (1<<GPIO4_bp);
- 290:	42 98       	cbi	0x08, 2	; 8
- 292:	08 95       	ret
-  }
-  else{
-    GPIO4_PORT |=  (1<<GPIO4_bp);
- 294:	42 9a       	sbi	0x08, 2	; 8
- 296:	08 95       	ret
-
-00000298 <Task_Init>:
-volatile uint8_t CurrentTask  = 0;
-volatile uint8_t PreviousTask = 0;
-
-
-void Task_Init(void){
-  Tasks[0].TaskStatus    = TASK_NOT_STARTED;
- 298:	10 92 12 01 	sts	0x0112, r1
-  Tasks[0].TaskPriority  = 0;
- 29c:	10 92 13 01 	sts	0x0113, r1
-  Tasks[0].TaskFunctions = &Task0;
- 2a0:	89 ed       	ldi	r24, 0xD9	; 217
- 2a2:	91 e0       	ldi	r25, 0x01	; 1
- 2a4:	90 93 15 01 	sts	0x0115, r25
- 2a8:	80 93 14 01 	sts	0x0114, r24
-  
-  Tasks[1].TaskStatus    = TASK_NOT_STARTED;
- 2ac:	10 92 16 01 	sts	0x0116, r1
-  Tasks[1].TaskPriority  = 1;
- 2b0:	81 e0       	ldi	r24, 0x01	; 1
- 2b2:	80 93 17 01 	sts	0x0117, r24
-  Tasks[1].TaskFunctions = &Task1;
- 2b6:	8e ec       	ldi	r24, 0xCE	; 206
- 2b8:	91 e0       	ldi	r25, 0x01	; 1
- 2ba:	90 93 19 01 	sts	0x0119, r25
- 2be:	80 93 18 01 	sts	0x0118, r24
-  
-  Tasks[2].TaskStatus    = TASK_NOT_STARTED;
- 2c2:	10 92 1a 01 	sts	0x011A, r1
-  Tasks[2].TaskPriority  = 2;
- 2c6:	82 e0       	ldi	r24, 0x02	; 2
- 2c8:	80 93 1b 01 	sts	0x011B, r24
-  Tasks[2].TaskFunctions = &Task2;
- 2cc:	83 ec       	ldi	r24, 0xC3	; 195
- 2ce:	91 e0       	ldi	r25, 0x01	; 1
- 2d0:	90 93 1d 01 	sts	0x011D, r25
- 2d4:	80 93 1c 01 	sts	0x011C, r24
-}
- 2d8:	08 95       	ret
-
-000002da <Task_ISR_Hanlder>:
-
-void Task_ISR_Hanlder(void){
-  if(Tasks[CurrentTask].TaskStatus == TASK_COMPLETED){
- 2da:	e0 91 10 01 	lds	r30, 0x0110
- 2de:	f0 e0       	ldi	r31, 0x00	; 0
- 2e0:	ee 0f       	add	r30, r30
- 2e2:	ff 1f       	adc	r31, r31
- 2e4:	ee 0f       	add	r30, r30
- 2e6:	ff 1f       	adc	r31, r31
- 2e8:	ee 5e       	subi	r30, 0xEE	; 238
- 2ea:	fe 4f       	sbci	r31, 0xFE	; 254
- 2ec:	80 81       	ld	r24, Z
- 2ee:	82 30       	cpi	r24, 0x02	; 2
- 2f0:	51 f4       	brne	.+20     	; 0x306 <Task_ISR_Hanlder+0x2c>
-    Tasks[CurrentTask].TaskStatus = TASK_NOT_STARTED;
- 2f2:	e0 91 10 01 	lds	r30, 0x0110
- 2f6:	f0 e0       	ldi	r31, 0x00	; 0
- 2f8:	ee 0f       	add	r30, r30
- 2fa:	ff 1f       	adc	r31, r31
- 2fc:	ee 0f       	add	r30, r30
- 2fe:	ff 1f       	adc	r31, r31
- 300:	ee 5e       	subi	r30, 0xEE	; 238
- 302:	fe 4f       	sbci	r31, 0xFE	; 254
- 304:	10 82       	st	Z, r1
-  }
-  CurrentTask++;
- 306:	80 91 10 01 	lds	r24, 0x0110
- 30a:	8f 5f       	subi	r24, 0xFF	; 255
- 30c:	80 93 10 01 	sts	0x0110, r24
-  if(CurrentTask>2){
- 310:	80 91 10 01 	lds	r24, 0x0110
- 314:	83 30       	cpi	r24, 0x03	; 3
- 316:	10 f0       	brcs	.+4      	; 0x31c <Task_ISR_Hanlder+0x42>
-    CurrentTask = 0;
- 318:	10 92 10 01 	sts	0x0110, r1
- 31c:	08 95       	ret
-
-0000031e <Task_Mainloop_Hanlder>:
-  }
-}
-
-void Task_Mainloop_Hanlder(void){
-  switch (Tasks[CurrentTask].TaskStatus){
- 31e:	e0 91 10 01 	lds	r30, 0x0110
- 322:	f0 e0       	ldi	r31, 0x00	; 0
- 324:	ee 0f       	add	r30, r30
- 326:	ff 1f       	adc	r31, r31
- 328:	ee 0f       	add	r30, r30
- 32a:	ff 1f       	adc	r31, r31
- 32c:	ee 5e       	subi	r30, 0xEE	; 238
- 32e:	fe 4f       	sbci	r31, 0xFE	; 254
- 330:	e0 81       	ld	r30, Z
- 332:	ee 23       	and	r30, r30
- 334:	19 f0       	breq	.+6      	; 0x33c <Task_Mainloop_Hanlder+0x1e>
- 336:	e1 30       	cpi	r30, 0x01	; 1
- 338:	29 f5       	brne	.+74     	; 0x384 <Task_Mainloop_Hanlder+0x66>
- 33a:	0c c0       	rjmp	.+24     	; 0x354 <Task_Mainloop_Hanlder+0x36>
-    case TASK_NOT_STARTED:
-	  Tasks[CurrentTask].TaskStatus = TASK_STARTED;
- 33c:	e0 91 10 01 	lds	r30, 0x0110
- 340:	f0 e0       	ldi	r31, 0x00	; 0
- 342:	ee 0f       	add	r30, r30
- 344:	ff 1f       	adc	r31, r31
- 346:	ee 0f       	add	r30, r30
- 348:	ff 1f       	adc	r31, r31
- 34a:	ee 5e       	subi	r30, 0xEE	; 238
- 34c:	fe 4f       	sbci	r31, 0xFE	; 254
- 34e:	81 e0       	ldi	r24, 0x01	; 1
- 350:	80 83       	st	Z, r24
- 352:	08 95       	ret
-	  break;
-	
-	case TASK_STARTED:
-	  Tasks[CurrentTask].TaskFunctions();
- 354:	e0 91 10 01 	lds	r30, 0x0110
- 358:	f0 e0       	ldi	r31, 0x00	; 0
- 35a:	ee 0f       	add	r30, r30
- 35c:	ff 1f       	adc	r31, r31
- 35e:	ee 0f       	add	r30, r30
- 360:	ff 1f       	adc	r31, r31
- 362:	ec 5e       	subi	r30, 0xEC	; 236
- 364:	fe 4f       	sbci	r31, 0xFE	; 254
- 366:	01 90       	ld	r0, Z+
- 368:	f0 81       	ld	r31, Z
- 36a:	e0 2d       	mov	r30, r0
- 36c:	09 95       	icall
-	  Tasks[CurrentTask].TaskStatus = TASK_COMPLETED;
- 36e:	e0 91 10 01 	lds	r30, 0x0110
- 372:	f0 e0       	ldi	r31, 0x00	; 0
- 374:	ee 0f       	add	r30, r30
- 376:	ff 1f       	adc	r31, r31
- 378:	ee 0f       	add	r30, r30
- 37a:	ff 1f       	adc	r31, r31
- 37c:	ee 5e       	subi	r30, 0xEE	; 238
- 37e:	fe 4f       	sbci	r31, 0xFE	; 254
- 380:	82 e0       	ldi	r24, 0x02	; 2
- 382:	80 83       	st	Z, r24
- 384:	08 95       	ret
-
-00000386 <Task2>:
-  _delay_us(100);
-  GPIO3_Set(0);
-}
-
-void Task2(void){
-  GPIO4_Set(1);
- 386:	81 e0       	ldi	r24, 0x01	; 1
- 388:	0e 94 46 01 	call	0x28c	; 0x28c <GPIO4_Set>
+void task2(void) {
+ 13a:	cf 93       	push	r28
+ 13c:	df 93       	push	r29
     milliseconds can be achieved.
  */
 void
 _delay_loop_2(uint16_t __count)
 {
 	__asm__ volatile (
- 38c:	88 e5       	ldi	r24, 0x58	; 88
- 38e:	92 e0       	ldi	r25, 0x02	; 2
- 390:	01 97       	sbiw	r24, 0x01	; 1
- 392:	f1 f7       	brne	.-4      	; 0x390 <Task2+0xa>
-  _delay_us(200);
-  GPIO4_Set(0);
- 394:	80 e0       	ldi	r24, 0x00	; 0
- 396:	0e 94 46 01 	call	0x28c	; 0x28c <GPIO4_Set>
+ 13e:	c8 ec       	ldi	r28, 0xC8	; 200
+ 140:	d0 e0       	ldi	r29, 0x00	; 0
+	
+	
+	
+    while (1) {
+        GPIO1_Toggle();
+ 142:	0e 94 94 01 	call	0x328	; 0x328 <GPIO1_Toggle>
+ 146:	88 e8       	ldi	r24, 0x88	; 136
+ 148:	93 e1       	ldi	r25, 0x13	; 19
+ 14a:	fe 01       	movw	r30, r28
+ 14c:	31 97       	sbiw	r30, 0x01	; 1
+ 14e:	f1 f7       	brne	.-4      	; 0x14c <task2+0x12>
+		__ticks = (uint16_t) (__ms * 10.0);
+		while(__ticks)
+		{
+			// wait 1/10 ms
+			_delay_loop_2(((F_CPU) / 4e3) / 10);
+			__ticks --;
+ 150:	01 97       	sbiw	r24, 0x01	; 1
+		__ticks = 1;
+	else if (__tmp > 65535)
+	{
+		//	__ticks = requested delay in 1/10 ms
+		__ticks = (uint16_t) (__ms * 10.0);
+		while(__ticks)
+ 152:	d9 f7       	brne	.-10     	; 0x14a <task2+0x10>
+ 154:	f6 cf       	rjmp	.-20     	; 0x142 <task2+0x8>
+
+00000156 <task1>:
+#include "tasks.h"
+#include "gpio.h"
+
+
+
+void task1(void) {
+ 156:	cf 93       	push	r28
+ 158:	df 93       	push	r29
+ 15a:	c8 ec       	ldi	r28, 0xC8	; 200
+ 15c:	d0 e0       	ldi	r29, 0x00	; 0
+    
+	
+	
+    while (1) {
+        GPIO0_Toggle();
+ 15e:	0e 94 88 01 	call	0x310	; 0x310 <GPIO0_Toggle>
+ 162:	88 ee       	ldi	r24, 0xE8	; 232
+ 164:	93 e0       	ldi	r25, 0x03	; 3
+ 166:	fe 01       	movw	r30, r28
+ 168:	31 97       	sbiw	r30, 0x01	; 1
+ 16a:	f1 f7       	brne	.-4      	; 0x168 <task1+0x12>
+		{
+			// wait 1/10 ms
+			_delay_loop_2(((F_CPU) / 4e3) / 10);
+			__ticks --;
+ 16c:	01 97       	sbiw	r24, 0x01	; 1
+		__ticks = 1;
+	else if (__tmp > 65535)
+	{
+		//	__ticks = requested delay in 1/10 ms
+		__ticks = (uint16_t) (__ms * 10.0);
+		while(__ticks)
+ 16e:	d9 f7       	brne	.-10     	; 0x166 <task1+0x10>
+ 170:	f6 cf       	rjmp	.-20     	; 0x15e <task1+0x8>
+
+00000172 <SysTick_Enable>:
+  .OVFUpdateValue = 0,
+  .UpdateRate = 0
+};
+
+
+void SysTick_Enable(uint16_t UpdateRateHz){
+ 172:	8f 92       	push	r8
+ 174:	9f 92       	push	r9
+ 176:	bf 92       	push	r11
+ 178:	cf 92       	push	r12
+ 17a:	df 92       	push	r13
+ 17c:	ef 92       	push	r14
+ 17e:	ff 92       	push	r15
+ 180:	0f 93       	push	r16
+ 182:	1f 93       	push	r17
+ 184:	df 93       	push	r29
+ 186:	cf 93       	push	r28
+ 188:	cd b7       	in	r28, 0x3d	; 61
+ 18a:	de b7       	in	r29, 0x3e	; 62
+ 18c:	2a 97       	sbiw	r28, 0x0a	; 10
+ 18e:	0f b6       	in	r0, 0x3f	; 63
+ 190:	f8 94       	cli
+ 192:	de bf       	out	0x3e, r29	; 62
+ 194:	0f be       	out	0x3f, r0	; 63
+ 196:	cd bf       	out	0x3d, r28	; 61
+ 198:	4c 01       	movw	r8, r24
+  uint8_t  clock_div_index = 0;
+  uint16_t clock_div_factor[5] = {1, 8, 64, 256, 1024};
+ 19a:	de 01       	movw	r26, r28
+ 19c:	11 96       	adiw	r26, 0x01	; 1
+ 19e:	e0 e0       	ldi	r30, 0x00	; 0
+ 1a0:	f1 e0       	ldi	r31, 0x01	; 1
+ 1a2:	8a e0       	ldi	r24, 0x0A	; 10
+ 1a4:	01 90       	ld	r0, Z+
+ 1a6:	0d 92       	st	X+, r0
+ 1a8:	81 50       	subi	r24, 0x01	; 1
+ 1aa:	e1 f7       	brne	.-8      	; 0x1a4 <SysTick_Enable+0x32>
+  int32_t  temp, curr_freq;
+
+  temp = F_CPU;
+  temp /= UpdateRateHz;
+ 1ac:	94 01       	movw	r18, r8
+ 1ae:	40 e0       	ldi	r20, 0x00	; 0
+ 1b0:	50 e0       	ldi	r21, 0x00	; 0
+ 1b2:	60 e0       	ldi	r22, 0x00	; 0
+ 1b4:	72 e1       	ldi	r23, 0x12	; 18
+ 1b6:	8a e7       	ldi	r24, 0x7A	; 122
+ 1b8:	90 e0       	ldi	r25, 0x00	; 0
+ 1ba:	0e 94 3a 02 	call	0x474	; 0x474 <__divmodsi4>
+ 1be:	b2 2e       	mov	r11, r18
+ 1c0:	c3 2e       	mov	r12, r19
+ 1c2:	d4 2e       	mov	r13, r20
+ 1c4:	05 2f       	mov	r16, r21
+ 1c6:	7e 01       	movw	r14, r28
+ 1c8:	08 94       	sec
+ 1ca:	e1 1c       	adc	r14, r1
+ 1cc:	f1 1c       	adc	r15, r1
+ 1ce:	c9 01       	movw	r24, r18
+ 1d0:	da 01       	movw	r26, r20
+ 1d2:	9c 01       	movw	r18, r24
+ 1d4:	ad 01       	movw	r20, r26
+ 1d6:	10 e0       	ldi	r17, 0x00	; 0
+ 1d8:	13 c0       	rjmp	.+38     	; 0x200 <SysTick_Enable+0x8e>
+  clock_div_index = 0;
+  curr_freq = temp;
+	
+  while( curr_freq > 0xFF ){
+	curr_freq  = temp;
+	curr_freq /= clock_div_factor[clock_div_index];
+ 1da:	f7 01       	movw	r30, r14
+ 1dc:	21 91       	ld	r18, Z+
+ 1de:	31 91       	ld	r19, Z+
+ 1e0:	7f 01       	movw	r14, r30
+ 1e2:	40 e0       	ldi	r20, 0x00	; 0
+ 1e4:	50 e0       	ldi	r21, 0x00	; 0
+ 1e6:	6b 2d       	mov	r22, r11
+ 1e8:	7c 2d       	mov	r23, r12
+ 1ea:	8d 2d       	mov	r24, r13
+ 1ec:	90 2f       	mov	r25, r16
+ 1ee:	0e 94 3a 02 	call	0x474	; 0x474 <__divmodsi4>
+ 1f2:	c9 01       	movw	r24, r18
+ 1f4:	da 01       	movw	r26, r20
+ 1f6:	9c 01       	movw	r18, r24
+ 1f8:	ad 01       	movw	r20, r26
+	clock_div_index++;
+ 1fa:	1f 5f       	subi	r17, 0xFF	; 255
+	if(clock_div_index == 5){
+ 1fc:	15 30       	cpi	r17, 0x05	; 5
+ 1fe:	31 f0       	breq	.+12     	; 0x20c <SysTick_Enable+0x9a>
+  temp /= UpdateRateHz;
+	
+  clock_div_index = 0;
+  curr_freq = temp;
+	
+  while( curr_freq > 0xFF ){
+ 200:	2f 3f       	cpi	r18, 0xFF	; 255
+ 202:	31 05       	cpc	r19, r1
+ 204:	41 05       	cpc	r20, r1
+ 206:	51 05       	cpc	r21, r1
+ 208:	09 f0       	breq	.+2      	; 0x20c <SysTick_Enable+0x9a>
+ 20a:	3c f7       	brge	.-50     	; 0x1da <SysTick_Enable+0x68>
+	if(clock_div_index == 5){
+	  break;
+	}
+  }
+	
+  clock_div_index -= 1;
+ 20c:	81 2f       	mov	r24, r17
+ 20e:	81 50       	subi	r24, 0x01	; 1
+	
+  TCCR0A = 0x00;
+ 210:	14 bc       	out	0x24, r1	; 36
+  TCCR0B = 0x00;
+ 212:	15 bc       	out	0x25, r1	; 37
+  TIMSK0 = 0x00;
+ 214:	10 92 6e 00 	sts	0x006E, r1
+  TIFR0  = 0x00;
+ 218:	15 ba       	out	0x15, r1	; 21
+  OCR0A  = 0x00;
+ 21a:	17 bc       	out	0x27, r1	; 39
+  OCR0B  = 0x00;
+ 21c:	18 bc       	out	0x28, r1	; 40
+  TCNT0  = 0x00;
+ 21e:	16 bc       	out	0x26, r1	; 38
+  OCR0A  = 0x00;
+ 220:	17 bc       	out	0x27, r1	; 39
+  
+  if(clock_div_index == 0){
+ 222:	88 23       	and	r24, r24
+ 224:	11 f4       	brne	.+4      	; 0x22a <SysTick_Enable+0xb8>
+	TCCR0B = (1<<CS00);
+ 226:	81 e0       	ldi	r24, 0x01	; 1
+ 228:	0f c0       	rjmp	.+30     	; 0x248 <SysTick_Enable+0xd6>
+  }
+  else if(clock_div_index == 1){
+ 22a:	81 30       	cpi	r24, 0x01	; 1
+ 22c:	11 f4       	brne	.+4      	; 0x232 <SysTick_Enable+0xc0>
+	TCCR0B = (1<<CS01);
+ 22e:	82 e0       	ldi	r24, 0x02	; 2
+ 230:	0b c0       	rjmp	.+22     	; 0x248 <SysTick_Enable+0xd6>
+  }
+  else if(clock_div_index == 2){
+ 232:	82 30       	cpi	r24, 0x02	; 2
+ 234:	11 f4       	brne	.+4      	; 0x23a <SysTick_Enable+0xc8>
+	TCCR0B = (1<<CS00)|(1<<CS01);
+ 236:	83 e0       	ldi	r24, 0x03	; 3
+ 238:	07 c0       	rjmp	.+14     	; 0x248 <SysTick_Enable+0xd6>
+  }
+  else if(clock_div_index == 3){
+ 23a:	83 30       	cpi	r24, 0x03	; 3
+ 23c:	11 f4       	brne	.+4      	; 0x242 <SysTick_Enable+0xd0>
+	TCCR0B = (1<<CS02);
+ 23e:	84 e0       	ldi	r24, 0x04	; 4
+ 240:	03 c0       	rjmp	.+6      	; 0x248 <SysTick_Enable+0xd6>
+  }
+  else if(clock_div_index == 4){
+ 242:	84 30       	cpi	r24, 0x04	; 4
+ 244:	11 f4       	brne	.+4      	; 0x24a <SysTick_Enable+0xd8>
+	TCCR0B = (1<<CS00)|(1<<CS02);
+ 246:	85 e0       	ldi	r24, 0x05	; 5
+ 248:	85 bd       	out	0x25, r24	; 37
+  }
+  
+  SysTick.OVFUpdateValue = (0xFF-curr_freq);
+ 24a:	8f ef       	ldi	r24, 0xFF	; 255
+ 24c:	90 e0       	ldi	r25, 0x00	; 0
+ 24e:	82 1b       	sub	r24, r18
+ 250:	93 0b       	sbc	r25, r19
+ 252:	90 93 0d 01 	sts	0x010D, r25
+ 256:	80 93 0c 01 	sts	0x010C, r24
+  TCNT0  = SysTick.OVFUpdateValue;
+ 25a:	80 91 0c 01 	lds	r24, 0x010C
+ 25e:	90 91 0d 01 	lds	r25, 0x010D
+ 262:	86 bd       	out	0x26, r24	; 38
+  TIMSK0 = (1<<TOIE0);
+ 264:	81 e0       	ldi	r24, 0x01	; 1
+ 266:	80 93 6e 00 	sts	0x006E, r24
+  sei();
+ 26a:	78 94       	sei
+  SysTick.UpdateRate = UpdateRateHz;
+ 26c:	90 92 0f 01 	sts	0x010F, r9
+ 270:	80 92 0e 01 	sts	0x010E, r8
 }
- 39a:	08 95       	ret
+ 274:	2a 96       	adiw	r28, 0x0a	; 10
+ 276:	0f b6       	in	r0, 0x3f	; 63
+ 278:	f8 94       	cli
+ 27a:	de bf       	out	0x3e, r29	; 62
+ 27c:	0f be       	out	0x3f, r0	; 63
+ 27e:	cd bf       	out	0x3d, r28	; 61
+ 280:	cf 91       	pop	r28
+ 282:	df 91       	pop	r29
+ 284:	1f 91       	pop	r17
+ 286:	0f 91       	pop	r16
+ 288:	ff 90       	pop	r15
+ 28a:	ef 90       	pop	r14
+ 28c:	df 90       	pop	r13
+ 28e:	cf 90       	pop	r12
+ 290:	bf 90       	pop	r11
+ 292:	9f 90       	pop	r9
+ 294:	8f 90       	pop	r8
+ 296:	08 95       	ret
 
-0000039c <Task1>:
-  _delay_us(50);
-  GPIO2_Set(0);
+00000298 <__vector_16>:
+
+
+
+
+
+ISR(TIMER0_OVF_vect){
+ 298:	1f 92       	push	r1
+ 29a:	0f 92       	push	r0
+ 29c:	0f b6       	in	r0, 0x3f	; 63
+ 29e:	0f 92       	push	r0
+ 2a0:	11 24       	eor	r1, r1
+ 2a2:	2f 93       	push	r18
+ 2a4:	3f 93       	push	r19
+ 2a6:	4f 93       	push	r20
+ 2a8:	5f 93       	push	r21
+ 2aa:	6f 93       	push	r22
+ 2ac:	7f 93       	push	r23
+ 2ae:	8f 93       	push	r24
+ 2b0:	9f 93       	push	r25
+ 2b2:	af 93       	push	r26
+ 2b4:	bf 93       	push	r27
+ 2b6:	ef 93       	push	r30
+ 2b8:	ff 93       	push	r31
+  TCNT0  = SysTick.OVFUpdateValue;
+ 2ba:	80 91 0c 01 	lds	r24, 0x010C
+ 2be:	90 91 0d 01 	lds	r25, 0x010D
+ 2c2:	86 bd       	out	0x26, r24	; 38
+  task_switch();
+ 2c4:	0e 94 d7 01 	call	0x3ae	; 0x3ae <task_switch>
+  GPIO0_Toggle();
+ 2c8:	0e 94 88 01 	call	0x310	; 0x310 <GPIO0_Toggle>
+  //GPIO1_Toggle();
+}
+ 2cc:	ff 91       	pop	r31
+ 2ce:	ef 91       	pop	r30
+ 2d0:	bf 91       	pop	r27
+ 2d2:	af 91       	pop	r26
+ 2d4:	9f 91       	pop	r25
+ 2d6:	8f 91       	pop	r24
+ 2d8:	7f 91       	pop	r23
+ 2da:	6f 91       	pop	r22
+ 2dc:	5f 91       	pop	r21
+ 2de:	4f 91       	pop	r20
+ 2e0:	3f 91       	pop	r19
+ 2e2:	2f 91       	pop	r18
+ 2e4:	0f 90       	pop	r0
+ 2e6:	0f be       	out	0x3f, r0	; 63
+ 2e8:	0f 90       	pop	r0
+ 2ea:	1f 90       	pop	r1
+ 2ec:	18 95       	reti
+
+000002ee <GPIO_Init>:
+#include <util/delay.h>
+#include "gpio.h"
+
+
+void GPIO_Init(void){
+  GPIO0_DDR  |=  (1<<GPIO0_bp);
+ 2ee:	55 9a       	sbi	0x0a, 5	; 10
+  GPIO0_PORT &=~ (1<<GPIO0_bp);
+ 2f0:	5d 98       	cbi	0x0b, 5	; 11
+  
+  GPIO1_DDR  |=  (1<<GPIO1_bp);
+ 2f2:	56 9a       	sbi	0x0a, 6	; 10
+  GPIO1_PORT &=~ (1<<GPIO1_bp);
+ 2f4:	5e 98       	cbi	0x0b, 6	; 11
+  
+  GPIO2_DDR  |=  (1<<GPIO2_bp);
+ 2f6:	38 9a       	sbi	0x07, 0	; 7
+  GPIO2_PORT &=~ (1<<GPIO2_bp);
+ 2f8:	40 98       	cbi	0x08, 0	; 8
+  
+  GPIO3_DDR  |=  (1<<GPIO3_bp);
+ 2fa:	39 9a       	sbi	0x07, 1	; 7
+  GPIO3_PORT &=~ (1<<GPIO3_bp);
+ 2fc:	41 98       	cbi	0x08, 1	; 8
+  
+  GPIO4_DDR  |=  (1<<GPIO4_bp);
+ 2fe:	3a 9a       	sbi	0x07, 2	; 7
+  GPIO4_PORT &=~ (1<<GPIO4_bp);
+ 300:	42 98       	cbi	0x08, 2	; 8
+}
+ 302:	08 95       	ret
+
+00000304 <GPIO0_Set>:
+
+
+
+
+void GPIO0_Set(uint8_t val){
+  if(val == 0){
+ 304:	88 23       	and	r24, r24
+ 306:	11 f4       	brne	.+4      	; 0x30c <GPIO0_Set+0x8>
+    GPIO0_PORT &=~ (1<<GPIO0_bp);
+ 308:	5d 98       	cbi	0x0b, 5	; 11
+ 30a:	08 95       	ret
+  }
+  else{
+    GPIO0_PORT |=  (1<<GPIO0_bp);
+ 30c:	5d 9a       	sbi	0x0b, 5	; 11
+ 30e:	08 95       	ret
+
+00000310 <GPIO0_Toggle>:
+  }
 }
 
-void Task1(void){
-  GPIO3_Set(1);
- 39c:	81 e0       	ldi	r24, 0x01	; 1
- 39e:	0e 94 40 01 	call	0x280	; 0x280 <GPIO3_Set>
- 3a2:	8c e2       	ldi	r24, 0x2C	; 44
- 3a4:	91 e0       	ldi	r25, 0x01	; 1
- 3a6:	01 97       	sbiw	r24, 0x01	; 1
- 3a8:	f1 f7       	brne	.-4      	; 0x3a6 <Task1+0xa>
-  _delay_us(100);
-  GPIO3_Set(0);
- 3aa:	80 e0       	ldi	r24, 0x00	; 0
- 3ac:	0e 94 40 01 	call	0x280	; 0x280 <GPIO3_Set>
+void GPIO0_Toggle(void){
+  if(GPIO0_PORT & (1<<GPIO0_bp)){
+ 310:	5d 9b       	sbis	0x0b, 5	; 11
+ 312:	02 c0       	rjmp	.+4      	; 0x318 <GPIO0_Toggle+0x8>
+    GPIO0_PORT &=~ (1<<GPIO0_bp);
+ 314:	5d 98       	cbi	0x0b, 5	; 11
+ 316:	08 95       	ret
+  }
+  else{
+    GPIO0_PORT |=  (1<<GPIO0_bp);
+ 318:	5d 9a       	sbi	0x0b, 5	; 11
+ 31a:	08 95       	ret
+
+0000031c <GPIO1_Set>:
+
+
+
+
+void GPIO1_Set(uint8_t val){
+  if(val == 0){
+ 31c:	88 23       	and	r24, r24
+ 31e:	11 f4       	brne	.+4      	; 0x324 <GPIO1_Set+0x8>
+    GPIO1_PORT &=~ (1<<GPIO1_bp);
+ 320:	5e 98       	cbi	0x0b, 6	; 11
+ 322:	08 95       	ret
+  }
+  else{
+    GPIO1_PORT |=  (1<<GPIO1_bp);
+ 324:	5e 9a       	sbi	0x0b, 6	; 11
+ 326:	08 95       	ret
+
+00000328 <GPIO1_Toggle>:
+  }
 }
- 3b0:	08 95       	ret
 
-000003b2 <Task0>:
+void GPIO1_Toggle(void){
+  if(GPIO1_PORT & (1<<GPIO1_bp)){
+ 328:	5e 9b       	sbis	0x0b, 6	; 11
+ 32a:	02 c0       	rjmp	.+4      	; 0x330 <GPIO1_Toggle+0x8>
+    GPIO1_PORT &=~ (1<<GPIO1_bp);
+ 32c:	5e 98       	cbi	0x0b, 6	; 11
+ 32e:	08 95       	ret
+  }
+  else{
+    GPIO1_PORT |=  (1<<GPIO1_bp);
+ 330:	5e 9a       	sbi	0x0b, 6	; 11
+ 332:	08 95       	ret
+
+00000334 <GPIO2_Set>:
 
 
 
 
-void Task0(void){
-  GPIO2_Set(1);
- 3b2:	81 e0       	ldi	r24, 0x01	; 1
- 3b4:	0e 94 3a 01 	call	0x274	; 0x274 <GPIO2_Set>
-    can be achieved.
-*/
-void
-_delay_loop_1(uint8_t __count)
-{
-	__asm__ volatile (
- 3b8:	88 ec       	ldi	r24, 0xC8	; 200
- 3ba:	8a 95       	dec	r24
- 3bc:	f1 f7       	brne	.-4      	; 0x3ba <Task0+0x8>
-  _delay_us(50);
-  GPIO2_Set(0);
- 3be:	80 e0       	ldi	r24, 0x00	; 0
- 3c0:	0e 94 3a 01 	call	0x274	; 0x274 <GPIO2_Set>
+void GPIO2_Set(uint8_t val){
+  if(val == 0){
+ 334:	88 23       	and	r24, r24
+ 336:	11 f4       	brne	.+4      	; 0x33c <GPIO2_Set+0x8>
+    GPIO2_PORT &=~ (1<<GPIO2_bp);
+ 338:	40 98       	cbi	0x08, 0	; 8
+ 33a:	08 95       	ret
+  }
+  else{
+    GPIO2_PORT |=  (1<<GPIO2_bp);
+ 33c:	40 9a       	sbi	0x08, 0	; 8
+ 33e:	08 95       	ret
+
+00000340 <GPIO2_Toggle>:
+  }
 }
- 3c4:	08 95       	ret
 
-000003c6 <__divmodsi4>:
- 3c6:	97 fb       	bst	r25, 7
- 3c8:	09 2e       	mov	r0, r25
- 3ca:	05 26       	eor	r0, r21
- 3cc:	0e d0       	rcall	.+28     	; 0x3ea <__divmodsi4_neg1>
- 3ce:	57 fd       	sbrc	r21, 7
- 3d0:	04 d0       	rcall	.+8      	; 0x3da <__divmodsi4_neg2>
- 3d2:	14 d0       	rcall	.+40     	; 0x3fc <__udivmodsi4>
- 3d4:	0a d0       	rcall	.+20     	; 0x3ea <__divmodsi4_neg1>
- 3d6:	00 1c       	adc	r0, r0
- 3d8:	38 f4       	brcc	.+14     	; 0x3e8 <__divmodsi4_exit>
+void GPIO2_Toggle(void){
+  if(GPIO2_PORT & (1<<GPIO2_bp)){
+ 340:	40 9b       	sbis	0x08, 0	; 8
+ 342:	02 c0       	rjmp	.+4      	; 0x348 <GPIO2_Toggle+0x8>
+    GPIO2_PORT &=~ (1<<GPIO2_bp);
+ 344:	40 98       	cbi	0x08, 0	; 8
+ 346:	08 95       	ret
+  }
+  else{
+    GPIO2_PORT |=  (1<<GPIO2_bp);
+ 348:	40 9a       	sbi	0x08, 0	; 8
+ 34a:	08 95       	ret
 
-000003da <__divmodsi4_neg2>:
- 3da:	50 95       	com	r21
- 3dc:	40 95       	com	r20
- 3de:	30 95       	com	r19
- 3e0:	21 95       	neg	r18
- 3e2:	3f 4f       	sbci	r19, 0xFF	; 255
- 3e4:	4f 4f       	sbci	r20, 0xFF	; 255
- 3e6:	5f 4f       	sbci	r21, 0xFF	; 255
+0000034c <GPIO3_Set>:
 
-000003e8 <__divmodsi4_exit>:
- 3e8:	08 95       	ret
 
-000003ea <__divmodsi4_neg1>:
- 3ea:	f6 f7       	brtc	.-4      	; 0x3e8 <__divmodsi4_exit>
- 3ec:	90 95       	com	r25
- 3ee:	80 95       	com	r24
- 3f0:	70 95       	com	r23
- 3f2:	61 95       	neg	r22
- 3f4:	7f 4f       	sbci	r23, 0xFF	; 255
- 3f6:	8f 4f       	sbci	r24, 0xFF	; 255
- 3f8:	9f 4f       	sbci	r25, 0xFF	; 255
- 3fa:	08 95       	ret
 
-000003fc <__udivmodsi4>:
- 3fc:	a1 e2       	ldi	r26, 0x21	; 33
- 3fe:	1a 2e       	mov	r1, r26
- 400:	aa 1b       	sub	r26, r26
- 402:	bb 1b       	sub	r27, r27
- 404:	fd 01       	movw	r30, r26
- 406:	0d c0       	rjmp	.+26     	; 0x422 <__udivmodsi4_ep>
 
-00000408 <__udivmodsi4_loop>:
- 408:	aa 1f       	adc	r26, r26
- 40a:	bb 1f       	adc	r27, r27
- 40c:	ee 1f       	adc	r30, r30
- 40e:	ff 1f       	adc	r31, r31
- 410:	a2 17       	cp	r26, r18
- 412:	b3 07       	cpc	r27, r19
- 414:	e4 07       	cpc	r30, r20
- 416:	f5 07       	cpc	r31, r21
- 418:	20 f0       	brcs	.+8      	; 0x422 <__udivmodsi4_ep>
- 41a:	a2 1b       	sub	r26, r18
- 41c:	b3 0b       	sbc	r27, r19
- 41e:	e4 0b       	sbc	r30, r20
- 420:	f5 0b       	sbc	r31, r21
+void GPIO3_Set(uint8_t val){
+  if(val == 0){
+ 34c:	88 23       	and	r24, r24
+ 34e:	11 f4       	brne	.+4      	; 0x354 <GPIO3_Set+0x8>
+    GPIO3_PORT &=~ (1<<GPIO3_bp);
+ 350:	41 98       	cbi	0x08, 1	; 8
+ 352:	08 95       	ret
+  }
+  else{
+    GPIO3_PORT |=  (1<<GPIO3_bp);
+ 354:	41 9a       	sbi	0x08, 1	; 8
+ 356:	08 95       	ret
 
-00000422 <__udivmodsi4_ep>:
- 422:	66 1f       	adc	r22, r22
- 424:	77 1f       	adc	r23, r23
- 426:	88 1f       	adc	r24, r24
- 428:	99 1f       	adc	r25, r25
- 42a:	1a 94       	dec	r1
- 42c:	69 f7       	brne	.-38     	; 0x408 <__udivmodsi4_loop>
- 42e:	60 95       	com	r22
- 430:	70 95       	com	r23
- 432:	80 95       	com	r24
- 434:	90 95       	com	r25
- 436:	9b 01       	movw	r18, r22
- 438:	ac 01       	movw	r20, r24
- 43a:	bd 01       	movw	r22, r26
- 43c:	cf 01       	movw	r24, r30
- 43e:	08 95       	ret
+00000358 <GPIO3_Toggle>:
+  }
+}
 
-00000440 <_exit>:
- 440:	f8 94       	cli
+void GPIO3_Toggle(void){
+  if(GPIO3_PORT & (1<<GPIO3_bp)){
+ 358:	41 9b       	sbis	0x08, 1	; 8
+ 35a:	02 c0       	rjmp	.+4      	; 0x360 <GPIO3_Toggle+0x8>
+    GPIO3_PORT &=~ (1<<GPIO3_bp);
+ 35c:	41 98       	cbi	0x08, 1	; 8
+ 35e:	08 95       	ret
+  }
+  else{
+    GPIO3_PORT |=  (1<<GPIO3_bp);
+ 360:	41 9a       	sbi	0x08, 1	; 8
+ 362:	08 95       	ret
 
-00000442 <__stop_program>:
- 442:	ff cf       	rjmp	.-2      	; 0x442 <__stop_program>
+00000364 <GPIO4_Set>:
+
+
+
+
+void GPIO4_Set(uint8_t val){
+  if(val == 0){
+ 364:	88 23       	and	r24, r24
+ 366:	11 f4       	brne	.+4      	; 0x36c <GPIO4_Set+0x8>
+    GPIO4_PORT &=~ (1<<GPIO4_bp);
+ 368:	42 98       	cbi	0x08, 2	; 8
+ 36a:	08 95       	ret
+  }
+  else{
+    GPIO4_PORT |=  (1<<GPIO4_bp);
+ 36c:	42 9a       	sbi	0x08, 2	; 8
+ 36e:	08 95       	ret
+
+00000370 <GPIO4_Toggle>:
+  }
+}
+
+void GPIO4_Toggle(void){
+  if(GPIO4_PORT & (1<<GPIO4_bp)){
+ 370:	42 9b       	sbis	0x08, 2	; 8
+ 372:	02 c0       	rjmp	.+4      	; 0x378 <GPIO4_Toggle+0x8>
+    GPIO4_PORT &=~ (1<<GPIO4_bp);
+ 374:	42 98       	cbi	0x08, 2	; 8
+ 376:	08 95       	ret
+  }
+  else{
+    GPIO4_PORT |=  (1<<GPIO4_bp);
+ 378:	42 9a       	sbi	0x08, 2	; 8
+ 37a:	08 95       	ret
+
+0000037c <init_stack>:
+#include "states.h"
+
+
+
+
+void init_stack(TCB *tcb, uint8_t *stack, void (*task_func)(void)) {
+ 37c:	cf 93       	push	r28
+ 37e:	df 93       	push	r29
+ 380:	ec 01       	movw	r28, r24
+    uint8_t *sp = stack + STACK_SIZE - 1;
+ 382:	fb 01       	movw	r30, r22
+ 384:	e1 58       	subi	r30, 0x81	; 129
+ 386:	ff 4f       	sbci	r31, 0xFF	; 255
+
+    // Initial return address (PC) = address of task_func
+    uint16_t addr = (uint16_t)task_func;
+    *sp-- = (addr & 0xFF);
+ 388:	40 83       	st	Z, r20
+    *sp-- = (addr >> 8) & 0xFF;
+ 38a:	52 93       	st	-Z, r21
+
+    // Push initial registers (r0 to r31) and SREG onto stack with default values
+    // Set SREG with interrupts enabled (I-bit = 1)
+    *sp-- = 0x80; // SREG
+ 38c:	80 e8       	ldi	r24, 0x80	; 128
+ 38e:	82 93       	st	-Z, r24
+ 390:	31 97       	sbiw	r30, 0x01	; 1
+ 392:	df 01       	movw	r26, r30
+
+    for (int i = 0; i < 32; i++) {
+ 394:	64 5a       	subi	r22, 0xA4	; 164
+ 396:	7f 4f       	sbci	r23, 0xFF	; 255
+        *sp-- = 0; // R0-R31 = 0
+ 398:	1c 92       	st	X, r1
+ 39a:	11 97       	sbiw	r26, 0x01	; 1
+
+    // Push initial registers (r0 to r31) and SREG onto stack with default values
+    // Set SREG with interrupts enabled (I-bit = 1)
+    *sp-- = 0x80; // SREG
+
+    for (int i = 0; i < 32; i++) {
+ 39c:	a6 17       	cp	r26, r22
+ 39e:	b7 07       	cpc	r27, r23
+ 3a0:	d9 f7       	brne	.-10     	; 0x398 <init_stack+0x1c>
+        *sp-- = 0; // R0-R31 = 0
+    }
+
+    tcb->stackPointer = sp + 1;
+ 3a2:	7f 97       	sbiw	r30, 0x1f	; 31
+ 3a4:	f9 83       	std	Y+1, r31	; 0x01
+ 3a6:	e8 83       	st	Y, r30
+}
+ 3a8:	df 91       	pop	r29
+ 3aa:	cf 91       	pop	r28
+ 3ac:	08 95       	ret
+
+000003ae <task_switch>:
+
+void task_switch(void) {
+    SAVE_CONTEXT1();
+ 3ae:	0f 92       	push	r0
+ 3b0:	0f b6       	in	r0, 0x3f	; 63
+ 3b2:	f8 94       	cli
+ 3b4:	0f 92       	push	r0
+ 3b6:	1f 92       	push	r1
+ 3b8:	11 24       	eor	r1, r1
+ 3ba:	2f 92       	push	r2
+ 3bc:	3f 92       	push	r3
+ 3be:	4f 92       	push	r4
+ 3c0:	5f 92       	push	r5
+ 3c2:	6f 92       	push	r6
+ 3c4:	7f 92       	push	r7
+ 3c6:	8f 92       	push	r8
+ 3c8:	9f 92       	push	r9
+ 3ca:	af 92       	push	r10
+ 3cc:	bf 92       	push	r11
+ 3ce:	cf 92       	push	r12
+ 3d0:	df 92       	push	r13
+ 3d2:	ef 92       	push	r14
+ 3d4:	ff 92       	push	r15
+ 3d6:	0f 93       	push	r16
+ 3d8:	1f 93       	push	r17
+ 3da:	2f 93       	push	r18
+ 3dc:	3f 93       	push	r19
+ 3de:	4f 93       	push	r20
+ 3e0:	5f 93       	push	r21
+ 3e2:	6f 93       	push	r22
+ 3e4:	7f 93       	push	r23
+ 3e6:	8f 93       	push	r24
+ 3e8:	9f 93       	push	r25
+ 3ea:	af 93       	push	r26
+ 3ec:	bf 93       	push	r27
+ 3ee:	cf 93       	push	r28
+ 3f0:	df 93       	push	r29
+ 3f2:	ef 93       	push	r30
+ 3f4:	ff 93       	push	r31
+ 3f6:	ad b7       	in	r26, 0x3d	; 61
+ 3f8:	be b7       	in	r27, 0x3e	; 62
+ 3fa:	a0 93 94 01 	sts	0x0194, r26
+ 3fe:	b0 93 95 01 	sts	0x0195, r27
+
+    // Switch task pointers
+    TCB *temp = currentTask;
+ 402:	20 91 94 01 	lds	r18, 0x0194
+ 406:	30 91 95 01 	lds	r19, 0x0195
+    currentTask = nextTask;
+ 40a:	80 91 92 01 	lds	r24, 0x0192
+ 40e:	90 91 93 01 	lds	r25, 0x0193
+ 412:	90 93 95 01 	sts	0x0195, r25
+ 416:	80 93 94 01 	sts	0x0194, r24
+    nextTask = temp;
+ 41a:	30 93 93 01 	sts	0x0193, r19
+ 41e:	20 93 92 01 	sts	0x0192, r18
+
+    RESTORE_CONTEXT1();
+ 422:	a0 91 92 01 	lds	r26, 0x0192
+ 426:	b0 91 93 01 	lds	r27, 0x0193
+ 42a:	ad bf       	out	0x3d, r26	; 61
+ 42c:	be bf       	out	0x3e, r27	; 62
+ 42e:	ff 91       	pop	r31
+ 430:	ef 91       	pop	r30
+ 432:	df 91       	pop	r29
+ 434:	cf 91       	pop	r28
+ 436:	bf 91       	pop	r27
+ 438:	af 91       	pop	r26
+ 43a:	9f 91       	pop	r25
+ 43c:	8f 91       	pop	r24
+ 43e:	7f 91       	pop	r23
+ 440:	6f 91       	pop	r22
+ 442:	5f 91       	pop	r21
+ 444:	4f 91       	pop	r20
+ 446:	3f 91       	pop	r19
+ 448:	2f 91       	pop	r18
+ 44a:	1f 91       	pop	r17
+ 44c:	0f 91       	pop	r16
+ 44e:	ff 90       	pop	r15
+ 450:	ef 90       	pop	r14
+ 452:	df 90       	pop	r13
+ 454:	cf 90       	pop	r12
+ 456:	bf 90       	pop	r11
+ 458:	af 90       	pop	r10
+ 45a:	9f 90       	pop	r9
+ 45c:	8f 90       	pop	r8
+ 45e:	7f 90       	pop	r7
+ 460:	6f 90       	pop	r6
+ 462:	5f 90       	pop	r5
+ 464:	4f 90       	pop	r4
+ 466:	3f 90       	pop	r3
+ 468:	2f 90       	pop	r2
+ 46a:	1f 90       	pop	r1
+ 46c:	0f 90       	pop	r0
+ 46e:	0f be       	out	0x3f, r0	; 63
+ 470:	0f 90       	pop	r0
+}
+ 472:	08 95       	ret
+
+00000474 <__divmodsi4>:
+ 474:	97 fb       	bst	r25, 7
+ 476:	09 2e       	mov	r0, r25
+ 478:	05 26       	eor	r0, r21
+ 47a:	0e d0       	rcall	.+28     	; 0x498 <__divmodsi4_neg1>
+ 47c:	57 fd       	sbrc	r21, 7
+ 47e:	04 d0       	rcall	.+8      	; 0x488 <__divmodsi4_neg2>
+ 480:	14 d0       	rcall	.+40     	; 0x4aa <__udivmodsi4>
+ 482:	0a d0       	rcall	.+20     	; 0x498 <__divmodsi4_neg1>
+ 484:	00 1c       	adc	r0, r0
+ 486:	38 f4       	brcc	.+14     	; 0x496 <__divmodsi4_exit>
+
+00000488 <__divmodsi4_neg2>:
+ 488:	50 95       	com	r21
+ 48a:	40 95       	com	r20
+ 48c:	30 95       	com	r19
+ 48e:	21 95       	neg	r18
+ 490:	3f 4f       	sbci	r19, 0xFF	; 255
+ 492:	4f 4f       	sbci	r20, 0xFF	; 255
+ 494:	5f 4f       	sbci	r21, 0xFF	; 255
+
+00000496 <__divmodsi4_exit>:
+ 496:	08 95       	ret
+
+00000498 <__divmodsi4_neg1>:
+ 498:	f6 f7       	brtc	.-4      	; 0x496 <__divmodsi4_exit>
+ 49a:	90 95       	com	r25
+ 49c:	80 95       	com	r24
+ 49e:	70 95       	com	r23
+ 4a0:	61 95       	neg	r22
+ 4a2:	7f 4f       	sbci	r23, 0xFF	; 255
+ 4a4:	8f 4f       	sbci	r24, 0xFF	; 255
+ 4a6:	9f 4f       	sbci	r25, 0xFF	; 255
+ 4a8:	08 95       	ret
+
+000004aa <__udivmodsi4>:
+ 4aa:	a1 e2       	ldi	r26, 0x21	; 33
+ 4ac:	1a 2e       	mov	r1, r26
+ 4ae:	aa 1b       	sub	r26, r26
+ 4b0:	bb 1b       	sub	r27, r27
+ 4b2:	fd 01       	movw	r30, r26
+ 4b4:	0d c0       	rjmp	.+26     	; 0x4d0 <__udivmodsi4_ep>
+
+000004b6 <__udivmodsi4_loop>:
+ 4b6:	aa 1f       	adc	r26, r26
+ 4b8:	bb 1f       	adc	r27, r27
+ 4ba:	ee 1f       	adc	r30, r30
+ 4bc:	ff 1f       	adc	r31, r31
+ 4be:	a2 17       	cp	r26, r18
+ 4c0:	b3 07       	cpc	r27, r19
+ 4c2:	e4 07       	cpc	r30, r20
+ 4c4:	f5 07       	cpc	r31, r21
+ 4c6:	20 f0       	brcs	.+8      	; 0x4d0 <__udivmodsi4_ep>
+ 4c8:	a2 1b       	sub	r26, r18
+ 4ca:	b3 0b       	sbc	r27, r19
+ 4cc:	e4 0b       	sbc	r30, r20
+ 4ce:	f5 0b       	sbc	r31, r21
+
+000004d0 <__udivmodsi4_ep>:
+ 4d0:	66 1f       	adc	r22, r22
+ 4d2:	77 1f       	adc	r23, r23
+ 4d4:	88 1f       	adc	r24, r24
+ 4d6:	99 1f       	adc	r25, r25
+ 4d8:	1a 94       	dec	r1
+ 4da:	69 f7       	brne	.-38     	; 0x4b6 <__udivmodsi4_loop>
+ 4dc:	60 95       	com	r22
+ 4de:	70 95       	com	r23
+ 4e0:	80 95       	com	r24
+ 4e2:	90 95       	com	r25
+ 4e4:	9b 01       	movw	r18, r22
+ 4e6:	ac 01       	movw	r20, r24
+ 4e8:	bd 01       	movw	r22, r26
+ 4ea:	cf 01       	movw	r24, r30
+ 4ec:	08 95       	ret
+
+000004ee <_exit>:
+ 4ee:	f8 94       	cli
+
+000004f0 <__stop_program>:
+ 4f0:	ff cf       	rjmp	.-2      	; 0x4f0 <__stop_program>

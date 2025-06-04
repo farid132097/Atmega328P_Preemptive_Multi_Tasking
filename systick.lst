@@ -36,8 +36,8 @@
   44               	.LM2:
   45 0028 DE01      		movw r26,r28
   46 002a 1196      		adiw r26,1
-  47 002c E0E0      		ldi r30,lo8(C.0.1286)
-  48 002e F0E0      		ldi r31,hi8(C.0.1286)
+  47 002c E0E0      		ldi r30,lo8(C.0.1298)
+  48 002e F0E0      		ldi r31,hi8(C.0.1298)
   49 0030 8AE0      		ldi r24,lo8(10)
   50               	.LVL1:
   51               	.L2:
@@ -50,10 +50,10 @@
   58 003c 40E0      		ldi r20,lo8(0)
   59 003e 50E0      		ldi r21,hi8(0)
   60               	.LVL2:
-  61 0040 60E0      		ldi r22,lo8(12000000)
-  62 0042 7BE1      		ldi r23,hi8(12000000)
-  63 0044 87EB      		ldi r24,hlo8(12000000)
-  64 0046 90E0      		ldi r25,hhi8(12000000)
+  61 0040 60E0      		ldi r22,lo8(8000000)
+  62 0042 72E1      		ldi r23,hi8(8000000)
+  63 0044 8AE7      		ldi r24,hlo8(8000000)
+  64 0046 90E0      		ldi r25,hhi8(8000000)
   65 0048 0E94 0000 		call __divmodsi4
   66 004c B22E      		mov r11,r18
   67 004e C32E      		mov r12,r19
@@ -220,108 +220,99 @@
  228               	.LVL23:
  229 0124 0895      		ret
  230               	.LFE6:
- 232               	.global	SysTick_ISR_Executables
- 234               	SysTick_ISR_Executables:
+ 232               	.global	__vector_16
+ 234               	__vector_16:
  235               	.LFB7:
  236               	.LM33:
- 237               	/* prologue: function */
- 238               	/* frame size = 0 */
- 239               	.LM34:
- 240 0126 0E94 0000 		call Task_ISR_Hanlder
- 241               	/* epilogue start */
- 242               	.LM35:
- 243 012a 0895      		ret
- 244               	.LFE7:
- 246               	.global	__vector_16
- 248               	__vector_16:
- 249               	.LFB8:
- 250               	.LM36:
- 251 012c 1F92      		push __zero_reg__
- 252 012e 0F92      		push r0
- 253 0130 0FB6      		in r0,__SREG__
- 254 0132 0F92      		push r0
- 255 0134 1124      		clr __zero_reg__
- 256 0136 2F93      		push r18
- 257 0138 3F93      		push r19
- 258 013a 4F93      		push r20
- 259 013c 5F93      		push r21
- 260 013e 6F93      		push r22
- 261 0140 7F93      		push r23
- 262 0142 8F93      		push r24
- 263 0144 9F93      		push r25
- 264 0146 AF93      		push r26
- 265 0148 BF93      		push r27
- 266 014a EF93      		push r30
- 267 014c FF93      		push r31
- 268               	/* prologue: Signal */
- 269               	/* frame size = 0 */
- 270               	.LM37:
- 271 014e 81E0      		ldi r24,lo8(1)
- 272 0150 0E94 0000 		call GPIO0_Set
- 273               	.LM38:
- 274 0154 8091 0000 		lds r24,SysTick+2
- 275 0158 9091 0000 		lds r25,(SysTick+2)+1
- 276 015c 86BD      		out 70-32,r24
- 277               	.LBB4:
- 278               	.LBB5:
- 279               	.LM39:
- 280 015e 0E94 0000 		call Task_ISR_Hanlder
- 281               	.LBE5:
- 282               	.LBE4:
- 283               	.LM40:
- 284 0162 80E0      		ldi r24,lo8(0)
- 285 0164 0E94 0000 		call GPIO0_Set
- 286               	/* epilogue start */
- 287               	.LM41:
- 288 0168 FF91      		pop r31
- 289 016a EF91      		pop r30
- 290 016c BF91      		pop r27
- 291 016e AF91      		pop r26
- 292 0170 9F91      		pop r25
- 293 0172 8F91      		pop r24
- 294 0174 7F91      		pop r23
- 295 0176 6F91      		pop r22
- 296 0178 5F91      		pop r21
- 297 017a 4F91      		pop r20
- 298 017c 3F91      		pop r19
- 299 017e 2F91      		pop r18
- 300 0180 0F90      		pop r0
- 301 0182 0FBE      		out __SREG__,r0
- 302 0184 0F90      		pop r0
- 303 0186 1F90      		pop __zero_reg__
- 304 0188 1895      		reti
- 305               	.LFE8:
- 307               	.global	SysTick
- 308               	.global	SysTick
- 309               		.section .bss
- 312               	SysTick:
- 313 0000 0000 0000 		.skip 6,0
- 313      0000 
- 314               		.data
- 317               	C.0.1286:
- 318 0000 0100      		.word	1
- 319 0002 0800      		.word	8
- 320 0004 4000      		.word	64
- 321 0006 0001      		.word	256
- 322 0008 0004      		.word	1024
- 363               	.Letext0:
+ 237 0126 1F92      		push __zero_reg__
+ 238 0128 0F92      		push r0
+ 239 012a 0FB6      		in r0,__SREG__
+ 240 012c 0F92      		push r0
+ 241 012e 1124      		clr __zero_reg__
+ 242 0130 2F93      		push r18
+ 243 0132 3F93      		push r19
+ 244 0134 4F93      		push r20
+ 245 0136 5F93      		push r21
+ 246 0138 6F93      		push r22
+ 247 013a 7F93      		push r23
+ 248 013c 8F93      		push r24
+ 249 013e 9F93      		push r25
+ 250 0140 AF93      		push r26
+ 251 0142 BF93      		push r27
+ 252 0144 EF93      		push r30
+ 253 0146 FF93      		push r31
+ 254               	/* prologue: Signal */
+ 255               	/* frame size = 0 */
+ 256               	.LM34:
+ 257 0148 8091 0000 		lds r24,SysTick+2
+ 258 014c 9091 0000 		lds r25,(SysTick+2)+1
+ 259 0150 86BD      		out 70-32,r24
+ 260               	.LM35:
+ 261 0152 0E94 0000 		call task_switch
+ 262               	.LM36:
+ 263 0156 0E94 0000 		call GPIO0_Toggle
+ 264               	/* epilogue start */
+ 265               	.LM37:
+ 266 015a FF91      		pop r31
+ 267 015c EF91      		pop r30
+ 268 015e BF91      		pop r27
+ 269 0160 AF91      		pop r26
+ 270 0162 9F91      		pop r25
+ 271 0164 8F91      		pop r24
+ 272 0166 7F91      		pop r23
+ 273 0168 6F91      		pop r22
+ 274 016a 5F91      		pop r21
+ 275 016c 4F91      		pop r20
+ 276 016e 3F91      		pop r19
+ 277 0170 2F91      		pop r18
+ 278 0172 0F90      		pop r0
+ 279 0174 0FBE      		out __SREG__,r0
+ 280 0176 0F90      		pop r0
+ 281 0178 1F90      		pop __zero_reg__
+ 282 017a 1895      		reti
+ 283               	.LFE7:
+ 285               	.global	SysTick
+ 286               	.global	SysTick
+ 287               		.section .bss
+ 290               	SysTick:
+ 291 0000 0000 0000 		.skip 6,0
+ 291      0000 
+ 292               		.data
+ 295               	C.0.1298:
+ 296 0000 0100      		.word	1
+ 297 0002 0800      		.word	8
+ 298 0004 4000      		.word	64
+ 299 0006 0001      		.word	256
+ 300 0008 0004      		.word	1024
+ 301               		.comm task1_stack,128,1
+ 302               		.comm task2_stack,128,1
+ 303               		.comm task1_tcb,2,1
+ 304               		.comm task2_tcb,2,1
+ 305               		.comm currentTask,2,1
+ 306               		.comm nextTask,2,1
+ 339               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 systick.c
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:18     .text:00000000 SysTick_Enable
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:317    .data:00000000 C.0.1286
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:312    .bss:00000000 SysTick
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:234    .text:00000126 SysTick_ISR_Executables
-C:\Users\farid\AppData\Local\Temp/ccOrLjVe.s:248    .text:0000012c __vector_16
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:18     .text:00000000 SysTick_Enable
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:295    .data:00000000 C.0.1298
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:290    .bss:00000000 SysTick
+C:\Users\farid\AppData\Local\Temp/cc6zDLpU.s:234    .text:00000126 __vector_16
+                            *COM*:00000080 task1_stack
+                            *COM*:00000080 task2_stack
+                            *COM*:00000002 task1_tcb
+                            *COM*:00000002 task2_tcb
+                            *COM*:00000002 currentTask
+                            *COM*:00000002 nextTask
 
 UNDEFINED SYMBOLS
 __divmodsi4
-Task_ISR_Hanlder
-GPIO0_Set
+task_switch
+GPIO0_Toggle
 __do_copy_data
 __do_clear_bss
