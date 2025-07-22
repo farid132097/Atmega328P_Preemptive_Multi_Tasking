@@ -62,7 +62,7 @@ MCU = atmega328p
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 8000000
+F_CPU = 12000000
 
 
 # Output format. (can be srec, ihex, binary)
@@ -80,7 +80,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c systick.c gpio.c tasks.c states.c
+SRC = $(TARGET).c systick.c app.c debug.c gpio.c tasks.c states.c context.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

@@ -1,0 +1,161 @@
+   1               		.file	"app.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               		.data
+  17               	.LC0:
+  18 0000 4865 6C6C 		.string	"Hello"
+  18      6F00 
+  19               		.text
+  20               	.global	App_Main_Loop
+  22               	App_Main_Loop:
+  23               	.LFB7:
+  24               	.LM1:
+  25               	/* prologue: function */
+  26               	/* frame size = 0 */
+  27               	.LM2:
+  28 0000 80E0      		ldi r24,lo8(.LC0)
+  29 0002 90E0      		ldi r25,hi8(.LC0)
+  30 0004 0E94 0000 		call Debug_Tx_Text_NL
+  31 0008 88E8      		ldi r24,lo8(5000)
+  32 000a 93E1      		ldi r25,hi8(5000)
+  33               	.LVL0:
+  34               	.LBB12:
+  35               	.LBB13:
+  36               	.LBB14:
+  37               	.LBB15:
+  38               	.LM3:
+  39 000c 2CE2      		ldi r18,lo8(300)
+  40 000e 31E0      		ldi r19,hi8(300)
+  41               	.L2:
+  42 0010 F901      		movw r30,r18
+  43               	.LVL1:
+  44               	/* #APP */
+  45               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
+  46 0012 3197      		1: sbiw r30,1
+  47 0014 01F4      		brne 1b
+  48               	 ;  0 "" 2
+  49               	/* #NOAPP */
+  50               	.LBE15:
+  51               	.LBE14:
+  52               	.LM4:
+  53 0016 0197      		sbiw r24,1
+  54               	.LM5:
+  55 0018 01F4      		brne .L2
+  56               	/* epilogue start */
+  57               	.LBE13:
+  58               	.LBE12:
+  59               	.LM6:
+  60 001a 0895      		ret
+  61               	.LFE7:
+  63               		.data
+  64               	.LC1:
+  65 0006 6265 666F 		.string	"before context save"
+  65      7265 2063 
+  65      6F6E 7465 
+  65      7874 2073 
+  65      6176 6500 
+  66               	.LC2:
+  67 001a 6166 7465 		.string	"after context save"
+  67      7220 636F 
+  67      6E74 6578 
+  67      7420 7361 
+  67      7665 00
+  68               	.LC3:
+  69 002d 6166 7465 		.string	"after context restore"
+  69      7220 636F 
+  69      6E74 6578 
+  69      7420 7265 
+  69      7374 6F72 
+  70               		.text
+  71               	.global	App_Setup
+  73               	App_Setup:
+  74               	.LFB6:
+  75               	.LM7:
+  76               	/* prologue: function */
+  77               	/* frame size = 0 */
+  78               	.LM8:
+  79 001c 60E0      		ldi r22,lo8(38400)
+  80 001e 76E9      		ldi r23,hi8(38400)
+  81 0020 80E0      		ldi r24,hlo8(38400)
+  82 0022 90E0      		ldi r25,hhi8(38400)
+  83 0024 0E94 0000 		call Debug_Init
+  84               	.LM9:
+  85 0028 0E94 0000 		call GPIO_Init
+  86               	.LM10:
+  87 002c 4091 0000 		lds r20,global_var
+  88 0030 5091 0000 		lds r21,(global_var)+1
+  89 0034 4F5F      		subi r20,lo8(-(1))
+  90 0036 5F4F      		sbci r21,hi8(-(1))
+  91 0038 5093 0000 		sts (global_var)+1,r21
+  92 003c 4093 0000 		sts global_var,r20
+  93               	.LM11:
+  94 0040 6627      		clr r22
+  95 0042 57FD      		sbrc r21,7
+  96 0044 6095      		com r22
+  97 0046 762F      		mov r23,r22
+  98 0048 80E0      		ldi r24,lo8(.LC1)
+  99 004a 90E0      		ldi r25,hi8(.LC1)
+ 100 004c 0E94 0000 		call Debug_Tx_Parameter_NL
+ 101               	.LM12:
+ 102 0050 0E94 0000 		call Context_Save
+ 103               	.LM13:
+ 104 0054 4091 0000 		lds r20,global_var
+ 105 0058 5091 0000 		lds r21,(global_var)+1
+ 106 005c 4F5F      		subi r20,lo8(-(1))
+ 107 005e 5F4F      		sbci r21,hi8(-(1))
+ 108 0060 5093 0000 		sts (global_var)+1,r21
+ 109 0064 4093 0000 		sts global_var,r20
+ 110               	.LM14:
+ 111 0068 6627      		clr r22
+ 112 006a 57FD      		sbrc r21,7
+ 113 006c 6095      		com r22
+ 114 006e 762F      		mov r23,r22
+ 115 0070 80E0      		ldi r24,lo8(.LC2)
+ 116 0072 90E0      		ldi r25,hi8(.LC2)
+ 117 0074 0E94 0000 		call Debug_Tx_Parameter_NL
+ 118               	.LM15:
+ 119 0078 0E94 0000 		call Context_Restore
+ 120               	.LM16:
+ 121 007c 4091 0000 		lds r20,global_var
+ 122 0080 5091 0000 		lds r21,(global_var)+1
+ 123 0084 6627      		clr r22
+ 124 0086 57FD      		sbrc r21,7
+ 125 0088 6095      		com r22
+ 126 008a 762F      		mov r23,r22
+ 127 008c 80E0      		ldi r24,lo8(.LC3)
+ 128 008e 90E0      		ldi r25,hi8(.LC3)
+ 129 0090 0E94 0000 		call Debug_Tx_Parameter_NL
+ 130               	/* epilogue start */
+ 131               	.LM17:
+ 132 0094 0895      		ret
+ 133               	.LFE6:
+ 135               	.global	global_var
+ 136               		.data
+ 139               	global_var:
+ 140 0043 0A00      		.word	10
+ 173               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 app.c
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:2      *ABS*:0000003f __SREG__
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:3      *ABS*:0000003e __SP_H__
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:4      *ABS*:0000003d __SP_L__
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:5      *ABS*:00000034 __CCP__
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:22     .text:00000000 App_Main_Loop
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:73     .text:0000001c App_Setup
+C:\Users\WALTON\AppData\Local\Temp/cc5Q5kJl.s:139    .data:00000043 global_var
+
+UNDEFINED SYMBOLS
+Debug_Tx_Text_NL
+Debug_Init
+GPIO_Init
+Debug_Tx_Parameter_NL
+Context_Save
+Context_Restore
+__do_copy_data

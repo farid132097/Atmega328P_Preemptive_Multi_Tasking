@@ -5,42 +5,46 @@
 #include "gpio.h"
 
 
-void GPIO_Init(void){
-  GPIO0_DDR  |=  (1<<GPIO0_bp);
-  GPIO0_PORT &=~ (1<<GPIO0_bp);
+void GPIO_Struct_Init(void){
+    
+}
+
+void GPIO_Reg_Init(void){
+    GPIO0_DDR  |=  (1<<GPIO0_bp);
+    GPIO0_PORT &=~ (1<<GPIO0_bp);
   
-  GPIO1_DDR  |=  (1<<GPIO1_bp);
-  GPIO1_PORT &=~ (1<<GPIO1_bp);
+    GPIO1_DDR  |=  (1<<GPIO1_bp);
+    GPIO1_PORT &=~ (1<<GPIO1_bp);
   
-  GPIO2_DDR  |=  (1<<GPIO2_bp);
-  GPIO2_PORT &=~ (1<<GPIO2_bp);
+    GPIO2_DDR  |=  (1<<GPIO2_bp);
+    GPIO2_PORT &=~ (1<<GPIO2_bp);
   
-  GPIO3_DDR  |=  (1<<GPIO3_bp);
-  GPIO3_PORT &=~ (1<<GPIO3_bp);
+    GPIO3_DDR  |=  (1<<GPIO3_bp);
+    GPIO3_PORT &=~ (1<<GPIO3_bp);
   
-  GPIO4_DDR  |=  (1<<GPIO4_bp);
-  GPIO4_PORT &=~ (1<<GPIO4_bp);
+    GPIO4_DDR  |=  (1<<GPIO4_bp);
+    GPIO4_PORT &=~ (1<<GPIO4_bp);
 }
 
 
 
 
 void GPIO0_Set(uint8_t val){
-  if(val == 0){
-    GPIO0_PORT &=~ (1<<GPIO0_bp);
-  }
-  else{
-    GPIO0_PORT |=  (1<<GPIO0_bp);
-  }
+    if(val == 0){
+        GPIO0_PORT &=~ (1<<GPIO0_bp);
+    }
+    else{
+        GPIO0_PORT |=  (1<<GPIO0_bp);
+    }
 }
 
 void GPIO0_Toggle(void){
-  if(GPIO0_PORT & (1<<GPIO0_bp)){
-    GPIO0_PORT &=~ (1<<GPIO0_bp);
-  }
-  else{
-    GPIO0_PORT |=  (1<<GPIO0_bp);
-  }
+    if(GPIO0_PORT & (1<<GPIO0_bp)){
+        GPIO0_PORT &=~ (1<<GPIO0_bp);
+    }
+    else{
+        GPIO0_PORT |=  (1<<GPIO0_bp);
+    }
 }
 
 
@@ -48,21 +52,21 @@ void GPIO0_Toggle(void){
 
 
 void GPIO1_Set(uint8_t val){
-  if(val == 0){
-    GPIO1_PORT &=~ (1<<GPIO1_bp);
-  }
-  else{
-    GPIO1_PORT |=  (1<<GPIO1_bp);
-  }
+    if(val == 0){
+        GPIO1_PORT &=~ (1<<GPIO1_bp);
+    }
+    else{
+        GPIO1_PORT |=  (1<<GPIO1_bp);
+    }
 }
 
 void GPIO1_Toggle(void){
-  if(GPIO1_PORT & (1<<GPIO1_bp)){
-    GPIO1_PORT &=~ (1<<GPIO1_bp);
-  }
-  else{
-    GPIO1_PORT |=  (1<<GPIO1_bp);
-  }
+    if(GPIO1_PORT & (1<<GPIO1_bp)){
+        GPIO1_PORT &=~ (1<<GPIO1_bp);
+    }
+    else{
+        GPIO1_PORT |=  (1<<GPIO1_bp);
+    }
 }
 
 
@@ -70,21 +74,21 @@ void GPIO1_Toggle(void){
 
 
 void GPIO2_Set(uint8_t val){
-  if(val == 0){
-    GPIO2_PORT &=~ (1<<GPIO2_bp);
-  }
-  else{
-    GPIO2_PORT |=  (1<<GPIO2_bp);
-  }
+    if(val == 0){
+        GPIO2_PORT &=~ (1<<GPIO2_bp);
+    }
+    else{
+        GPIO2_PORT |=  (1<<GPIO2_bp);
+    }
 }
 
 void GPIO2_Toggle(void){
-  if(GPIO2_PORT & (1<<GPIO2_bp)){
-    GPIO2_PORT &=~ (1<<GPIO2_bp);
-  }
-  else{
-    GPIO2_PORT |=  (1<<GPIO2_bp);
-  }
+    if(GPIO2_PORT & (1<<GPIO2_bp)){
+        GPIO2_PORT &=~ (1<<GPIO2_bp);
+    }
+    else{
+        GPIO2_PORT |=  (1<<GPIO2_bp);
+    }
 }
 
 
@@ -92,44 +96,49 @@ void GPIO2_Toggle(void){
 
 
 void GPIO3_Set(uint8_t val){
-  if(val == 0){
-    GPIO3_PORT &=~ (1<<GPIO3_bp);
-  }
-  else{
-    GPIO3_PORT |=  (1<<GPIO3_bp);
-  }
+    if(val == 0){
+        GPIO3_PORT &=~ (1<<GPIO3_bp);
+    }
+    else{
+        GPIO3_PORT |=  (1<<GPIO3_bp);
+    }
 }
 
 void GPIO3_Toggle(void){
-  if(GPIO3_PORT & (1<<GPIO3_bp)){
-    GPIO3_PORT &=~ (1<<GPIO3_bp);
-  }
-  else{
-    GPIO3_PORT |=  (1<<GPIO3_bp);
-  }
+    if(GPIO3_PORT & (1<<GPIO3_bp)){
+        GPIO3_PORT &=~ (1<<GPIO3_bp);
+    }
+    else{
+        GPIO3_PORT |=  (1<<GPIO3_bp);
+    }
 }
-
-
 
 
 
 
 
 void GPIO4_Set(uint8_t val){
-  if(val == 0){
-    GPIO4_PORT &=~ (1<<GPIO4_bp);
-  }
-  else{
-    GPIO4_PORT |=  (1<<GPIO4_bp);
-  }
+    if(val == 0){
+        GPIO4_PORT &=~ (1<<GPIO4_bp);
+    }
+    else{
+        GPIO4_PORT |=  (1<<GPIO4_bp);
+    }
 }
 
 void GPIO4_Toggle(void){
-  if(GPIO4_PORT & (1<<GPIO4_bp)){
-    GPIO4_PORT &=~ (1<<GPIO4_bp);
-  }
-  else{
-    GPIO4_PORT |=  (1<<GPIO4_bp);
-  }
+    if(GPIO4_PORT & (1<<GPIO4_bp)){
+        GPIO4_PORT &=~ (1<<GPIO4_bp);
+    }
+    else{
+        GPIO4_PORT |=  (1<<GPIO4_bp);
+    }
+}
+
+
+
+void GPIO_Init(void){
+    GPIO_Struct_Init();
+	GPIO_Reg_Init();
 }
 
