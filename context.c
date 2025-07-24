@@ -85,7 +85,7 @@ void Context_Restore(void){
         "pop  r0             \n\t"
         "out  __SREG__, r0   \n\t"
         "pop  r0             \n\t"
-        "reti                \n\t"
+        "ret                 \n\t"
 	);
 }
 

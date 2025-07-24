@@ -5,6 +5,7 @@
 #include <avr/interrupt.h>
 #include "systick.h"
 #include "states.h"
+#include "tasks.h"
 #include "gpio.h"
 
 typedef struct systick_t{
@@ -80,7 +81,8 @@ void SysTick_Reg_Init(uint16_t UpdateRateHz){
 
 
 void SysTick_ISR_Executables(void){
-   GPIO0_Toggle();
+   //GPIO0_Toggle();
+   switch_task();
 }
 
 
