@@ -5,6 +5,6 @@
 
 void    Context_Save(void);
 void    Context_Restore(void);
-
+void    Context_Restore_ISR(void);
 
 #endif

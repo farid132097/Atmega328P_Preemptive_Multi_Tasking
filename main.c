@@ -8,7 +8,7 @@
 
 int main(void) {
     
-    SysTick_Init(1000);
+    //SysTick_Init(1000);
 	App_Setup();
 	
     while(1){

@@ -96,7 +96,7 @@ void SysTick_Init(uint16_t UpdateRateHz){
 
 
 
-ISR(TIMER0_OVF_vect){
+ISR(TIMER0_OVF_vect/*, ISR_NAKED*/){
     TCNT0  = SysTick.OVFUpdateValue;
     SysTick_ISR_Executables();
 }

@@ -6,6 +6,7 @@
 #include "tasks.h"
 #include "gpio.h"
 
+#include "debug.h"
 
 #define   NUM_TASKS 2
 #define   STACK_SIZE 64
@@ -17,9 +18,14 @@ volatile  uint8_t current_task = 0;
 
 void init_task(uint8_t tid, void (*entry)(void)) {
     uint8_t *stack = &stacks[tid][STACK_SIZE];
-    
+	
+    Debug_Tx_Parameter_Hex_NL("stack1", (uint16_t)stack);
+	
     // Simulate CALL to entry()
     stack -= 2;
+	
+	Debug_Tx_Parameter_Hex_NL("stack2", (uint16_t)stack);
+	
     stack[0] = (uint16_t)entry & 0xFF;
     stack[1] = ((uint16_t)entry >> 8) & 0xFF;
 
@@ -43,7 +49,7 @@ void switch_task(void) {
     current_task = (current_task + 1) % NUM_TASKS;
     SP = task_sp[current_task];
 
-    Context_Restore();
+    Context_Restore_ISR();
 }
 
 void task0(void) {
