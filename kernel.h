@@ -2,9 +2,10 @@
 #ifndef  _KERNEL_H_
 #define  _KERNEL_H_
 
-#define  KERNEL_TICK_RATE 1000
+//define kernel tick rate in Hz
+#define  KERNEL_TR 1000L
 
-void     Kernel_SysTick_Reg_Init(void);
+extern void  Kernel_SysTick_Reg_Init(uint16_t tick_rate);
 
 
 #endif
