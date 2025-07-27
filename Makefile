@@ -62,7 +62,7 @@ MCU = atmega328p
 #         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
-F_CPU = 12000000
+F_CPU = 8000000
 
 
 # Output format. (can be srec, ihex, binary)
@@ -80,7 +80,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c systick.c app.c debug.c gpio.c tasks.c states.c context.c
+SRC = $(TARGET).c 
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -94,7 +94,7 @@ CPPSRC =
 #     Even though the DOS/Win* filesystem matches both .s and .S the same,
 #     it will preserve the spelling of the filenames, and gcc itself does
 #     care about how the name is spelled on its command-line.
-ASRC =
+ASRC = kernel.S
 
 
 # Optimization level, can be [0, 1, 2, 3, s]. 

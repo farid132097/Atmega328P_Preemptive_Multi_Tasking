@@ -1,5 +1,3 @@
-main.o: main.c systick.h app.h
+main.o: main.c kernel.h
 
-systick.h:
-
-app.h:
+kernel.h:
