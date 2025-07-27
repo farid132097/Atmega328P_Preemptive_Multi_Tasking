@@ -618,16 +618,20 @@
  180               	
  181               	
  182               	
- 183               	
- 184               	Kernel_Interrupt_Sts_Get:
- 185               	        
- 186:kernel.S      **** 		RET
+ 183               	;;========================Interrupt Status Get===============================;;
+ 184               	;; total 10 clocks for Interrupt Status Get
+ 185               	Kernel_Interrupt_Sts_Get:
+ 186:kernel.S      ****         LDI   R24		   , 0x00          ;clear R24,               (1 clock ) 
+ 187:kernel.S      ****         IN    R16		   , 0x3F          ;save SREG in R16,        (1 clock )
+ 188:kernel.S      **** 		SBRC  R16		   , 0x07          ;check I flag->bit7,      (3 clocks)
+ 189:kernel.S      **** 		LDI   R24		   , 0x01          ;set R24 to 1,            (1 clock ) 
+ 190:kernel.S      **** 		RET                                ;return from subroutine,  (4 clocks) 
 DEFINED SYMBOLS
             kernel.S:8      .bss:00000000 Kernel
             kernel.S:12     .bss:00000006 tick_rate
             kernel.S:142    .text:000000ee Kernel_SysTick_Reg_Init
             kernel.S:167    .text:00000128 Kernel_SysTick_Val_Get
-            kernel.S:184    .text:0000014a Kernel_Interrupt_Sts_Get
+            kernel.S:185    .text:0000014a Kernel_Interrupt_Sts_Get
             kernel.S:28     .text:00000022 __vector_16
 
 NO UNDEFINED SYMBOLS

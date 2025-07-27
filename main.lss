@@ -3,27 +3,27 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000001de  00000000  00000000  00000074  2**1
+  0 .text         000001e6  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000008  00800100  00800100  00000252  2**0
+  1 .bss          00000008  00800100  00800100  0000025a  2**0
                   ALLOC
-  2 .stab         000005dc  00000000  00000000  00000254  2**2
+  2 .stab         0000060c  00000000  00000000  0000025c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      00000037  00000000  00000000  00000830  2**0
+  3 .stabstr      00000037  00000000  00000000  00000868  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000020  00000000  00000000  00000867  2**0
+  4 .debug_aranges 00000020  00000000  00000000  0000089f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 0000001b  00000000  00000000  00000887  2**0
+  5 .debug_pubnames 0000001b  00000000  00000000  000008bf  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000076  00000000  00000000  000008a2  2**0
+  6 .debug_info   00000076  00000000  00000000  000008da  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000041  00000000  00000000  00000918  2**0
+  7 .debug_abbrev 00000041  00000000  00000000  00000950  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000068  00000000  00000000  00000959  2**0
+  8 .debug_line   00000068  00000000  00000000  00000991  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000020  00000000  00000000  000009c4  2**2
+  9 .debug_frame  00000020  00000000  00000000  000009fc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000009a  00000000  00000000  000009e4  2**0
+ 10 .debug_str    0000009a  00000000  00000000  00000a1c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -64,7 +64,7 @@ Disassembly of section .text:
   70:	de bf       	out	0x3e, r29	; 62
   72:	cd bf       	out	0x3d, r28	; 61
   74:	0e 94 40 00 	call	0x80	; 0x80 <main>
-  78:	0c 94 ed 00 	jmp	0x1da	; 0x1da <_exit>
+  78:	0c 94 f1 00 	jmp	0x1e2	; 0x1e2 <_exit>
 
 0000007c <__bad_interrupt>:
   7c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -389,14 +389,22 @@ Kernel_SysTick_Val_Get:
 000001d8 <Kernel_Interrupt_Sts_Get>:
 
 
-
+;;========================Interrupt Status Get===============================;;
+;; total 10 clocks for Interrupt Status Get
 Kernel_Interrupt_Sts_Get:
-        
-		RET
- 1d8:	08 95       	ret
+        LDI   R24		   , 0x00          ;clear R24,               (1 clock ) 
+ 1d8:	80 e0       	ldi	r24, 0x00	; 0
+        IN    R16		   , 0x3F          ;save SREG in R16,        (1 clock )
+ 1da:	0f b7       	in	r16, 0x3f	; 63
+		SBRC  R16		   , 0x07          ;check I flag->bit7,      (3 clocks)
+ 1dc:	07 fd       	sbrc	r16, 7
+		LDI   R24		   , 0x01          ;set R24 to 1,            (1 clock ) 
+ 1de:	81 e0       	ldi	r24, 0x01	; 1
+		RET                                ;return from subroutine,  (4 clocks) 
+ 1e0:	08 95       	ret
 
-000001da <_exit>:
- 1da:	f8 94       	cli
+000001e2 <_exit>:
+ 1e2:	f8 94       	cli
 
-000001dc <__stop_program>:
- 1dc:	ff cf       	rjmp	.-2      	; 0x1dc <__stop_program>
+000001e4 <__stop_program>:
+ 1e4:	ff cf       	rjmp	.-2      	; 0x1e4 <__stop_program>

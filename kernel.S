@@ -180,8 +180,12 @@ Kernel_SysTick_Val_Get:
 
 
 
-
+;;========================Interrupt Status Get===============================;;
+;; total 10 clocks for Interrupt Status Get
 Kernel_Interrupt_Sts_Get:
-        
-		RET
+        LDI   R24		   , 0x00          ;clear R24,               (1 clock ) 
+        IN    R16		   , 0x3F          ;save SREG in R16,        (1 clock )
+		SBRC  R16		   , 0x07          ;check I flag->bit7,      (3 clocks)
+		LDI   R24		   , 0x01          ;set R24 to 1,            (1 clock ) 
+		RET                                ;return from subroutine,  (4 clocks) 
 
