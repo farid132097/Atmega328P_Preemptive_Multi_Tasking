@@ -74,14 +74,6 @@ tick_rate:
 		STS   TCNT0        ,  R17          ;Set value to TCNT0,      (2 clocks)  
 		
 		
-		;;========================toggle gpio================================;;
-		;; total 4 clocks for toggle
-		;IN    R17          ,  0x0B         ;fetch PORTC value,       (1 clock)
-		;LDI   R18          ,  (1<<5)       ;Bit mask for Bit pos 5,  (1 clock)
-		;EOR   R17          ,  R18          ;XOR with current val,    (1 clock)
-		;OUT   0x0B         ,  R17          ;set to PORTC,            (1 clock)
-		
-		
 		;;====================increment tick counter=========================;;
 		;; total 26 clocks for reloading, 40 bit counter
 		LDI   R16          , 0x01          ;load 1 to R16,           (1 clock )
@@ -141,8 +133,12 @@ tick_rate:
 		
 		CBI   0x0B         ,  0x05         ;-->test, clear bit
 		
-		RETI
+		RETI                               ;return from interrupt,   (4 clocks) 
 
+
+
+;;===========================SysTick Reg Init=================================;;
+;; total 32 clocks for SysTick Reg Init
 Kernel_SysTick_Reg_Init:
         CLI                                ;disable global interrupt,(1 clock ) 
 		LDI   R16          ,  0x00         ;store r16 with 0,        (1 clock ) 
@@ -153,24 +149,38 @@ Kernel_SysTick_Reg_Init:
 		STS   OCR0A        ,  R16          ;clear OCR0A,             (2 clocks) 
 		STS   OCR0B        ,  R16          ;clear OCR0B,             (2 clocks) 
 		STS   TCNT0        ,  R16          ;clear TCNT0,             (2 clocks) 
-		
 		LDI   R16          ,  0x03         ;prescaler 64,            (1 clock ) 
 		STS   TCCR0B       ,  R16          ;set to TCCR0B,           (2 clocks) 
-		
 		LDI   R16          ,  0x82         ;reload value (130),      (1 clock ) 
 		STS   Kernel+0x00  ,  R16          ;Kernel[0] reload value,  (2 clocks) 
-		
 		STS   TCNT0        ,  R16          ;set to TCNT0,            (2 clocks) 
 		LDI   R16          ,  0x01         ;store with TOIE0 enabled,(1 clock ) 
 		STS   TIMSK0       ,  R16          ;set to TIMSK0,           (2 clocks) 
-		SEI
-		
-		RET
-		
+		SEI                                ;enable global interrupt, (1 clock ) 
+		RET                                ;return from subroutine,  (4 clocks) 
+
+
+
+;;==========================SysTick Value Get================================;;
+;; total 20 clocks for SysTick Value Get
+;; interrupts disabled for 16 clocks
 Kernel_SysTick_Val_Get:
-        
-		RET
-		
+        IN    R17          , 0x3F          ;Save SREG,               (1 clock ) 
+        CLI                                ;Disable interrupts,      (1 clock ) 
+		LDS   R18		   , Kernel+0x01   ;Byte0 -> R18 (LSB),      (2 clocks) 
+		LDS   R19		   , Kernel+0x02   ;Byte1 -> R19,            (2 clocks) 
+		LDS   R20		   , Kernel+0x03   ;Byte2 -> R20,            (2 clocks) 
+		LDS   R21		   , Kernel+0x04   ;Byte3 -> R21,            (2 clocks) 
+		LDS   R22		   , Kernel+0x05   ;Byte4 -> R22 (MSB),      (2 clocks) 
+		CLR   R23                 		   ;Clear Byte5,             (1 clock )
+		CLR   R24						   ;Clear Byte5,             (1 clock )
+		CLR   R25                          ;Clear Byte5,             (1 clock )
+		OUT   0x3F, R17          		   ;Restore SREG,            (1 clock )
+		RET                                ;return from subroutine,  (4 clocks) 
+
+
+
+
 Kernel_Interrupt_Sts_Get:
         
 		RET

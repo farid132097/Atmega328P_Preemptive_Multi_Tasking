@@ -3,27 +3,27 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000001be  00000000  00000000  00000074  2**1
+  0 .text         000001de  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000008  00800100  00800100  00000232  2**0
+  1 .bss          00000008  00800100  00800100  00000252  2**0
                   ALLOC
-  2 .stab         00000558  00000000  00000000  00000234  2**2
+  2 .stab         000005dc  00000000  00000000  00000254  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      00000037  00000000  00000000  0000078c  2**0
+  3 .stabstr      00000037  00000000  00000000  00000830  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000020  00000000  00000000  000007c3  2**0
+  4 .debug_aranges 00000020  00000000  00000000  00000867  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 0000001b  00000000  00000000  000007e3  2**0
+  5 .debug_pubnames 0000001b  00000000  00000000  00000887  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000076  00000000  00000000  000007fe  2**0
+  6 .debug_info   00000076  00000000  00000000  000008a2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000041  00000000  00000000  00000874  2**0
+  7 .debug_abbrev 00000041  00000000  00000000  00000918  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000068  00000000  00000000  000008b5  2**0
+  8 .debug_line   00000068  00000000  00000000  00000959  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000020  00000000  00000000  00000920  2**2
+  9 .debug_frame  00000020  00000000  00000000  000009c4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000009a  00000000  00000000  00000940  2**0
+ 10 .debug_str    0000009a  00000000  00000000  000009e4  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -64,7 +64,7 @@ Disassembly of section .text:
   70:	de bf       	out	0x3e, r29	; 62
   72:	cd bf       	out	0x3d, r28	; 61
   74:	0e 94 40 00 	call	0x80	; 0x80 <main>
-  78:	0c 94 dd 00 	jmp	0x1ba	; 0x1ba <_exit>
+  78:	0c 94 ed 00 	jmp	0x1da	; 0x1da <_exit>
 
 0000007c <__bad_interrupt>:
   7c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -197,7 +197,6 @@ int main(void) {
   f8:	10 91 00 01 	lds	r17, 0x0100
 		STS   TCNT0        ,  R17          ;Set value to TCNT0,      (2 clocks)  
   fc:	10 93 46 00 	sts	0x0046, r17
-		;OUT   0x0B         ,  R17          ;set to PORTC,            (1 clock)
 		
 		
 		;;====================increment tick counter=========================;;
@@ -310,11 +309,14 @@ int main(void) {
 		CBI   0x0B         ,  0x05         ;-->test, clear bit
  178:	5d 98       	cbi	0x0b, 5	; 11
 		
-		RETI
+		RETI                               ;return from interrupt,   (4 clocks) 
  17a:	18 95       	reti
 
 0000017c <Kernel_SysTick_Reg_Init>:
 
+
+;;===========================SysTick Reg Init=================================;;
+;; total 32 clocks for SysTick Reg Init
 Kernel_SysTick_Reg_Init:
         CLI                                ;disable global interrupt,(1 clock ) 
  17c:	f8 94       	cli
@@ -334,45 +336,67 @@ Kernel_SysTick_Reg_Init:
  194:	00 93 48 00 	sts	0x0048, r16
 		STS   TCNT0        ,  R16          ;clear TCNT0,             (2 clocks) 
  198:	00 93 46 00 	sts	0x0046, r16
-		
 		LDI   R16          ,  0x03         ;prescaler 64,            (1 clock ) 
  19c:	03 e0       	ldi	r16, 0x03	; 3
 		STS   TCCR0B       ,  R16          ;set to TCCR0B,           (2 clocks) 
  19e:	00 93 45 00 	sts	0x0045, r16
-		
 		LDI   R16          ,  0x82         ;reload value (130),      (1 clock ) 
  1a2:	02 e8       	ldi	r16, 0x82	; 130
 		STS   Kernel+0x00  ,  R16          ;Kernel[0] reload value,  (2 clocks) 
  1a4:	00 93 00 01 	sts	0x0100, r16
-		
 		STS   TCNT0        ,  R16          ;set to TCNT0,            (2 clocks) 
  1a8:	00 93 46 00 	sts	0x0046, r16
 		LDI   R16          ,  0x01         ;store with TOIE0 enabled,(1 clock ) 
  1ac:	01 e0       	ldi	r16, 0x01	; 1
 		STS   TIMSK0       ,  R16          ;set to TIMSK0,           (2 clocks) 
  1ae:	00 93 6e 00 	sts	0x006E, r16
-		SEI
+		SEI                                ;enable global interrupt, (1 clock ) 
  1b2:	78 94       	sei
-		
-		RET
+		RET                                ;return from subroutine,  (4 clocks) 
  1b4:	08 95       	ret
 
 000001b6 <Kernel_SysTick_Val_Get>:
-		
-Kernel_SysTick_Val_Get:
-        
-		RET
- 1b6:	08 95       	ret
 
-000001b8 <Kernel_Interrupt_Sts_Get>:
-		
+;;==========================SysTick Value Get================================;;
+;; total 20 clocks for SysTick Value Get
+;; interrupts disabled for 16 clocks
+Kernel_SysTick_Val_Get:
+        IN    R17          , 0x3F          ;Save SREG,               (1 clock ) 
+ 1b6:	1f b7       	in	r17, 0x3f	; 63
+        CLI                                ;Disable interrupts,      (1 clock ) 
+ 1b8:	f8 94       	cli
+		LDS   R18		   , Kernel+0x01   ;Byte0 -> R18 (LSB),      (2 clocks) 
+ 1ba:	20 91 01 01 	lds	r18, 0x0101
+		LDS   R19		   , Kernel+0x02   ;Byte1 -> R19,            (2 clocks) 
+ 1be:	30 91 02 01 	lds	r19, 0x0102
+		LDS   R20		   , Kernel+0x03   ;Byte2 -> R20,            (2 clocks) 
+ 1c2:	40 91 03 01 	lds	r20, 0x0103
+		LDS   R21		   , Kernel+0x04   ;Byte3 -> R21,            (2 clocks) 
+ 1c6:	50 91 04 01 	lds	r21, 0x0104
+		LDS   R22		   , Kernel+0x05   ;Byte4 -> R22 (MSB),      (2 clocks) 
+ 1ca:	60 91 05 01 	lds	r22, 0x0105
+		CLR   R23                 		   ;Clear Byte5,             (1 clock )
+ 1ce:	77 27       	eor	r23, r23
+		CLR   R24						   ;Clear Byte5,             (1 clock )
+ 1d0:	88 27       	eor	r24, r24
+		CLR   R25                          ;Clear Byte5,             (1 clock )
+ 1d2:	99 27       	eor	r25, r25
+		OUT   0x3F, R17          		   ;Restore SREG,            (1 clock )
+ 1d4:	1f bf       	out	0x3f, r17	; 63
+		RET                                ;return from subroutine,  (4 clocks) 
+ 1d6:	08 95       	ret
+
+000001d8 <Kernel_Interrupt_Sts_Get>:
+
+
+
 Kernel_Interrupt_Sts_Get:
         
 		RET
- 1b8:	08 95       	ret
+ 1d8:	08 95       	ret
 
-000001ba <_exit>:
- 1ba:	f8 94       	cli
+000001da <_exit>:
+ 1da:	f8 94       	cli
 
-000001bc <__stop_program>:
- 1bc:	ff cf       	rjmp	.-2      	; 0x1bc <__stop_program>
+000001dc <__stop_program>:
+ 1dc:	ff cf       	rjmp	.-2      	; 0x1dc <__stop_program>
