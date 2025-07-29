@@ -5,15 +5,32 @@
 
 
 
+.equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
+.equ     KER_PRS,         0x03   ;For prescaler 64, manually select
+.equ     KER_RLD,         0x83   ;ReloadVal = 0xFF-(F_CPU/prescaler/KER_TR)
+
+.equ     KER_TSK0_DDR,    0x0A   ;DDRD IO address
+.equ     KER_TSK0_PORT,   0x0B   ;PORTD IO address
+.equ     KER_TSK0_PIN,    0x01   ;PORTD1 pin
+
+.equ     KER_TSK1_DDR,    0x0A   ;DDRD IO address
+.equ     KER_TSK1_PORT,   0x0B   ;PORTD IO address
+.equ     KER_TSK1_PIN,    0x06   ;PORTD6 pin
+
+.equ     KER_TSK2_DDR,    0x04   ;DDRB IO address
+.equ     KER_TSK2_PORT,   0x05   ;PORTB IO address
+.equ     KER_TSK2_PIN,    0x01   ;PORTB1 pin
+
+
 ;Initialize global variables
 .section .bss
-.global  Kernel              ;declare global space for kernel
+.global  Kernel                  ;declare global space for kernel
 Kernel:
-.skip 6                      ;1B->ovf, 5B->TickCounter
+.skip 6                          ;1B->ovf, 5B->TickCounter
 
-.global  ker_tr              ;declare global space for ker_tr argument
+.global  ker_tr                  ;declare global space for ker_tr argument
 ker_tr:
-.skip 25                     ;for timer tick rate calculations
+.skip 25                         ;for timer tick rate calculations
 
 
 
@@ -34,6 +51,10 @@ ker_tr:
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_Interrupt_Sts_Get
 
+.global  Kernel_Test_Task0
+.global  Kernel_Test_Task1
+.global  Kernel_Test_Task2
+
 
 
 ;Initialize interrupt vector subroutine
@@ -42,7 +63,7 @@ ker_tr:
 	    
 		;;======================if kernel debug enabled===========================;;
 	    #ifdef KER_DBG_ENABLE
-        SBI   KER_DBG_PORT ,  KER_DBG_PIN       ;set gpio
+        SBI   KER_DBG_PORT ,  KER_DBG_PIN       ;set gpio,                (2 clocks)
 		#endif
 		
 		
@@ -88,7 +109,7 @@ ker_tr:
 		;;=======================reload counter value=============================;;
 		;; total 4 clocks for reloading
 		LDS   R17          ,  Kernel+0x00       ;fetch reload value,      (2 clocks) 
-		STS   TCNT0        ,  R17               ;Set value to TCNT0,      (2 clocks)  
+		STS   TCNT0        ,  R17               ;Set value to TCNT0,      (2 clocks) 
 		
 		
 		;;=======================increment tick counter===========================;;
@@ -151,7 +172,7 @@ ker_tr:
 		
 		;;======================if kernel debug enabled===========================;;
 		#ifdef KER_DBG_ENABLE
-		CBI   KER_DBG_PORT ,  KER_DBG_PIN       ;clear gpio
+		CBI   KER_DBG_PORT ,  KER_DBG_PIN       ;clear gpio,              (2 clocks)
 		#endif
 		
 		RETI                                    ;return from interrupt,   (4 clocks) 
@@ -216,4 +237,38 @@ Kernel_Interrupt_Sts_Get:
 		SBRC  R16		   , 0x07               ;check I flag->bit7,      (3 clocks)
 		LDI   R24		   , 0x01               ;set R24 to 1,            (1 clock ) 
 		RET                                     ;return from subroutine,  (4 clocks) 
+
+
+
+
+
+
+;;=============================Kernel Test Task0==================================;;
+;; total 10 clocks for Interrupt Status Get
+Kernel_Test_Task0:
+        SBI   KER_TSK0_DDR ,  KER_TSK0_PIN      ;set bit in DDR,          (2 clocks) 
+		CBI   KER_TSK0_PORT,  KER_TSK0_PIN      ;clear port bit,          (2 clocks)  
+		
+		;SBI   KER_TSK0_PORT,  KER_TSK0_PIN      ;set bit in PORT,         (2 clocks)
+		RET                                     ;return from subroutine,  (4 clocks) 
+
+;;=============================Kernel Test Task1==================================;;
+;; total 10 clocks for Interrupt Status Get
+Kernel_Test_Task1:
+        SBI   KER_TSK1_DDR ,  KER_TSK1_PIN      ;set bit in DDR,          (2 clocks) 
+		CBI   KER_TSK1_PORT,  KER_TSK1_PIN      ;clear port bit,          (2 clocks)  
+		RET                                     ;return from subroutine,  (4 clocks) 
+		
+
+;;=============================Kernel Test Task2==================================;;
+;; total 10 clocks for Interrupt Status Get
+Kernel_Test_Task2:
+        SBI   KER_TSK2_DDR ,  KER_TSK2_PIN      ;set bit in DDR,          (2 clocks) 
+		CBI   KER_TSK2_PORT,  KER_TSK2_PIN      ;clear port bit,          (2 clocks)
+		RET                                     ;return from subroutine,  (4 clocks) 
+		
+		
+
+
+
 
