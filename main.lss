@@ -9,21 +9,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   2 .stab         00000894  00000000  00000000  000002d0  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      00000038  00000000  00000000  00000b64  2**0
+  3 .stabstr      00000037  00000000  00000000  00000b64  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000020  00000000  00000000  00000b9c  2**0
+  4 .debug_aranges 00000020  00000000  00000000  00000b9b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 0000001b  00000000  00000000  00000bbc  2**0
+  5 .debug_pubnames 0000001b  00000000  00000000  00000bbb  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000076  00000000  00000000  00000bd7  2**0
+  6 .debug_info   00000076  00000000  00000000  00000bd6  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000041  00000000  00000000  00000c4d  2**0
+  7 .debug_abbrev 00000041  00000000  00000000  00000c4c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000060  00000000  00000000  00000c8e  2**0
+  8 .debug_line   00000060  00000000  00000000  00000c8d  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000020  00000000  00000000  00000cf0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000099  00000000  00000000  00000d10  2**0
+ 10 .debug_str    0000009a  00000000  00000000  00000d10  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -96,8 +96,8 @@ int main(void) {
   a2:	88 ee       	ldi	r24, 0xE8	; 232
   a4:	93 e0       	ldi	r25, 0x03	; 3
   a6:	0e 94 c8 00 	call	0x190	; 0x190 <Kernel_SysTick_Reg_Init>
-	Kernel_Test_Task2();
-  aa:	0e 94 1b 01 	call	0x236	; 0x236 <Kernel_Test_Task2>
+	Kernel_Test_Task0();
+  aa:	0e 94 fd 00 	call	0x1fa	; 0x1fa <Kernel_Test_Task0>
   ae:	ff cf       	rjmp	.-2      	; 0xae <main+0xc>
 
 000000b0 <__vector_16>:
@@ -107,7 +107,7 @@ int main(void) {
 		;;======================if kernel debug enabled===========================;;
 	    #ifdef KER_DBG_ENABLE
         SBI   KER_DBG_PORT ,  KER_DBG_PIN       ;set gpio,                (2 clocks)
-  b0:	5d 9a       	sbi	0x0b, 5	; 11
+  b0:	29 9a       	sbi	0x05, 1	; 5
 		#endif
 		
 		
@@ -331,7 +331,7 @@ int main(void) {
 		;;======================if kernel debug enabled===========================;;
 		#ifdef KER_DBG_ENABLE
 		CBI   KER_DBG_PORT ,  KER_DBG_PIN       ;clear gpio,              (2 clocks)
- 18c:	5d 98       	cbi	0x0b, 5	; 11
+ 18c:	29 98       	cbi	0x05, 1	; 5
 		#endif
 		
 		RETI                                    ;return from interrupt,   (4 clocks) 
@@ -344,9 +344,9 @@ Kernel_SysTick_Reg_Init:
         
 		#ifdef KER_DBG_ENABLE
 		SBI   KER_DBG_DDR  ,  KER_DBG_PIN       ;set bit in DDR,          (2 clocks) 
- 190:	55 9a       	sbi	0x0a, 5	; 10
+ 190:	21 9a       	sbi	0x04, 1	; 4
 		CBI   KER_DBG_PORT ,  KER_DBG_PIN       ;clear port bit,          (2 clocks) 
- 192:	5d 98       	cbi	0x0b, 5	; 11
+ 192:	29 98       	cbi	0x05, 1	; 5
 		#endif
 		
 		
@@ -442,9 +442,9 @@ Kernel_Interrupt_Sts_Get:
 Kernel_Test_Task0:
         ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK0_DDR ,  KER_TSK0_PIN      ;set bit in DDR,          (2 clocks) 
- 1fa:	51 9a       	sbi	0x0a, 1	; 10
+ 1fa:	55 9a       	sbi	0x0a, 5	; 10
 		CBI   KER_TSK0_PORT,  KER_TSK0_PIN      ;clear port bit,          (2 clocks)
- 1fc:	59 98       	cbi	0x0b, 1	; 11
+ 1fc:	5d 98       	cbi	0x0b, 5	; 11
 
 000001fe <LOOP0>:
 		 
@@ -453,7 +453,7 @@ Kernel_Test_Task0:
 		IN    R16          ,  KER_TSK0_PORT     ;load PORT val,           (2 clocks)
  1fe:	0b b1       	in	r16, 0x0b	; 11
 		LDI   R17          ,  (1<<KER_TSK0_PIN) ;bit mask for port pin    (1 clock )
- 200:	12 e0       	ldi	r17, 0x02	; 2
+ 200:	10 e2       	ldi	r17, 0x20	; 32
 		EOR   R16          ,  R17               ;XOR with current val     (1 clock )
  202:	01 27       	eor	r16, r17
 		OUT   KER_TSK0_PORT,  R16               ;set new PORT val,        (1 clock )
@@ -546,22 +546,22 @@ Kernel_Test_Task1:
 Kernel_Test_Task2:
         ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK2_DDR ,  KER_TSK2_PIN      ;set bit in DDR,          (2 clocks) 
- 236:	21 9a       	sbi	0x04, 1	; 4
+ 236:	57 9a       	sbi	0x0a, 7	; 10
 		CBI   KER_TSK2_PORT,  KER_TSK2_PIN      ;clear port bit,          (2 clocks)
- 238:	29 98       	cbi	0x05, 1	; 5
+ 238:	5f 98       	cbi	0x0b, 7	; 11
 
 0000023a <LOOP2>:
 		 
     LOOP2:
 	    ;pin toggle, total 5 clocks
 		IN    R16          ,  KER_TSK2_PORT     ;load PORT val,           (2 clocks)
- 23a:	05 b1       	in	r16, 0x05	; 5
+ 23a:	0b b1       	in	r16, 0x0b	; 11
 		LDI   R17          ,  (1<<KER_TSK2_PIN) ;bit mask for port pin    (1 clock )
- 23c:	12 e0       	ldi	r17, 0x02	; 2
+ 23c:	10 e8       	ldi	r17, 0x80	; 128
 		EOR   R16          ,  R17               ;XOR with current val     (1 clock )
  23e:	01 27       	eor	r16, r17
 		OUT   KER_TSK2_PORT,  R16               ;set new PORT val,        (1 clock )
- 240:	05 b9       	out	0x05, r16	; 5
+ 240:	0b b9       	out	0x0b, r16	; 11
 		
 		;assign delay loop count val, for 30ms 
 		LDI   R16          ,  0xEB              ;set loop cnt val,        (1 clock )
@@ -575,7 +575,7 @@ Kernel_Test_Task2:
 
 00000246 <DLY21>:
 		
-	DLY21:                                      ;inner loop,127.5uS@8Mhz  (4 clocks)
+	DLY21:                                      ;inner loop, 127.5uS@8Mhz (4 clocks)
 		NOP                                     ;no operation,            (1 clock )
  246:	00 00       	nop
 		DEC   R17                               ;decrement R17 val,       (1 clock )
@@ -596,8 +596,9 @@ Kernel_Test_Task2:
 
 Kernel_Task_Init:
         ;init stack for task0
-		LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
- 254:	1f ef       	ldi	r17, 0xFF	; 255
+		;LDI   R16          ,  HIGH(ker_tcb0+128);set loop cnt val,        (1 clock )
+		OUT   0x3E         ,  R16               ;set SPH with high byte,  (1 clock )
+ 254:	0e bf       	out	0x3e, r16	; 62
 
 00000256 <_exit>:
  256:	f8 94       	cli

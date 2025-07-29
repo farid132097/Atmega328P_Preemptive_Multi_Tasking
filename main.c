@@ -8,7 +8,7 @@
 int main(void) {
     
     Kernel_SysTick_Reg_Init(1000);
-	Kernel_Test_Task2();
+	Kernel_Test_Task0();
 	
     while(1){
 	    

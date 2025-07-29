@@ -11,15 +11,17 @@
 
 .equ     KER_TSK0_DDR,    0x0A   ;DDRD IO address
 .equ     KER_TSK0_PORT,   0x0B   ;PORTD IO address
-.equ     KER_TSK0_PIN,    0x01   ;PORTD1 pin
+.equ     KER_TSK0_PIN,    0x05   ;PORTD5 pin
 
 .equ     KER_TSK1_DDR,    0x0A   ;DDRD IO address
 .equ     KER_TSK1_PORT,   0x0B   ;PORTD IO address
 .equ     KER_TSK1_PIN,    0x06   ;PORTD6 pin
 
-.equ     KER_TSK2_DDR,    0x04   ;DDRB IO address
-.equ     KER_TSK2_PORT,   0x05   ;PORTB IO address
-.equ     KER_TSK2_PIN,    0x01   ;PORTB1 pin
+.equ     KER_TSK2_DDR,    0x0A   ;DDRD IO address
+.equ     KER_TSK2_PORT,   0x0B   ;PORTD IO address
+.equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
+
+.equ     KER_STCK_SZ,     128    ;stack size for each task
 
 
 ;Initialize global variables
@@ -38,15 +40,15 @@ ker_stp:
 
 .global  ker_tcb0                ;declare global space for task control block0
 ker_tcb0:
-.skip 128                         
+.skip KER_STCK_SZ                         
 
 .global  ker_tcb1                ;declare global space for task control block1
 ker_tcb1:
-.skip 128                        
+.skip KER_STCK_SZ                        
 
 .global  ker_tcb2                ;declare global space for task control block2
 ker_tcb2:
-.skip 128                         
+.skip KER_STCK_SZ                         
 
 .global  ker_tr                  ;declare global space for ker_tr argument
 ker_tr:
@@ -370,7 +372,7 @@ Kernel_Test_Task2:
     DLY20:
 	    LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
 		
-	DLY21:                                      ;inner loop,127.5uS@8Mhz  (4 clocks)
+	DLY21:                                      ;inner loop, 127.5uS@8Mhz (4 clocks)
 		NOP                                     ;no operation,            (1 clock )
 		DEC   R17                               ;decrement R17 val,       (1 clock )
 		BRNE  DLY21                             ;if R17 not equal to 0,   (2 clock ) 
@@ -382,6 +384,7 @@ Kernel_Test_Task2:
 
 Kernel_Task_Init:
         ;init stack for task0
-		LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
+		;LDI   R16          ,  HIGH(ker_tcb0+128);set loop cnt val,        (1 clock )
+		OUT   0x3E         ,  R16               ;set SPH with high byte,  (1 clock )
 	 
 	

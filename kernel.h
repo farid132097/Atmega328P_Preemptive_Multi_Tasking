@@ -14,9 +14,9 @@
  * with SRAM mapped address requires higher clock cycle to execute.
  */
 #ifdef   KER_DBG_ENABLE
-#define  KER_DBG_DDR     0x0A   //DDRD IO address
-#define  KER_DBG_PORT    0x0B   //PORTD IO address
-#define  KER_DBG_PIN     0x05   //PORTD5 pin
+#define  KER_DBG_DDR     0x04   //DDRB IO address
+#define  KER_DBG_PORT    0x05   //PORTB IO address
+#define  KER_DBG_PIN     0x01   //PORTB1 pin
 #endif
 
 #ifndef __ASSEMBLER__           //Only accessible via C
