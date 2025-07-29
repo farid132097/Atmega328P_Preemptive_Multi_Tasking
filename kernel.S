@@ -75,6 +75,8 @@ ker_tr:
 .global  Kernel_Test_Task1
 .global  Kernel_Test_Task2
 
+.global  Kernel_Task_Init
+
 
 
 ;Initialize interrupt vector subroutine
@@ -154,9 +156,19 @@ ker_tr:
 		
 		
 		;;==================save stack pointer, current task======================;;
-		;; total 26 clocks for reloading, 40 bit counter
-		IN    R0           , 0x3D               ;load SPL,                (1 clock )
-		IN    R0           , 0x3E               ;load SPH,                (1 clock )
+		;; 
+		IN    R26          , 0x3D               ;load SPL,                (1 clock )
+		IN    R27          , 0x3E               ;load SPH,                (1 clock )
+		
+		
+	SV_TSK0_SP:
+	    STS   ker_stp+0x00 , R26                ;set STP,                 (2 clocks)
+		STS   ker_stp+0x01 , R27                ;set STP,                 (2 clocks)
+	    
+	SV_TSK1_SP:
+	    STS   ker_stp+0x02 , R26                ;set STP,                 (2 clocks)
+		STS   ker_stp+0x03 , R27                ;set STP,                 (2 clocks)
+		
 		
 		
 		
@@ -368,4 +380,8 @@ Kernel_Test_Task2:
 		RET                                     ;return from subroutine,  (4 clocks) 
 
 
-
+Kernel_Task_Init:
+        ;init stack for task0
+		LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
+	 
+	

@@ -30,6 +30,7 @@ extern void      Kernel_Test_Task0(void);
 extern void      Kernel_Test_Task1(void);
 extern void      Kernel_Test_Task2(void);
 
+extern void      Kernel_Task_Init(void);
 
 #endif
 
