@@ -115,7 +115,7 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x1fc
+.text           0x00000000      0x248
  *(.vectors)
  .vectors       0x00000000       0x68 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm328p.o
                 0x00000000                __vectors
@@ -195,23 +195,23 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
                 0x0000009e                __vector_20
  .text          0x000000a2        0xe main.o
                 0x000000a2                main
- .text          0x000000b0      0x148 kernel.o
-                0x0000017c                Kernel_SysTick_Reg_Init
-                0x000001ba                Kernel_SysTick_Val_Get
-                0x000001e6                Kernel_Test_Task0
-                0x000001dc                Kernel_Interrupt_Sts_Get
-                0x000001ec                Kernel_Test_Task1
+ .text          0x000000b0      0x194 kernel.o
+                0x00000180                Kernel_SysTick_Reg_Init
+                0x000001be                Kernel_SysTick_Val_Get
+                0x000001ea                Kernel_Test_Task0
+                0x000001e0                Kernel_Interrupt_Sts_Get
+                0x00000208                Kernel_Test_Task1
                 0x000000b0                __vector_16
-                0x000001f2                Kernel_Test_Task2
- .text          0x000001f8        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
-                0x000001f8                . = ALIGN (0x2)
+                0x00000226                Kernel_Test_Task2
+ .text          0x00000244        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x00000244                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x000001f8        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
-                0x000001f8                . = ALIGN (0x2)
+ .text.libgcc   0x00000244        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x00000244                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000001f8        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
-                0x000001f8                exit
-                0x000001f8                _exit
+ .fini9         0x00000244        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x00000244                exit
+                0x00000244                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -230,11 +230,11 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000001f8        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+ .fini0         0x00000244        0x4 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000001fc                _etext = .
+                0x00000248                _etext = .
 
-.data           0x00800100        0x0 load address 0x000001fc
+.data           0x00800100        0x0 load address 0x00000248
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800100        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm328p.o
@@ -249,27 +249,32 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
                 0x00800100                _edata = .
                 0x00800100                PROVIDE (__data_end, .)
 
-.bss            0x00800100       0x1f
+.bss            0x00800100      0x198
                 0x00800100                PROVIDE (__bss_start, .)
  *(.bss)
  .bss           0x00800100        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm328p.o
  .bss           0x00800100        0x0 main.o
- .bss           0x00800100       0x1f kernel.o
+ .bss           0x00800100      0x198 kernel.o
+                0x00800108                ker_stp
                 0x00800100                Kernel
-                0x00800106                ker_tr
- .bss           0x0080011f        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
+                0x0080010e                ker_tcb0
+                0x0080018e                ker_tcb1
+                0x00800106                ker_tcbb
+                0x0080020e                ker_tcb2
+                0x0080028e                ker_tr
+ .bss           0x00800298        0x0 c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
  *(.bss*)
  *(COMMON)
-                0x0080011f                PROVIDE (__bss_end, .)
-                0x000001fc                __data_load_start = LOADADDR (.data)
-                0x000001fc                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00800298                PROVIDE (__bss_end, .)
+                0x00000248                __data_load_start = LOADADDR (.data)
+                0x00000248                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x0080011f        0x0
-                0x0080011f                PROVIDE (__noinit_start, .)
+.noinit         0x00800298        0x0
+                0x00800298                PROVIDE (__noinit_start, .)
  *(.noinit*)
-                0x0080011f                PROVIDE (__noinit_end, .)
-                0x0080011f                _end = .
-                0x0080011f                PROVIDE (__heap_start, .)
+                0x00800298                PROVIDE (__noinit_end, .)
+                0x00800298                _end = .
+                0x00800298                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
  *(.eeprom*)
@@ -287,9 +292,9 @@ LOAD c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a
 .signature
  *(.signature*)
 
-.stab           0x00000000      0x690
+.stab           0x00000000      0x858
  *(.stab)
- .stab          0x00000000      0x690 kernel.o
+ .stab          0x00000000      0x858 kernel.o
 
 .stabstr        0x00000000       0x38
  *(.stabstr)
@@ -410,6 +415,11 @@ __vectors                                         c:/winavr-20100110/bin/../lib/
 _exit                                             c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
 exit                                              c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/avr5\libgcc.a(_exit.o)
                                                   c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm328p.o
+ker_stp                                           kernel.o
+ker_tcb0                                          kernel.o
+ker_tcb1                                          kernel.o
+ker_tcb2                                          kernel.o
+ker_tcbb                                          kernel.o
 ker_tr                                            kernel.o
 main                                              main.o
                                                   c:/winavr-20100110/bin/../lib/gcc/avr/4.3.3/../../../../avr/lib/avr5/crtm328p.o

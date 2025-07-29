@@ -28,9 +28,29 @@
 Kernel:
 .skip 6                          ;1B->ovf, 5B->TickCounter
 
+.global  ker_tcbb                ;declare global space for task control base
+ker_tcbb:
+.skip 2 
+
+.global  ker_stp                 ;declare global space for stack pointers
+ker_stp:
+.skip 6                         
+
+.global  ker_tcb0                ;declare global space for task control block0
+ker_tcb0:
+.skip 128                         
+
+.global  ker_tcb1                ;declare global space for task control block1
+ker_tcb1:
+.skip 128                        
+
+.global  ker_tcb2                ;declare global space for task control block2
+ker_tcb2:
+.skip 128                         
+
 .global  ker_tr                  ;declare global space for ker_tr argument
 ker_tr:
-.skip 25                         ;for timer tick rate calculations
+.skip 10                         ;for timer tick rate calculations
 
 
 
@@ -130,6 +150,14 @@ ker_tr:
 		LDS   R0           , Kernel+0x05        ;load Byte4,              (2 clocks)
 		ADC   R0           , R1                 ;add carry with Byte4,    (1 clock )
 		STS   Kernel+0x05  , R0                 ;set Byte4,               (2 clocks)
+		
+		
+		
+		;;==================save stack pointer, current task======================;;
+		;; total 26 clocks for reloading, 40 bit counter
+		IN    R0           , 0x3D               ;load SPL,                (1 clock )
+		IN    R0           , 0x3E               ;load SPH,                (1 clock )
+		
 		
 		
 		;;=========================context restore================================;;
@@ -243,32 +271,101 @@ Kernel_Interrupt_Sts_Get:
 
 
 
+
+
+
+
+
+
+
 ;;=============================Kernel Test Task0==================================;;
-;; total 10 clocks for Interrupt Status Get
 Kernel_Test_Task0:
+        ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK0_DDR ,  KER_TSK0_PIN      ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK0_PORT,  KER_TSK0_PIN      ;clear port bit,          (2 clocks)  
+		CBI   KER_TSK0_PORT,  KER_TSK0_PIN      ;clear port bit,          (2 clocks)
+		 
+    LOOP0:
+	    ;pin toggle, total 5 clocks
+		IN    R16          ,  KER_TSK0_PORT     ;load PORT val,           (2 clocks)
+		LDI   R17          ,  (1<<KER_TSK0_PIN) ;bit mask for port pin    (1 clock )
+		EOR   R16          ,  R17               ;XOR with current val     (1 clock )
+		OUT   KER_TSK0_PORT,  R16               ;set new PORT val,        (1 clock )
 		
-		;SBI   KER_TSK0_PORT,  KER_TSK0_PIN      ;set bit in PORT,         (2 clocks)
+		;assign delay loop count val, for 30ms 
+		LDI   R16          ,  0xEB              ;set loop cnt val,        (1 clock )
+		
+    DLY00:
+	    LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
+		
+	DLY01:                                      ;inner loop,127.5uS@8Mhz  (4 clocks)
+		NOP                                     ;no operation,            (1 clock )
+		DEC   R17                               ;decrement R17 val,       (1 clock )
+		BRNE  DLY01                             ;if R17 not equal to 0,   (2 clock ) 
+		DEC   R16                               ;decrement R16 val,       (1 clock )
+		BRNE  DLY00                             ;if R16 not equal to 0,   (2 clock ) 
+		RJMP  LOOP0                             ;if R16 is 0->jump,       (2 clock ) 
 		RET                                     ;return from subroutine,  (4 clocks) 
+
+
 
 ;;=============================Kernel Test Task1==================================;;
-;; total 10 clocks for Interrupt Status Get
 Kernel_Test_Task1:
+        ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK1_DDR ,  KER_TSK1_PIN      ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK1_PORT,  KER_TSK1_PIN      ;clear port bit,          (2 clocks)  
+		CBI   KER_TSK1_PORT,  KER_TSK1_PIN      ;clear port bit,          (2 clocks)
+		 
+    LOOP1:
+	    ;pin toggle, total 5 clocks
+		IN    R16          ,  KER_TSK1_PORT     ;load PORT val,           (2 clocks)
+		LDI   R17          ,  (1<<KER_TSK1_PIN) ;bit mask for port pin    (1 clock )
+		EOR   R16          ,  R17               ;XOR with current val     (1 clock )
+		OUT   KER_TSK1_PORT,  R16               ;set new PORT val,        (1 clock )
+		
+		;assign delay loop count val, for 30ms 
+		LDI   R16          ,  0xEB              ;set loop cnt val,        (1 clock )
+		
+    DLY10:
+	    LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
+		
+	DLY11:                                      ;inner loop,127.5uS@8Mhz  (4 clocks)
+		NOP                                     ;no operation,            (1 clock )
+		DEC   R17                               ;decrement R17 val,       (1 clock )
+		BRNE  DLY11                             ;if R17 not equal to 0,   (2 clock ) 
+		DEC   R16                               ;decrement R16 val,       (1 clock )
+		BRNE  DLY10                             ;if R16 not equal to 0,   (2 clock ) 
+		RJMP  LOOP1                             ;if R16 is 0->jump,       (2 clock ) 
 		RET                                     ;return from subroutine,  (4 clocks) 
 		
+
+
 
 ;;=============================Kernel Test Task2==================================;;
-;; total 10 clocks for Interrupt Status Get
 Kernel_Test_Task2:
+        ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK2_DDR ,  KER_TSK2_PIN      ;set bit in DDR,          (2 clocks) 
 		CBI   KER_TSK2_PORT,  KER_TSK2_PIN      ;clear port bit,          (2 clocks)
+		 
+    LOOP2:
+	    ;pin toggle, total 5 clocks
+		IN    R16          ,  KER_TSK2_PORT     ;load PORT val,           (2 clocks)
+		LDI   R17          ,  (1<<KER_TSK2_PIN) ;bit mask for port pin    (1 clock )
+		EOR   R16          ,  R17               ;XOR with current val     (1 clock )
+		OUT   KER_TSK2_PORT,  R16               ;set new PORT val,        (1 clock )
+		
+		;assign delay loop count val, for 30ms 
+		LDI   R16          ,  0xEB              ;set loop cnt val,        (1 clock )
+		
+    DLY20:
+	    LDI   R17          ,  0xFF              ;set loop cnt val,        (1 clock )
+		
+	DLY21:                                      ;inner loop,127.5uS@8Mhz  (4 clocks)
+		NOP                                     ;no operation,            (1 clock )
+		DEC   R17                               ;decrement R17 val,       (1 clock )
+		BRNE  DLY21                             ;if R17 not equal to 0,   (2 clock ) 
+		DEC   R16                               ;decrement R16 val,       (1 clock )
+		BRNE  DLY20                             ;if R16 not equal to 0,   (2 clock ) 
+		RJMP  LOOP2                             ;if R16 is 0->jump,       (2 clock ) 
 		RET                                     ;return from subroutine,  (4 clocks) 
-		
-		
-
 
 
 
