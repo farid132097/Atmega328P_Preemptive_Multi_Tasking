@@ -10,80 +10,172 @@
   18               	main:
   19               	.LFB6:
   20               	.LM1:
-  21 0000 9F92      		push r9
-  22 0002 AF92      		push r10
-  23 0004 BF92      		push r11
-  24 0006 CF92      		push r12
-  25 0008 DF92      		push r13
-  26 000a EF92      		push r14
-  27 000c FF92      		push r15
-  28 000e 0F93      		push r16
-  29 0010 1F93      		push r17
-  30               	/* prologue: function */
-  31               	/* frame size = 0 */
-  32               	.LM2:
-  33 0012 559A      		sbi 42-32,5
-  34               	.LM3:
-  35 0014 88EE      		ldi r24,lo8(1000)
-  36 0016 93E0      		ldi r25,hi8(1000)
-  37 0018 0E94 0000 		call Kernel_SysTick_Reg_Init
-  38               	.LM4:
-  39 001c A0E2      		ldi r26,lo8(32)
-  40 001e 9A2E      		mov r9,r26
-  41               	.L6:
-  42               	.LM5:
-  43 0020 0E94 0000 		call Kernel_SysTick_Val_Get
-  44 0024 F8EE      		ldi r31,lo8(-24)
-  45 0026 AF2E      		mov r10,r31
-  46 0028 E3E0      		ldi r30,lo8(3)
-  47 002a BE2E      		mov r11,r30
-  48 002c CC24      		clr r12
-  49 002e DD24      		clr r13
-  50 0030 EE24      		clr r14
-  51 0032 FF24      		clr r15
-  52 0034 00E0      		ldi r16,lo8(0)
-  53 0036 10E0      		ldi r17,lo8(0)
-  54 0038 0E94 0000 		call __umoddi3
-  55 003c 232B      		or r18,r19
-  56 003e 242B      		or r18,r20
-  57 0040 252B      		or r18,r21
-  58 0042 262B      		or r18,r22
-  59 0044 272B      		or r18,r23
-  60 0046 282B      		or r18,r24
-  61 0048 292B      		or r18,r25
-  62 004a 01F4      		brne .L6
-  63               	.LM6:
-  64 004c 8BB1      		in r24,43-32
-  65 004e 8925      		eor r24,r9
-  66 0050 8BB9      		out 43-32,r24
-  67 0052 00C0      		rjmp .L6
-  68               	.LFE6:
-  70               	.global	cur
-  71               	.global	cur
-  72               		.section .bss
-  75               	cur:
-  76 0000 0000 0000 		.skip 8,0
-  76      0000 0000 
-  77               	.global	next
-  78               	.global	next
-  81               	next:
-  82 0008 0000 0000 		.skip 8,0
-  82      0000 0000 
- 107               	.Letext0:
+  21 0000 1F93      		push r17
+  22               	/* prologue: function */
+  23               	/* frame size = 0 */
+  24               	.LM2:
+  25 0002 559A      		sbi 42-32,5
+  26               	.LM3:
+  27 0004 88EE      		ldi r24,lo8(1000)
+  28 0006 93E0      		ldi r25,hi8(1000)
+  29 0008 0E94 0000 		call Kernel_SysTick_Reg_Init
+  30               	.LM4:
+  31 000c 10E2      		ldi r17,lo8(32)
+  32 000e 00C0      		rjmp .L20
+  33               	.L3:
+  34               	.LM5:
+  35 0010 0E94 0000 		call Kernel_SysTick_Val_Get
+  36 0014 2093 0000 		sts cur,r18
+  37 0018 3093 0000 		sts cur+1,r19
+  38 001c 4093 0000 		sts cur+2,r20
+  39 0020 5093 0000 		sts cur+3,r21
+  40 0024 6093 0000 		sts cur+4,r22
+  41 0028 7093 0000 		sts cur+5,r23
+  42 002c 8093 0000 		sts cur+6,r24
+  43 0030 9093 0000 		sts cur+7,r25
+  44               	.L20:
+  45               	.LM6:
+  46 0034 9091 0000 		lds r25,next+7
+  47 0038 8091 0000 		lds r24,cur+7
+  48 003c 8917      		cp r24,r25
+  49 003e 00F0      		brlo .L3
+  50 0040 9817      		cp r25,r24
+  51 0042 01F4      		brne .L19
+  52 0044 9091 0000 		lds r25,next+6
+  53 0048 8091 0000 		lds r24,cur+6
+  54 004c 8917      		cp r24,r25
+  55 004e 00F0      		brlo .L3
+  56 0050 9817      		cp r25,r24
+  57 0052 01F4      		brne .L19
+  58 0054 9091 0000 		lds r25,next+5
+  59 0058 8091 0000 		lds r24,cur+5
+  60 005c 8917      		cp r24,r25
+  61 005e 00F0      		brlo .L3
+  62 0060 9817      		cp r25,r24
+  63 0062 01F4      		brne .L19
+  64 0064 9091 0000 		lds r25,next+4
+  65 0068 8091 0000 		lds r24,cur+4
+  66 006c 8917      		cp r24,r25
+  67 006e 00F0      		brlo .L3
+  68 0070 9817      		cp r25,r24
+  69 0072 01F4      		brne .L19
+  70 0074 9091 0000 		lds r25,next+3
+  71 0078 8091 0000 		lds r24,cur+3
+  72 007c 8917      		cp r24,r25
+  73 007e 00F0      		brlo .L3
+  74 0080 9817      		cp r25,r24
+  75 0082 01F4      		brne .L19
+  76 0084 9091 0000 		lds r25,next+2
+  77 0088 8091 0000 		lds r24,cur+2
+  78 008c 8917      		cp r24,r25
+  79 008e 00F4      		brsh .+2
+  80 0090 00C0      		rjmp .L3
+  81 0092 9817      		cp r25,r24
+  82 0094 01F4      		brne .L19
+  83 0096 9091 0000 		lds r25,next+1
+  84 009a 8091 0000 		lds r24,cur+1
+  85 009e 8917      		cp r24,r25
+  86 00a0 00F4      		brsh .+2
+  87 00a2 00C0      		rjmp .L3
+  88 00a4 9817      		cp r25,r24
+  89 00a6 01F4      		brne .L19
+  90 00a8 9091 0000 		lds r25,next
+  91 00ac 8091 0000 		lds r24,cur
+  92 00b0 8917      		cp r24,r25
+  93 00b2 00F4      		brsh .+2
+  94 00b4 00C0      		rjmp .L3
+  95               	.L19:
+  96               	.LM7:
+  97 00b6 0E94 0000 		call Kernel_SysTick_Val_Get
+  98 00ba B22F      		mov r27,r18
+  99 00bc BE5C      		subi r27,lo8(-(50))
+ 100 00be E1E0      		ldi r30,lo8(1)
+ 101 00c0 B217      		cp r27,r18
+ 102 00c2 00F0      		brlo .L5
+ 103 00c4 E0E0      		ldi r30,lo8(0)
+ 104               	.L5:
+ 105 00c6 AE2F      		mov r26,r30
+ 106 00c8 A30F      		add r26,r19
+ 107 00ca 21E0      		ldi r18,lo8(1)
+ 108 00cc A317      		cp r26,r19
+ 109 00ce 00F0      		brlo .L7
+ 110 00d0 20E0      		ldi r18,lo8(0)
+ 111               	.L7:
+ 112 00d2 F22F      		mov r31,r18
+ 113 00d4 F40F      		add r31,r20
+ 114 00d6 21E0      		ldi r18,lo8(1)
+ 115 00d8 F417      		cp r31,r20
+ 116 00da 00F0      		brlo .L9
+ 117 00dc 20E0      		ldi r18,lo8(0)
+ 118               	.L9:
+ 119 00de E22F      		mov r30,r18
+ 120 00e0 E50F      		add r30,r21
+ 121 00e2 21E0      		ldi r18,lo8(1)
+ 122 00e4 E517      		cp r30,r21
+ 123 00e6 00F0      		brlo .L11
+ 124 00e8 20E0      		ldi r18,lo8(0)
+ 125               	.L11:
+ 126 00ea 522F      		mov r21,r18
+ 127 00ec 560F      		add r21,r22
+ 128 00ee 21E0      		ldi r18,lo8(1)
+ 129 00f0 5617      		cp r21,r22
+ 130 00f2 00F0      		brlo .L13
+ 131 00f4 20E0      		ldi r18,lo8(0)
+ 132               	.L13:
+ 133 00f6 422F      		mov r20,r18
+ 134 00f8 470F      		add r20,r23
+ 135 00fa 21E0      		ldi r18,lo8(1)
+ 136 00fc 4717      		cp r20,r23
+ 137 00fe 00F0      		brlo .L15
+ 138 0100 20E0      		ldi r18,lo8(0)
+ 139               	.L15:
+ 140 0102 322F      		mov r19,r18
+ 141 0104 380F      		add r19,r24
+ 142 0106 21E0      		ldi r18,lo8(1)
+ 143 0108 3817      		cp r19,r24
+ 144 010a 00F0      		brlo .L17
+ 145 010c 20E0      		ldi r18,lo8(0)
+ 146               	.L17:
+ 147 010e 290F      		add r18,r25
+ 148 0110 B093 0000 		sts next,r27
+ 149 0114 A093 0000 		sts next+1,r26
+ 150 0118 F093 0000 		sts next+2,r31
+ 151 011c E093 0000 		sts next+3,r30
+ 152 0120 5093 0000 		sts next+4,r21
+ 153 0124 4093 0000 		sts next+5,r20
+ 154 0128 3093 0000 		sts next+6,r19
+ 155 012c 2093 0000 		sts next+7,r18
+ 156               	.LM8:
+ 157 0130 8BB1      		in r24,43-32
+ 158 0132 8127      		eor r24,r17
+ 159 0134 8BB9      		out 43-32,r24
+ 160 0136 00C0      		rjmp .L20
+ 161               	.LFE6:
+ 163               	.global	cur
+ 164               	.global	cur
+ 165               		.section .bss
+ 168               	cur:
+ 169 0000 0000 0000 		.skip 8,0
+ 169      0000 0000 
+ 170               	.global	next
+ 171               	.global	next
+ 174               	next:
+ 175 0008 0000 0000 		.skip 8,0
+ 175      0000 0000 
+ 200               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:18     .text:00000000 main
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:75     .bss:00000000 cur
-C:\Users\farid\AppData\Local\Temp/cchpRsjo.s:81     .bss:00000008 next
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:18     .text:00000000 main
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:168    .bss:00000000 cur
+C:\Users\farid\AppData\Local\Temp/ccsOCpk5.s:174    .bss:00000008 next
 
 UNDEFINED SYMBOLS
 Kernel_SysTick_Reg_Init
 Kernel_SysTick_Val_Get
-__umoddi3
 __do_clear_bss

@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 
-int64_t cur = 0, next = 0;
+uint64_t cur = 0, next = 0;
 
 int main(void) {
     
@@ -18,14 +18,14 @@ int main(void) {
 	
     while(1){
 	    
-        //cur   = Kernel_SysTick_Val_Get();
-		//next  = cur + 200;
+        
 		
-		//while(next < Kernel_SysTick_Val_Get());
-		
-		if(Kernel_SysTick_Val_Get() % 1000 == 0){
-		  PORTD ^= (1<<5);
+		while(next > cur){
+		  cur = Kernel_SysTick_Val_Get();  
 		}
+		next  = Kernel_SysTick_Val_Get() + 50;
+		PORTD ^= (1<<5);
+		
 		
     }
 }

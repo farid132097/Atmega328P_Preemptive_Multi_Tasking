@@ -54,7 +54,7 @@
 .section .bss
 .global  Kernel                  ;declare global space for kernel
 Kernel:
-.skip 6                          ;5B->TickCounter, 1B->ovf
+.skip 9                          ;5B->TickCounter, 1B->ovf
 
 .global  ker_tski                ;declare global space for task index
 ker_tski:
@@ -156,7 +156,7 @@ ker_stk2:
 		
 		;;=============================reload counter value=================================;;
 		;; total 4 clocks for reloading
-		LDS   R16                , Kernel+0x05            ;fetch reload value,      (2 clocks) 
+		LDS   R16                , Kernel+0x08            ;fetch reload value,      (2 clocks) 
 		STS   SRTCNT0            , R16                    ;Set value to TCNT0,      (2 clocks) 
 		
 		
@@ -281,6 +281,9 @@ Kernel_SysTick_Reg_Init:
 		STS   Kernel+0x03        , R16                    ;clear  kernel[3],        (2 clocks)
 		STS   Kernel+0x04        , R16                    ;clear  kernel[4],        (2 clocks)
 		STS   Kernel+0x05        , R16                    ;clear  kernel[5],        (2 clocks)
+		STS   Kernel+0x06        , R16                    ;clear  kernel[6],        (2 clocks)
+		STS   Kernel+0x07        , R16                    ;clear  kernel[7],        (2 clocks)
+		STS   Kernel+0x08        , R16                    ;clear  kernel[8],        (2 clocks)
 		
 		#ifdef KER_DBG_ENABLE
 		SBI   KER_DBG_DDR        , KER_DBG_PIN            ;set bit in DDR,          (2 clocks) 
@@ -300,7 +303,7 @@ Kernel_SysTick_Reg_Init:
 		LDI   R16                , KER_PRS                ;prescaler 64,            (1 clock ) 
 		STS   SRTCCR0B           , R16                    ;set to TCCR0B,           (2 clocks)
 		LDI   R16                , KER_RLD                ;reload value (130),      (1 clock ) 
-		STS   Kernel+0x05        , R16                    ;Kernel[5] reload value,  (2 clocks) 
+		STS   Kernel+0x08        , R16                    ;Kernel[5] reload value,  (2 clocks) 
 		STS   SRTCNT0            , R16                    ;set to TCNT0,            (2 clocks) 
 		LDI   R16                , 0x01                   ;store with TOIE0 enabled,(1 clock ) 
 		STS   SRTIMSK0           , R16                    ;set to TIMSK0,           (2 clocks) 
@@ -320,9 +323,9 @@ Kernel_SysTick_Val_Get:
 		LDS   R20		         , Kernel+0x02            ;Byte2 -> R20,            (2 clocks) 
 		LDS   R21		         , Kernel+0x03            ;Byte3 -> R21,            (2 clocks) 
 		LDS   R22		         , Kernel+0x04            ;Byte4 -> R22,            (2 clocks) 
-		LDI   R23		         , 0x00                   ;Byte4 -> R23,            (2 clocks) 
-		LDI   R24		         , 0x00                   ;Byte4 -> R24,            (2 clocks) 
-		LDI   R25		         , 0x00                   ;Byte4 -> R25 (MSB),      (2 clocks) 
+		LDI   R23		         , 0x00                   ;Byte4 -> R23,            (1 clocks) 
+		LDI   R24		         , 0x00                   ;Byte4 -> R24,            (1 clocks) 
+		LDI   R25		         , 0x00                   ;Byte4 -> R25 (MSB),      (1 clocks) 
 		OUT   IOSREG             , R16          		  ;Restore SREG,            (1 clock )
 		RET                                               ;return from subroutine,  (4 clocks) 
 
