@@ -23,7 +23,7 @@ int main(void) {
 		
 		//while(next < Kernel_SysTick_Val_Get());
 		
-		if(Kernel_SysTick_Val_Get() %70000 == 0){
+		if(Kernel_SysTick_Val_Get() % 1000 == 0){
 		  PORTD ^= (1<<5);
 		}
 		
