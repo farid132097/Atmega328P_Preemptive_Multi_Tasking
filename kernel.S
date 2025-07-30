@@ -113,14 +113,14 @@ ker_tr:
 	    
 		;;========================if kernel debug enabled=============================;;
 	    #ifdef KER_DBG_ENABLE
-        SBI   KER_DBG_PORT ,  KER_DBG_PIN           ;set gpio,                (2 clocks)
+        SBI   KER_DBG_PORT , KER_DBG_PIN            ;set gpio,                (2 clocks)
 		#endif
 		
 		
 		;;==========================context save======================================;;
 		;; total 68 clocks for context saving
         PUSH  R0                                    ;save R0,                 (2 clocks)
-		IN    R0           ,  IOSREG                ;load SREG,               (1 clock )
+		IN    R0           , IOSREG                 ;load SREG,               (1 clock )
 		PUSH  R0                                    ;save SREG,               (2 clocks)
 		PUSH  R1                                    ;save R1,                 (2 clocks)   
 		CLR   R1                                    ;clear R1,                (1 clock )
@@ -158,8 +158,8 @@ ker_tr:
 		
 		;;=========================reload counter value===============================;;
 		;; total 4 clocks for reloading
-		LDS   R17          ,  Kernel+0x00           ;fetch reload value,      (2 clocks) 
-		STS   SRTCNT0      ,  R17                   ;Set value to TCNT0,      (2 clocks) 
+		LDS   R17          , Kernel+0x00            ;fetch reload value,      (2 clocks) 
+		STS   SRTCNT0      , R17                    ;Set value to TCNT0,      (2 clocks) 
 		
 		
 		;;=========================increment tick counter=============================;;
@@ -234,13 +234,13 @@ ker_tr:
 		POP   R2                                    ;restore R2,              (2 clocks) 
 		POP   R1                                    ;restore R1,              (2 clocks) 
 		POP   R0                                    ;fetch SREG,              (2 clocks) 
-		OUT   0x3F         ,  R0                    ;load SREG,               (1 clock ) 
+		OUT   0x3F         , R0                     ;load SREG,               (1 clock ) 
 		POP   R0                                    ;restore R0,              (2 clocks) 
 		
 		
 		;;========================if kernel debug enabled=============================;;
 		#ifdef KER_DBG_ENABLE
-		CBI   KER_DBG_PORT ,  KER_DBG_PIN           ;clear gpio,              (2 clocks)
+		CBI   KER_DBG_PORT , KER_DBG_PIN            ;clear gpio,              (2 clocks)
 		#endif
 		
 		RETI                                        ;return from interrupt,   (4 clocks) 
@@ -252,27 +252,27 @@ ker_tr:
 Kernel_SysTick_Reg_Init:
         
 		#ifdef KER_DBG_ENABLE
-		SBI   KER_DBG_DDR  ,  KER_DBG_PIN           ;set bit in DDR,          (2 clocks) 
-		CBI   KER_DBG_PORT ,  KER_DBG_PIN           ;clear port bit,          (2 clocks) 
+		SBI   KER_DBG_DDR  , KER_DBG_PIN            ;set bit in DDR,          (2 clocks) 
+		CBI   KER_DBG_PORT , KER_DBG_PIN            ;clear port bit,          (2 clocks) 
 		#endif
 		
 		
         CLI                                         ;disable global interrupt,(1 clock ) 
-		LDI   R16          ,  0x00                  ;store r16 with 0,        (1 clock ) 
-		STS   SRTCCR0A     ,  R16                   ;clear TCCR0A,            (2 clocks) 
-		STS   SRTCCR0B     ,  R16                   ;clear TCCR0B,            (2 clocks) 
-		STS   SRTIMSK0     ,  R16                   ;clear TIMSK0,            (2 clocks) 
-		STS   SRTIFR0      ,  R16                   ;clear TIFR0,             (2 clocks) 
-		STS   SROCR0A      ,  R16                   ;clear OCR0A,             (2 clocks) 
-		STS   SROCR0B      ,  R16                   ;clear OCR0B,             (2 clocks) 
-		STS   SRTCNT0      ,  R16                   ;clear TCNT0,             (2 clocks) 
-		LDI   R16          ,  KER_PRS               ;prescaler 64,            (1 clock ) 
-		STS   SRTCCR0B     ,  R16                   ;set to TCCR0B,           (2 clocks)
-		LDI   R16          ,  KER_RLD               ;reload value (130),      (1 clock ) 
-		STS   Kernel+0x00  ,  R16                   ;Kernel[0] reload value,  (2 clocks) 
-		STS   SRTCNT0      ,  R16                   ;set to TCNT0,            (2 clocks) 
-		LDI   R16          ,  0x01                  ;store with TOIE0 enabled,(1 clock ) 
-		STS   SRTIMSK0     ,  R16                   ;set to TIMSK0,           (2 clocks) 
+		LDI   R16          , 0x00                   ;store r16 with 0,        (1 clock ) 
+		STS   SRTCCR0A     , R16                    ;clear TCCR0A,            (2 clocks) 
+		STS   SRTCCR0B     , R16                    ;clear TCCR0B,            (2 clocks) 
+		STS   SRTIMSK0     , R16                    ;clear TIMSK0,            (2 clocks) 
+		STS   SRTIFR0      , R16                    ;clear TIFR0,             (2 clocks) 
+		STS   SROCR0A      , R16                    ;clear OCR0A,             (2 clocks) 
+		STS   SROCR0B      , R16                    ;clear OCR0B,             (2 clocks) 
+		STS   SRTCNT0      , R16                    ;clear TCNT0,             (2 clocks) 
+		LDI   R16          , KER_PRS                ;prescaler 64,            (1 clock ) 
+		STS   SRTCCR0B     , R16                    ;set to TCCR0B,           (2 clocks)
+		LDI   R16          , KER_RLD                ;reload value (130),      (1 clock ) 
+		STS   Kernel+0x00  , R16                    ;Kernel[0] reload value,  (2 clocks) 
+		STS   SRTCNT0      , R16                    ;set to TCNT0,            (2 clocks) 
+		LDI   R16          , 0x01                   ;store with TOIE0 enabled,(1 clock ) 
+		STS   SRTIMSK0     , R16                    ;set to TIMSK0,           (2 clocks) 
 		SEI                                         ;enable global interrupt, (1 clock ) 
 		RET                                         ;return from subroutine,  (4 clocks) 
 
@@ -321,21 +321,21 @@ Kernel_Interrupt_Sts_Get:
 ;;===============================Kernel Test Task0====================================;;
 Kernel_Test_Task0:
         ;initialize DDR and Port register, total 4 clocks
-        SBI   KER_TSK0_DDR ,  KER_TSK0_PIN          ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK0_PORT,  KER_TSK0_PIN          ;clear port bit,          (2 clocks)
+        SBI   KER_TSK0_DDR , KER_TSK0_PIN           ;set bit in DDR,          (2 clocks) 
+		CBI   KER_TSK0_PORT, KER_TSK0_PIN           ;clear port bit,          (2 clocks)
 		 
     LOOP0:
 	    ;pin toggle, total 5 clocks
-		IN    R16          ,  KER_TSK0_PORT         ;load PORT val,           (2 clocks)
-		LDI   R17          ,  (1<<KER_TSK0_PIN)     ;bit mask for port pin    (1 clock )
-		EOR   R16          ,  R17                   ;XOR with current val     (1 clock )
-		OUT   KER_TSK0_PORT,  R16                   ;set new PORT val,        (1 clock )
+		IN    R16          , KER_TSK0_PORT          ;load PORT val,           (2 clocks)
+		LDI   R17          , (1<<KER_TSK0_PIN)      ;bit mask for port pin    (1 clock )
+		EOR   R16          , R17                    ;XOR with current val     (1 clock )
+		OUT   KER_TSK0_PORT, R16                    ;set new PORT val,        (1 clock )
 		
 		;assign delay loop count val, for 30ms 
-		LDI   R16          ,  0xEB                  ;set loop cnt val,        (1 clock )
+		LDI   R16          , 0xEB                   ;set loop cnt val,        (1 clock )
 		
     DLY00:
-	    LDI   R17          ,  0xFF                  ;set loop cnt val,        (1 clock )
+	    LDI   R17          , 0xFF                   ;set loop cnt val,        (1 clock )
 		
 	DLY01:                                          ;inner loop,127.5uS@8Mhz  (4 clocks)
 		NOP                                         ;no operation,            (1 clock )
@@ -351,21 +351,21 @@ Kernel_Test_Task0:
 ;;===============================Kernel Test Task1====================================;;
 Kernel_Test_Task1:
         ;initialize DDR and Port register, total 4 clocks
-        SBI   KER_TSK1_DDR ,  KER_TSK1_PIN          ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK1_PORT,  KER_TSK1_PIN          ;clear port bit,          (2 clocks)
+        SBI   KER_TSK1_DDR , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
+		CBI   KER_TSK1_PORT, KER_TSK1_PIN           ;clear port bit,          (2 clocks)
 		 
     LOOP1:
 	    ;pin toggle, total 5 clocks
-		IN    R16          ,  KER_TSK1_PORT         ;load PORT val,           (2 clocks)
-		LDI   R17          ,  (1<<KER_TSK1_PIN)     ;bit mask for port pin    (1 clock )
-		EOR   R16          ,  R17                   ;XOR with current val     (1 clock )
-		OUT   KER_TSK1_PORT,  R16                   ;set new PORT val,        (1 clock )
+		IN    R16          , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
+		LDI   R17          , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
+		EOR   R16          , R17                    ;XOR with current val     (1 clock )
+		OUT   KER_TSK1_PORT, R16                    ;set new PORT val,        (1 clock )
 		
 		;assign delay loop count val, for 30ms 
-		LDI   R16          ,  0xEB                  ;set loop cnt val,        (1 clock )
+		LDI   R16          , 0xEB                   ;set loop cnt val,        (1 clock )
 		
     DLY10:
-	    LDI   R17          ,  0xFF                  ;set loop cnt val,        (1 clock )
+	    LDI   R17          , 0xFF                   ;set loop cnt val,        (1 clock )
 		
 	DLY11:                                          ;inner loop,127.5uS@8Mhz  (4 clocks)
 		NOP                                         ;no operation,            (1 clock )
@@ -382,21 +382,21 @@ Kernel_Test_Task1:
 ;;===============================Kernel Test Task2====================================;;
 Kernel_Test_Task2:
         ;initialize DDR and Port register, total 4 clocks
-        SBI   KER_TSK2_DDR ,  KER_TSK2_PIN          ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK2_PORT,  KER_TSK2_PIN          ;clear port bit,          (2 clocks)
+        SBI   KER_TSK2_DDR , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
+		CBI   KER_TSK2_PORT, KER_TSK2_PIN           ;clear port bit,          (2 clocks)
 		 
     LOOP2:
 	    ;pin toggle, total 5 clocks
-		IN    R16          ,  KER_TSK2_PORT         ;load PORT val,           (2 clocks)
-		LDI   R17          ,  (1<<KER_TSK2_PIN)     ;bit mask for port pin    (1 clock )
-		EOR   R16          ,  R17                   ;XOR with current val     (1 clock )
-		OUT   KER_TSK2_PORT,  R16                   ;set new PORT val,        (1 clock )
+		IN    R16          , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
+		LDI   R17          , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
+		EOR   R16          , R17                    ;XOR with current val     (1 clock )
+		OUT   KER_TSK2_PORT, R16                    ;set new PORT val,        (1 clock )
 		
 		;assign delay loop count val, for 30ms 
-		LDI   R16          ,  0xEB                  ;set loop cnt val,        (1 clock )
+		LDI   R16          , 0xEB                   ;set loop cnt val,        (1 clock )
 		
     DLY20:
-	    LDI   R17          ,  0xFF                  ;set loop cnt val,        (1 clock )
+	    LDI   R17          , 0xFF                   ;set loop cnt val,        (1 clock )
 		
 	DLY21:                                          ;inner loop, 127.5uS@8Mhz (4 clocks)
 		NOP                                         ;no operation,            (1 clock )
@@ -411,9 +411,9 @@ Kernel_Test_Task2:
 ;;================================Kernel Task Init====================================;;
 Kernel_Task_Init:
         ;init stack for task0
-		LDI   R16          ,  hi8(ker_tcb0+KER_STZ) ;set loop cnt val,        (1 clock )
-		OUT   IOSPH        ,  R16                   ;set SPH with high byte,  (1 clock )
-		LDI   R16          ,  lo8(ker_tcb0+KER_STZ) ;set loop cnt val,        (1 clock )
-		OUT   IOSPL        ,  R16                   ;set SPL with low byte,   (1 clock )
+		LDI   R16          , hi8(ker_tcb0+KER_STZ)  ;set loop cnt val,        (1 clock )
+		OUT   IOSPH        , R16                    ;set SPH with high byte,  (1 clock )
+		LDI   R16          , lo8(ker_tcb0+KER_STZ)  ;set loop cnt val,        (1 clock )
+		OUT   IOSPL        , R16                    ;set SPL with low byte,   (1 clock )
 
 	
