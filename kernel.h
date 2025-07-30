@@ -23,7 +23,7 @@
 
 
 extern void      Kernel_SysTick_Reg_Init(uint16_t tick_rate);
-extern uint64_t  Kernel_SysTick_Val_Get(void);
+extern uint32_t  Kernel_SysTick_Val_Get(void);
 extern uint8_t   Kernel_Interrupt_Sts_Get(void);
 
 extern void      Kernel_Test_Task0(void);
