@@ -3,6 +3,8 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 
+
+
 ;define user macros 
 .equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
 .equ     KER_PRS,         0x03   ;For prescaler 64, manually select
@@ -21,6 +23,7 @@
 .equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
 
 .equ     KER_STZ,         128    ;stack size for each task
+
 
 
 ;define hardware register addresses macros 
@@ -46,7 +49,6 @@
 .equ     IOSREG,          0x3F   ;manually defined SREG in IO
 .equ     IOSPH,           0x3E   ;manually defined SPH in IO
 .equ     IOSPL,           0x3D   ;manually defined SPL in IO
-
 
 
 
@@ -78,7 +80,6 @@ ker_stk2:
 
 
 
-
 ;Initialize vectors
 .section .vectors, "ax", @progbits
 .org    0x20
@@ -103,6 +104,7 @@ ker_stk2:
 .global  Kernel_Task0_Init
 .global  Kernel_Task1_Init
 .global  Kernel_Task2_Init
+
 
 
 ;Initialize interrupt vector subroutine
@@ -273,8 +275,7 @@ ker_stk2:
 ;; total 32 clocks for SysTick Reg Init, omited debug gpio config
 Kernel_SysTick_Reg_Init:
         ;clear all kernel variables
-		LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
-		STS   ker_tski           , R16                    ;load  ker_tski=0,        (2 clocks)
+		LDI   R16                , 0x00                   ;set 0x00 to R16,         (1 clock )
 		STS   Kernel+0x00        , R16                    ;clear  kernel[0],        (2 clocks)
 		STS   Kernel+0x01        , R16                    ;clear  kernel[1],        (2 clocks)
 		STS   Kernel+0x02        , R16                    ;clear  kernel[2],        (2 clocks)
@@ -503,6 +504,9 @@ Kernel_Task0_Init:
         IN    R21, IOSPH
         STS   ker_stp + 0        , R20                    ; Task 1 is index 1
         STS   ker_stp + 1        , R21
+		
+		;LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
+		;STS   ker_tski           , R16                    ;load  ker_tski = 0,      (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 
 
@@ -571,4 +575,7 @@ Kernel_Task1_Init:
         IN    R21, IOSPH
         STS   ker_stp + 2        , R20                    ; Task 1 is index 1
         STS   ker_stp + 3        , R21
+		
+		LDI   R16                , 0x01                   ;set ker_tski to 1,       (1 clock )
+		STS   ker_tski           , R16                    ;load  ker_tski = 1,      (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
