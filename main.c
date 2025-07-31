@@ -13,19 +13,21 @@ int main(void) {
     Kernel_SysTick_Reg_Init(1000);
 	Kernel_Task0_Init();
 	Kernel_Task1_Init();
+	sei();
+	Kernel_Test_Task0();
 	
-	//Kernel_Test_Task0();
+	
 	
     while(1){
 	    
         
-		/*
+		
 		while(next > cur){
 		  cur = Kernel_SysTick_Val_Get();  
 		}
 		next  = Kernel_SysTick_Val_Get() + 50;
 		PORTD ^= (1<<5);
-		*/
+		
 		
     }
 }

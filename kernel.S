@@ -3,7 +3,9 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 
-
+#define  KER_CNTXT_SV_ISR
+#define  KER_TSK_SW_ISR
+#define  KER_CNTXT_RS_ISR
 
 ;define user macros 
 .equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
@@ -119,6 +121,7 @@ ker_stk2:
 		
 		;;==============================context save========================================;;
 		;; total 68 clocks for context saving
+		#ifdef KER_CNTXT_SV_ISR
         PUSH  R0                                          ;save R0,                 (2 clocks)
 		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
 		PUSH  R0                                          ;save SREG,               (2 clocks)
@@ -154,7 +157,7 @@ ker_stk2:
 		PUSH  R29                                         ;save R29,                (2 clocks)  
 		PUSH  R30                                         ;save R30,                (2 clocks)  
 		PUSH  R31                                         ;save R31,                (2 clocks)  
-		
+		#endif
 		
 		;;=============================reload counter value=================================;;
 		;; total 4 clocks for reloading
@@ -163,27 +166,29 @@ ker_stk2:
 		
 		
 		;;=============================increment tick counter===============================;;
-		;; total 26 clocks for reloading, 40 bit counter
+		;; total 27 clocks for reloading, 40 bit counter
 		LDI   R16                , 0x01                   ;load 1 to R16,           (1 clock )
 		LDS   R17                , Kernel+0x00            ;load Byte0,              (2 clocks)
 		ADD   R17                , R16                    ;add 1 with Byte0,        (1 clock )
 		STS   Kernel+0x00        , R17                    ;set Byte0,               (2 clocks)
+		LDI   R16                , 0x00                   ;load 0 to R16,           (1 clock )
 		LDS   R17                , Kernel+0x01            ;load Byte1,              (2 clocks)
-		ADC   R17                , R1                     ;add carry with Byte1,    (1 clock )
+		ADC   R17                , R16                    ;add carry with Byte1,    (1 clock )
 		STS   Kernel+0x01        , R17                    ;set Byte1,               (2 clocks)
 		LDS   R17                , Kernel+0x02            ;load Byte2,              (2 clocks)
-		ADC   R17                , R1                     ;add carry with Byte2,    (1 clock )
+		ADC   R17                , R16                    ;add carry with Byte2,    (1 clock )
 		STS   Kernel+0x02        , R17                    ;set Byte2,               (2 clocks)
 		LDS   R17                , Kernel+0x03            ;load Byte3,              (2 clocks)
-		ADC   R17                , R1                     ;add carry with Byte3,    (1 clock )
+		ADC   R17                , R16                    ;add carry with Byte3,    (1 clock )
 		STS   Kernel+0x03        , R17                    ;set Byte3,               (2 clocks)
 		LDS   R17                , Kernel+0x04            ;load Byte4,              (2 clocks)
-		ADC   R17                , R1                     ;add carry with Byte4,    (1 clock )
+		ADC   R17                , R16                    ;add carry with Byte4,    (1 clock )
 		STS   Kernel+0x04        , R17                    ;set Byte4,               (2 clocks)
 		
 		
 		;;========================check current task index, save SP=========================;;
 		;;
+		#ifdef KER_TSK_SW_ISR
 	    LDS   R16                , ker_tski               ;fetch task index,        (2 clocks)
 		CPI   R16                , 0                      ;check if val!=0          (1 clock )
 		BRNE  TSK1                                        ;goto saving task1 SP     (2 clocks)
@@ -199,7 +204,6 @@ ker_stk2:
 		STS   ker_stp+0x01       , R25                    ;load  SPH0,              (2 clocks)
 		LDI   R16                , 0x01                   ;set ker_tski to 1,       (1 clock )
 		STS   ker_tski           , R16                    ;load  ker_tski=1,        (2 clocks)
-		;skip TSK1, switch task by loading task1 SP 
 		LDS   R24                , ker_stp+0x02           ;fetch SPL0,              (2 clocks)
 		LDS   R25                , ker_stp+0x03           ;fetch SPH0,              (2 clocks)
 		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
@@ -216,16 +220,18 @@ ker_stk2:
 		STS   ker_stp+0x03       , R25                    ;load  SPH0,              (2 clocks)
 		LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
 		STS   ker_tski           , R16                    ;load  ker_tski=0,        (2 clocks)
-		;switch task by loading task0 SP 
 		LDS   R24                , ker_stp+0x00           ;fetch SPL0,              (2 clocks)
 		LDS   R25                , ker_stp+0x01           ;fetch SPH0,              (2 clocks)
 		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
 		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
+		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
+		#endif
 		
 		
 	RS_CNTXT:
 		;;===============================context restore====================================;;
 		;; total 68 clocks for context restore
+		#ifdef KER_CNTXT_RS_ISR
 		POP   R31                                         ;restore R31,             (2 clocks) 
 		POP   R30                                         ;restore R30,             (2 clocks) 
 		POP   R29                                         ;restore R29,             (2 clocks)
@@ -260,7 +266,7 @@ ker_stk2:
 		POP   R0                                          ;fetch SREG,              (2 clocks) 
 		OUT   0x3F               , R0                     ;load SREG,               (1 clock ) 
 		POP   R0                                          ;restore R0,              (2 clocks) 
-		
+		#endif
 		
 		;;============================if kernel debug enabled===============================;;
 		#ifdef KER_DBG_ENABLE
@@ -308,7 +314,7 @@ Kernel_SysTick_Reg_Init:
 		STS   SRTCNT0            , R16                    ;set to TCNT0,            (2 clocks) 
 		LDI   R16                , 0x01                   ;store with TOIE0 enabled,(1 clock ) 
 		STS   SRTIMSK0           , R16                    ;set to TIMSK0,           (2 clocks) 
-		SEI                                               ;enable global interrupt, (1 clock ) 
+		;SEI                                               ;enable global interrupt, (1 clock ) 
 		RET                                               ;return from subroutine,  (4 clocks) 
 
 
@@ -324,9 +330,9 @@ Kernel_SysTick_Val_Get:
 		LDS   R20		         , Kernel+0x02            ;Byte2 -> R20,            (2 clocks) 
 		LDS   R21		         , Kernel+0x03            ;Byte3 -> R21,            (2 clocks) 
 		LDS   R22		         , Kernel+0x04            ;Byte4 -> R22,            (2 clocks) 
-		LDI   R23		         , 0x00                   ;Byte4 -> R23,            (1 clocks) 
-		LDI   R24		         , 0x00                   ;Byte4 -> R24,            (1 clocks) 
-		LDI   R25		         , 0x00                   ;Byte4 -> R25 (MSB),      (1 clocks) 
+		LDI   R23		         , 0x00                   ;Byte5 -> R23,            (1 clocks) 
+		LDI   R24		         , 0x00                   ;Byte6 -> R24,            (1 clocks) 
+		LDI   R25		         , 0x00                   ;Byte7 -> R25 (MSB),      (1 clocks) 
 		OUT   IOSREG             , R16          		  ;Restore SREG,            (1 clock )
 		RET                                               ;return from subroutine,  (4 clocks) 
 
@@ -446,19 +452,22 @@ Kernel_Task0_Init:
 		LDI   R18                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
 		LDI   R19                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
 		
-		OUT   IOSPL              , R18
-        OUT   IOSPH              , R19
+		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+		STS   ker_stk0+KER_STZ-1 , R16                    ;load at stack_top-1,     (2 clocks) 
+		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
+		STS   ker_stk0+KER_STZ-2 , R16                    ;load at stack_top-2,     (2 clocks) 
 		
-		LDI   R16                , lo8(Kernel_Test_Task0)
-        PUSH  R16
-        LDI   R16                , hi8(Kernel_Test_Task0)
-        PUSH  R16
+		SUBI  R18                , 2                      ;SP to point stack start, (1 clock )
+		STS   ker_stp+0          , R18                    ;store current SP,        (2 clocks) 
+		STS   ker_stp+1          , R19                    ;store current SP,        (2 clocks) 
 		
-		;push task1 entry to stack1
-		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task1 entry low,   (1 clock )
-		PUSH  R16                                         ;push to SPL1,            (1 clock )
-		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task1 entry high,  (1 clock )
-		PUSH  R16                                         ;push to SPH1,            (1 clock )
+		OUT   IOSPL              , R18                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R19                    ;load SPH                 (1 clock )
+		
+		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+		PUSH  R16                                         ;push,                    (2 clocks) 
+		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
+		PUSH  R16                                         ;push,                    (2 clocks) 
 		
 		
         ;;==============================context save========================================;;
@@ -500,13 +509,11 @@ Kernel_Task0_Init:
 		PUSH  R31                                         ;save R31,                (2 clocks) 
 		
 		;--- Step 5: Save current SP into ker_stp[1] (task1 pointer) ---
-        IN    R20, IOSPL
-        IN    R21, IOSPH
-        STS   ker_stp + 0        , R20                    ; Task 1 is index 1
-        STS   ker_stp + 1        , R21
+        IN    R18, IOSPL                                  ;fetch SPL                (1 clock )
+        IN    R19, IOSPH                                  ;fetch SPH                (1 clock )
+        STS   ker_stp + 0        , R18                    ;set stp of task0         (2 clocks) 
+        STS   ker_stp + 1        , R19                    ;set stp of task0         (2 clocks) 
 		
-		;LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
-		;STS   ker_tski           , R16                    ;load  ker_tski = 0,      (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 
 
@@ -517,19 +524,22 @@ Kernel_Task1_Init:
 		LDI   R18                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
 		LDI   R19                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
 		
-		OUT   IOSPL              , R18
-        OUT   IOSPH              , R19
+		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
+		STS   ker_stk1+KER_STZ-1 , R16                    ;load at stack_top-1,     (2 clocks) 
+		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
+		STS   ker_stk1+KER_STZ-2 , R16                    ;load at stack_top-2,     (2 clocks) 
 		
-		LDI   R16                , lo8(Kernel_Test_Task1)
-        PUSH  R16
-        LDI   R16                , hi8(Kernel_Test_Task1)
-        PUSH  R16
+		SUBI  R18                , 2                      ;SP to point stack start, (1 clock )
+		STS   ker_stp+2          , R18                    ;store current SP,        (2 clocks) 
+		STS   ker_stp+3          , R19                    ;store current SP,        (2 clocks) 
 		
-		;push task1 entry to stack1
-		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task1 entry low,   (1 clock )
-		PUSH  R16                                         ;push to SPL1,            (1 clock )
-		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task1 entry high,  (1 clock )
-		PUSH  R16                                         ;push to SPH1,            (1 clock )
+		OUT   IOSPL              , R18                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R19                    ;load SPH                 (1 clock )
+		
+		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
+		PUSH  R16                                         ;push,                    (2 clocks) 
+		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
+		PUSH  R16                                         ;push,                    (2 clocks) 
 		
 		
         ;;==============================context save========================================;;
@@ -571,11 +581,9 @@ Kernel_Task1_Init:
 		PUSH  R31                                         ;save R31,                (2 clocks) 
 		
 		;--- Step 5: Save current SP into ker_stp[1] (task1 pointer) ---
-        IN    R20, IOSPL
-        IN    R21, IOSPH
-        STS   ker_stp + 2        , R20                    ; Task 1 is index 1
-        STS   ker_stp + 3        , R21
+        IN    R18, IOSPL                                  ;fetch SPL                (1 clock )
+        IN    R19, IOSPH                                  ;fetch SPH                (1 clock )
+        STS   ker_stp + 2        , R18                    ;set stp of task0         (2 clocks) 
+        STS   ker_stp + 3        , R19                    ;set stp of task0         (2 clocks) 
 		
-		LDI   R16                , 0x01                   ;set ker_tski to 1,       (1 clock )
-		STS   ker_tski           , R16                    ;load  ker_tski = 1,      (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
