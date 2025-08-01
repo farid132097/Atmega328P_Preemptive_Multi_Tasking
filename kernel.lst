@@ -433,754 +433,745 @@
    1               	/* Copyright (c) 2002,2005,2007 Marek Michalkiewicz
    4               	#include "kernel.h"
    1               	
-   5               	
-   6               	#define  KER_CNTXT_SV_ISR
-   7               	#define  KER_TSK_SW_ISR
-   8               	#define  KER_CNTXT_RS_ISR
-   9               	
-  10               	;define user macros 
-  11               	.equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
-  12               	.equ     KER_PRS,         0x03   ;For prescaler 64, manually select
-  13               	.equ     KER_RLD,         0x82   ;ReloadVal = 0xFF-(F_CPU/prescaler/KER_TR)
-  14               	
-  15               	.equ     KER_TSK0_DDR,    0x0A   ;DDRD IO address
-  16               	.equ     KER_TSK0_PORT,   0x0B   ;PORTD IO address
-  17               	.equ     KER_TSK0_PIN,    0x05   ;PORTD5 pin
-  18               	
-  19               	.equ     KER_TSK1_DDR,    0x0A   ;DDRD IO address
-  20               	.equ     KER_TSK1_PORT,   0x0B   ;PORTD IO address
-  21               	.equ     KER_TSK1_PIN,    0x06   ;PORTD6 pin
-  22               	
-  23               	.equ     KER_TSK2_DDR,    0x0A   ;DDRD IO address
-  24               	.equ     KER_TSK2_PORT,   0x0B   ;PORTD IO address
-  25               	.equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
-  26               	
-  27               	.equ     KER_STZ,         128    ;stack size for each task
+   5               	#include "debug.h"
+   1               	
+   6               	
+   7               	#define  KER_CNTXT_SV_ISR
+   8               	;#define  KER_TSK_SW_ISR
+   9               	#define  KER_CNTXT_RS_ISR
+  10               	
+  11               	
+  12               	;define user macros 
+  13               	.equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
+  14               	.equ     KER_PRS,         0x03   ;For prescaler 64, manually select
+  15               	.equ     KER_RLD,         0x82   ;ReloadVal = 0xFF-(F_CPU/prescaler/KER_TR)
+  16               	
+  17               	.equ     KER_TSK0_DDR,    0x0A   ;DDRD IO address
+  18               	.equ     KER_TSK0_PORT,   0x0B   ;PORTD IO address
+  19               	.equ     KER_TSK0_PIN,    0x05   ;PORTD5 pin
+  20               	
+  21               	.equ     KER_TSK1_DDR,    0x0A   ;DDRD IO address
+  22               	.equ     KER_TSK1_PORT,   0x0B   ;PORTD IO address
+  23               	.equ     KER_TSK1_PIN,    0x06   ;PORTD6 pin
+  24               	
+  25               	.equ     KER_TSK2_DDR,    0x0A   ;DDRD IO address
+  26               	.equ     KER_TSK2_PORT,   0x0B   ;PORTD IO address
+  27               	.equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
   28               	
-  29               	
+  29               	.equ     KER_STZ,         128    ;stack size for each task
   30               	
-  31               	;define hardware register addresses macros 
-  32               	.equ     SRSREG,          0x5F   ;manually defined SREG in SRAM
-  33               	.equ     SRSPH,           0x5E   ;manually defined SPH in SRAM
-  34               	.equ     SRSPL,           0x5D   ;manually defined SPL in SRAM
-  35               	
-  36               	.equ     SRTIMSK0,        0x6E   ;manually defined TIMSK0 in SRAM
-  37               	.equ     SROCR0B,         0x48   ;manually defined OCR0B in SRAM
-  38               	.equ     SROCR0A,         0x47   ;manually defined OCR0A in SRAM
-  39               	.equ     SRTCNT0,         0x46   ;manually defined TCNT0 in SRAM
-  40               	.equ     SRTCCR0B,        0x45   ;manually defined TCCR0B in SRAM
-  41               	.equ     SRTCCR0A,        0x44   ;manually defined TCCR0A in SRAM
-  42               	.equ     SRTIFR0,         0x35   ;manually defined TIFR0 in SRAM
-  43               	
-  44               	.equ     IOOCR0B,         0x28   ;manually defined OCR0B in IO
-  45               	.equ     IOOCR0A,         0x27   ;manually defined OCR0A in IO
-  46               	.equ     IOTCNT0,         0x26   ;manually defined TCNT0 in IO
-  47               	.equ     IOTCCR0B,        0x25   ;manually defined TCCR0B in IO
-  48               	.equ     IOTCCR0A,        0x24   ;manually defined TCCR0A in IO
-  49               	.equ     IOTIFR0,         0x15   ;manually defined TIFR0 in IO
-  50               	
-  51               	.equ     IOSREG,          0x3F   ;manually defined SREG in IO
-  52               	.equ     IOSPH,           0x3E   ;manually defined SPH in IO
-  53               	.equ     IOSPL,           0x3D   ;manually defined SPL in IO
-  54               	
-  55               	
+  31               	
+  32               	
+  33               	;define hardware register addresses macros 
+  34               	.equ     SRSREG,          0x5F   ;manually defined SREG in SRAM
+  35               	.equ     SRSPH,           0x5E   ;manually defined SPH in SRAM
+  36               	.equ     SRSPL,           0x5D   ;manually defined SPL in SRAM
+  37               	
+  38               	.equ     SRTIMSK0,        0x6E   ;manually defined TIMSK0 in SRAM
+  39               	.equ     SROCR0B,         0x48   ;manually defined OCR0B in SRAM
+  40               	.equ     SROCR0A,         0x47   ;manually defined OCR0A in SRAM
+  41               	.equ     SRTCNT0,         0x46   ;manually defined TCNT0 in SRAM
+  42               	.equ     SRTCCR0B,        0x45   ;manually defined TCCR0B in SRAM
+  43               	.equ     SRTCCR0A,        0x44   ;manually defined TCCR0A in SRAM
+  44               	.equ     SRTIFR0,         0x35   ;manually defined TIFR0 in SRAM
+  45               	
+  46               	.equ     IOOCR0B,         0x28   ;manually defined OCR0B in IO
+  47               	.equ     IOOCR0A,         0x27   ;manually defined OCR0A in IO
+  48               	.equ     IOTCNT0,         0x26   ;manually defined TCNT0 in IO
+  49               	.equ     IOTCCR0B,        0x25   ;manually defined TCCR0B in IO
+  50               	.equ     IOTCCR0A,        0x24   ;manually defined TCCR0A in IO
+  51               	.equ     IOTIFR0,         0x15   ;manually defined TIFR0 in IO
+  52               	
+  53               	.equ     IOSREG,          0x3F   ;manually defined SREG in IO
+  54               	.equ     IOSPH,           0x3E   ;manually defined SPH in IO
+  55               	.equ     IOSPL,           0x3D   ;manually defined SPL in IO
   56               	
-  57               	;Initialize global variables
-  58               	.section .bss
-  59               	.global  Kernel                  ;declare global space for kernel
-  60               	Kernel:
-  61 0000 0000 0000 	.skip 9                          ;5B->TickCounter, 1B->ovf
-  61      0000 0000 
-  61      00
+  57               	
+  58               	
+  59               	
+  60               	
+  61               	
   62               	
-  63               	.global  ker_tski                ;declare global space for task index
-  64               	ker_tski:
-  65 0009 00        	.skip 1   
-  66               	
-  67               	.global  ker_stp                 ;declare global space for stack pointers
-  68               	ker_stp:
-  69 000a 0000 0000 	.skip 6                         
-  69      0000 
-  70               	
-  71               	.global  ker_stk0                ;declare global space for stack of task0
-  72               	ker_stk0:
-  73 0010 0000 0000 	.skip KER_STZ                         
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  73      0000 0000 
-  74               	
-  75               	.global  ker_stk1                ;declare global space for stack of task1
-  76               	ker_stk1:
-  77 0090 0000 0000 	.skip KER_STZ                        
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  77      0000 0000 
-  78               	
-  79               	.global  ker_stk2                ;declare global space for stack of task2
-  80               	ker_stk2:
-  81 0110 0000 0000 	.skip KER_STZ                         
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  81      0000 0000 
-  82               	
+  63               	
+  64               	
+  65               	
+  66               	;Initialize global variables
+  67               	.section .bss
+  68               	.global  Kernel                  ;declare global space for kernel
+  69               	Kernel:
+  70 0000 0000 0000 	.skip 9                          ;5B->TickCounter, 1B->ovf
+  70      0000 0000 
+  70      00
+  71               	
+  72               	.global  ker_tski                ;declare global space for task index
+  73               	ker_tski:
+  74 0009 00        	.skip 1   
+  75               	
+  76               	.global  ker_stp                 ;declare global space for stack pointers
+  77               	ker_stp:
+  78 000a 0000 0000 	.skip 6                         
+  78      0000 
+  79               	
+  80               	.global  ker_stk0                ;declare global space for stack of task0
+  81               	ker_stk0:
+  82 0010 0000 0000 	.skip KER_STZ                         
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
+  82      0000 0000 
   83               	
-  84               	
-  85               	;Initialize vectors
-  86               	.section .vectors, "ax", @progbits
-  87 0000 0000 0000 	.org    0x20
-  87      0000 0000 
-  87      0000 0000 
-  87      0000 0000 
-  87      0000 0000 
-  87      0000 0000 
-  87      0000 0000 
-  87      0000 0000 
-  88:kernel.S      ****         RJMP  __vector_16
-  89               	
-  90               	
+  84               	.global  ker_stk1                ;declare global space for stack of task1
+  85               	ker_stk1:
+  86 0090 0000 0000 	.skip KER_STZ                        
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  86      0000 0000 
+  87               	
+  88               	.global  ker_stk2                ;declare global space for stack of task2
+  89               	ker_stk2:
+  90 0110 0000 0000 	.skip KER_STZ                         
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
+  90      0000 0000 
   91               	
-  92               	;Code section start
-  93               	.section .text
-  94               	
-  95               	
-  96               	
-  97               	;Initialize global functions
-  98               	.global  Kernel_SysTick_Reg_Init
-  99               	.global  Kernel_SysTick_Val_Get
- 100               	.global  Kernel_Interrupt_Sts_Get
- 101               	
- 102               	.global  Kernel_Test_Task0
- 103               	.global  Kernel_Test_Task1
- 104               	.global  Kernel_Test_Task2
+  92               	
+  93               	
+  94               	;Initialize vectors
+  95               	.section .vectors, "ax", @progbits
+  96 0000 0000 0000 	.org    0x20
+  96      0000 0000 
+  96      0000 0000 
+  96      0000 0000 
+  96      0000 0000 
+  96      0000 0000 
+  96      0000 0000 
+  96      0000 0000 
+  97:kernel.S      ****         RJMP  __vector_16
+  98               	
+  99               	
+ 100               	
+ 101               	;Code section start
+ 102               	.section .text
+ 103               	
+ 104               	
  105               	
- 106               	.global  Kernel_Task0_Init
- 107               	.global  Kernel_Task1_Init
- 108               	.global  Kernel_Task2_Init
- 109               	
+ 106               	;Initialize global functions
+ 107               	.global  Kernel_SysTick_Reg_Init
+ 108               	.global  Kernel_SysTick_Val_Get
+ 109               	.global  Kernel_Interrupt_Sts_Get
  110               	
- 111               	
- 112               	;Initialize interrupt vector subroutine
- 113               	.global  __vector_16
- 114               	    __vector_16:
- 115               		    
- 116               			;;============================if kernel debug enabled===============================;;
- 117               		    #ifdef KER_DBG_ENABLE
- 118:kernel.S      ****         SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio,                (2 clocks)
- 119               			#endif
- 120               			
- 121               			
- 122               			;;==============================context save========================================;;
- 123               			;; total 68 clocks for context saving
- 124               			#ifdef KER_CNTXT_SV_ISR
- 125:kernel.S      ****         PUSH  R0                                          ;save R0,                 (2 clocks)
- 126:kernel.S      **** 		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
- 127:kernel.S      **** 		PUSH  R0                                          ;save SREG,               (2 clocks)
- 128:kernel.S      **** 		PUSH  R1                                          ;save R1,                 (2 clocks)   
- 129:kernel.S      **** 		CLR   R1                                          ;clear R1,                (1 clock )
- 130:kernel.S      **** 		PUSH  R2                                          ;save R2,                 (2 clocks)   
- 131:kernel.S      **** 		PUSH  R3                                          ;save R3,                 (2 clocks)   
- 132:kernel.S      **** 		PUSH  R4                                          ;save R4,                 (2 clocks)   
- 133:kernel.S      **** 		PUSH  R5                                          ;save R5,                 (2 clocks)   
- 134:kernel.S      **** 		PUSH  R6                                          ;save R6,                 (2 clocks)   
- 135:kernel.S      **** 		PUSH  R7                                          ;save R7,                 (2 clocks)   
- 136:kernel.S      **** 		PUSH  R8                                          ;save R8,                 (2 clocks)   
- 137:kernel.S      **** 		PUSH  R9                                          ;save R9,                 (2 clocks)   
- 138:kernel.S      **** 		PUSH  R10                                         ;save R10,                (2 clocks)   
- 139:kernel.S      **** 		PUSH  R11                                         ;save R11,                (2 clocks)  
- 140:kernel.S      **** 		PUSH  R12                                         ;save R12,                (2 clocks)  
- 141:kernel.S      **** 		PUSH  R13                                         ;save R13,                (2 clocks)  
- 142:kernel.S      **** 		PUSH  R14                                         ;save R14,                (2 clocks)  
- 143:kernel.S      **** 		PUSH  R15                                         ;save R15,                (2 clocks)  
- 144:kernel.S      **** 		PUSH  R16                                         ;save R16,                (2 clocks)  
- 145:kernel.S      **** 		PUSH  R17                                         ;save R17,                (2 clocks)  
- 146:kernel.S      **** 		PUSH  R18                                         ;save R18,                (2 clocks)  
- 147:kernel.S      **** 		PUSH  R19                                         ;save R19,                (2 clocks)  
- 148:kernel.S      **** 		PUSH  R20                                         ;save R20,                (2 clocks)  
- 149:kernel.S      **** 		PUSH  R21                                         ;save R21,                (2 clocks)  
- 150:kernel.S      **** 		PUSH  R22                                         ;save R22,                (2 clocks)  
- 151:kernel.S      **** 		PUSH  R23                                         ;save R23,                (2 clocks)  
- 152:kernel.S      **** 		PUSH  R24                                         ;save R24,                (2 clocks)  
- 153:kernel.S      **** 		PUSH  R25                                         ;save R25,                (2 clocks)  
- 154:kernel.S      **** 		PUSH  R26                                         ;save R26,                (2 clocks)  
- 155:kernel.S      **** 		PUSH  R27                                         ;save R27,                (2 clocks)  
- 156:kernel.S      **** 		PUSH  R28                                         ;save R28,                (2 clocks)  
- 157:kernel.S      **** 		PUSH  R29                                         ;save R29,                (2 clocks)  
- 158:kernel.S      **** 		PUSH  R30                                         ;save R30,                (2 clocks)  
- 159:kernel.S      **** 		PUSH  R31                                         ;save R31,                (2 clocks)  
- 160               			#endif
- 161               			
- 162               			;;=============================reload counter value=================================;;
- 163               			;; total 4 clocks for reloading
- 164:kernel.S      **** 		LDS   R16                , Kernel+0x08            ;fetch reload value,      (2 clocks) 
- 165:kernel.S      **** 		STS   SRTCNT0            , R16                    ;Set value to TCNT0,      (2 clocks) 
- 166               			
- 167               			
- 168               			;;=============================increment tick counter===============================;;
- 169               			;; total 27 clocks for reloading, 40 bit counter
- 170:kernel.S      **** 		LDI   R16                , 0x01                   ;load 1 to R16,           (1 clock )
- 171:kernel.S      **** 		LDS   R17                , Kernel+0x00            ;load Byte0,              (2 clocks)
- 172:kernel.S      **** 		ADD   R17                , R16                    ;add 1 with Byte0,        (1 clock )
- 173:kernel.S      **** 		STS   Kernel+0x00        , R17                    ;set Byte0,               (2 clocks)
- 174:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0 to R16,           (1 clock )
- 175:kernel.S      **** 		LDS   R17                , Kernel+0x01            ;load Byte1,              (2 clocks)
- 176:kernel.S      **** 		ADC   R17                , R16                    ;add carry with Byte1,    (1 clock )
- 177:kernel.S      **** 		STS   Kernel+0x01        , R17                    ;set Byte1,               (2 clocks)
- 178:kernel.S      **** 		LDS   R17                , Kernel+0x02            ;load Byte2,              (2 clocks)
- 179:kernel.S      **** 		ADC   R17                , R16                    ;add carry with Byte2,    (1 clock )
- 180:kernel.S      **** 		STS   Kernel+0x02        , R17                    ;set Byte2,               (2 clocks)
- 181:kernel.S      **** 		LDS   R17                , Kernel+0x03            ;load Byte3,              (2 clocks)
- 182:kernel.S      **** 		ADC   R17                , R16                    ;add carry with Byte3,    (1 clock )
- 183:kernel.S      **** 		STS   Kernel+0x03        , R17                    ;set Byte3,               (2 clocks)
- 184:kernel.S      **** 		LDS   R17                , Kernel+0x04            ;load Byte4,              (2 clocks)
- 185:kernel.S      **** 		ADC   R17                , R16                    ;add carry with Byte4,    (1 clock )
- 186:kernel.S      **** 		STS   Kernel+0x04        , R17                    ;set Byte4,               (2 clocks)
- 187               			
- 188               			
- 189               			;;========================check current task index, save SP=========================;;
- 190               			;;
- 191               			#ifdef KER_TSK_SW_ISR
- 192:kernel.S      **** 	    LDS   R16                , ker_tski               ;fetch task index,        (2 clocks)
- 193:kernel.S      **** 		CPI   R16                , 0                      ;check if val!=0          (1 clock )
- 194:kernel.S      **** 		BRNE  TSK1                                        ;goto saving task1 SP     (2 clocks)
- 195               			
- 196               			
- 197               			
- 198               			;;======================save stack pointer0, set task index 1=======================;;
- 199               			;;
- 200               		TSK0:
- 201:kernel.S      **** 	    IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
- 202:kernel.S      **** 		IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
- 203:kernel.S      **** 		STS   ker_stp+0x00       , R24                    ;load  SPL0,              (2 clocks)
- 204:kernel.S      **** 		STS   ker_stp+0x01       , R25                    ;load  SPH0,              (2 clocks)
- 205:kernel.S      **** 		LDI   R16                , 0x01                   ;set ker_tski to 1,       (1 clock )
- 206:kernel.S      **** 		STS   ker_tski           , R16                    ;load  ker_tski=1,        (2 clocks)
- 207:kernel.S      **** 		LDS   R24                , ker_stp+0x02           ;fetch SPL0,              (2 clocks)
- 208:kernel.S      **** 		LDS   R25                , ker_stp+0x03           ;fetch SPH0,              (2 clocks)
- 209:kernel.S      **** 		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
- 210:kernel.S      **** 		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
- 211:kernel.S      **** 		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
- 212               			
- 213               			
- 214               		    ;;======================save stack pointer1, set task index 0=======================;;
- 215               			;;
- 216               		TSK1:
- 217:kernel.S      **** 	    IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
- 218:kernel.S      **** 		IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
- 219:kernel.S      **** 		STS   ker_stp+0x02       , R24                    ;load  SPL0,              (2 clocks)
- 220:kernel.S      **** 		STS   ker_stp+0x03       , R25                    ;load  SPH0,              (2 clocks)
- 221:kernel.S      **** 		LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
- 222:kernel.S      **** 		STS   ker_tski           , R16                    ;load  ker_tski=0,        (2 clocks)
- 223:kernel.S      **** 		LDS   R24                , ker_stp+0x00           ;fetch SPL0,              (2 clocks)
- 224:kernel.S      **** 		LDS   R25                , ker_stp+0x01           ;fetch SPH0,              (2 clocks)
- 225:kernel.S      **** 		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
- 226:kernel.S      **** 		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
- 227:kernel.S      **** 		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
- 228               			#endif
- 229               			
- 230               			
- 231               		RS_CNTXT:
- 232               			;;===============================context restore====================================;;
- 233               			;; total 68 clocks for context restore
- 234               			#ifdef KER_CNTXT_RS_ISR
- 235:kernel.S      **** 		POP   R31                                         ;restore R31,             (2 clocks) 
- 236:kernel.S      **** 		POP   R30                                         ;restore R30,             (2 clocks) 
- 237:kernel.S      **** 		POP   R29                                         ;restore R29,             (2 clocks)
- 238:kernel.S      **** 		POP   R28                                         ;restore R28,             (2 clocks) 
- 239:kernel.S      **** 		POP   R27                                         ;restore R27,             (2 clocks) 
- 240:kernel.S      **** 		POP   R26                                         ;restore R26,             (2 clocks) 
- 241:kernel.S      **** 		POP   R25                                         ;restore R25,             (2 clocks) 
- 242:kernel.S      **** 		POP   R24                                         ;restore R24,             (2 clocks) 
- 243:kernel.S      **** 		POP   R23                                         ;restore R23,             (2 clocks) 
- 244:kernel.S      **** 		POP   R22                                         ;restore R22,             (2 clocks) 
- 245:kernel.S      **** 		POP   R21                                         ;restore R21,             (2 clocks) 
- 246:kernel.S      **** 		POP   R20                                         ;restore R20,             (2 clocks) 
- 247:kernel.S      **** 		POP   R19                                         ;restore R19,             (2 clocks) 
- 248:kernel.S      **** 		POP   R18                                         ;restore R18,             (2 clocks) 
- 249:kernel.S      **** 		POP   R17                                         ;restore R17,             (2 clocks) 
- 250:kernel.S      **** 		POP   R16                                         ;restore R16,             (2 clocks) 
- 251:kernel.S      **** 		POP   R15                                         ;restore R15,             (2 clocks) 
- 252:kernel.S      **** 		POP   R14                                         ;restore R14,             (2 clocks) 
- 253:kernel.S      **** 		POP   R13                                         ;restore R13,             (2 clocks) 
- 254:kernel.S      **** 		POP   R12                                         ;restore R12,             (2 clocks) 
- 255:kernel.S      **** 		POP   R11                                         ;restore R11,             (2 clocks) 
- 256:kernel.S      **** 		POP   R10                                         ;restore R10,             (2 clocks) 
- 257:kernel.S      **** 		POP   R9                                          ;restore R9,              (2 clocks) 
- 258:kernel.S      **** 		POP   R8                                          ;restore R8,              (2 clocks) 
- 259:kernel.S      **** 		POP   R7                                          ;restore R7,              (2 clocks) 
- 260:kernel.S      **** 		POP   R6                                          ;restore R6,              (2 clocks) 
- 261:kernel.S      **** 		POP   R5                                          ;restore R5,              (2 clocks) 
- 262:kernel.S      **** 		POP   R4                                          ;restore R4,              (2 clocks) 
- 263:kernel.S      **** 		POP   R3                                          ;restore R3,              (2 clocks) 
- 264:kernel.S      **** 		POP   R2                                          ;restore R2,              (2 clocks) 
- 265:kernel.S      **** 		POP   R1                                          ;restore R1,              (2 clocks) 
- 266:kernel.S      **** 		POP   R0                                          ;fetch SREG,              (2 clocks) 
- 267:kernel.S      **** 		OUT   0x3F               , R0                     ;load SREG,               (1 clock ) 
- 268:kernel.S      **** 		POP   R0                                          ;restore R0,              (2 clocks) 
- 269               			#endif
- 270               			
- 271               			;;============================if kernel debug enabled===============================;;
- 272               			#ifdef KER_DBG_ENABLE
- 273:kernel.S      **** 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear gpio,              (2 clocks)
- 274               			#endif
- 275               			
- 276:kernel.S      **** 		RETI                                              ;return from interrupt,   (4 clocks) 
- 277               	
- 278               	
- 279               	
- 280               	;;====================================SysTick Reg Init=======================================;;
- 281               	;; total 32 clocks for SysTick Reg Init, omited debug gpio config
- 282               	Kernel_SysTick_Reg_Init:
- 283               	        ;clear all kernel variables
- 284:kernel.S      **** 		LDI   R16                , 0x00                   ;set 0x00 to R16,         (1 clock )
- 285:kernel.S      **** 		STS   Kernel+0x00        , R16                    ;clear  kernel[0],        (2 clocks)
- 286:kernel.S      **** 		STS   Kernel+0x01        , R16                    ;clear  kernel[1],        (2 clocks)
- 287:kernel.S      **** 		STS   Kernel+0x02        , R16                    ;clear  kernel[2],        (2 clocks)
- 288:kernel.S      **** 		STS   Kernel+0x03        , R16                    ;clear  kernel[3],        (2 clocks)
- 289:kernel.S      **** 		STS   Kernel+0x04        , R16                    ;clear  kernel[4],        (2 clocks)
- 290:kernel.S      **** 		STS   Kernel+0x05        , R16                    ;clear  kernel[5],        (2 clocks)
- 291:kernel.S      **** 		STS   Kernel+0x06        , R16                    ;clear  kernel[6],        (2 clocks)
- 292:kernel.S      **** 		STS   Kernel+0x07        , R16                    ;clear  kernel[7],        (2 clocks)
- 293:kernel.S      **** 		STS   Kernel+0x08        , R16                    ;clear  kernel[8],        (2 clocks)
+ 111               	.global  Kernel_Test_Task0
+ 112               	.global  Kernel_Test_Task1
+ 113               	.global  Kernel_Test_Task2
+ 114               	
+ 115               	.global  Kernel_Task0_Init
+ 116               	.global  Kernel_Task1_Init
+ 117               	.global  Kernel_Task2_Init
+ 118               	
+ 119               	.global  Kernel_Task_Debug
+ 120               	
+ 121               	
+ 122               	.macro  KER_CNTXT_SV
+ 123               	        ;;==============================context save========================================;; 
+ 124               			;; total 68 clocks for context saving                                                  
+ 125               	        PUSH  R0                                          ;save R0,                 (2 clocks) 
+ 126               			IN    R0                 , IOSREG                 ;load SREG,               (1 clock ) 
+ 127               			PUSH  R0                                          ;save SREG,               (2 clocks) 
+ 128               			PUSH  R1                                          ;save R1,                 (2 clocks) 
+ 129               			CLR   R1                                          ;clear R1,                (1 clock ) 
+ 130               			PUSH  R2                                          ;save R2,                 (2 clocks) 
+ 131               			PUSH  R3                                          ;save R3,                 (2 clocks) 
+ 132               			PUSH  R4                                          ;save R4,                 (2 clocks) 
+ 133               			PUSH  R5                                          ;save R5,                 (2 clocks) 
+ 134               			PUSH  R6                                          ;save R6,                 (2 clocks) 
+ 135               			PUSH  R7                                          ;save R7,                 (2 clocks) 
+ 136               			PUSH  R8                                          ;save R8,                 (2 clocks) 
+ 137               			PUSH  R9                                          ;save R9,                 (2 clocks) 
+ 138               			PUSH  R10                                         ;save R10,                (2 clocks) 
+ 139               			PUSH  R11                                         ;save R11,                (2 clocks) 
+ 140               			PUSH  R12                                         ;save R12,                (2 clocks) 
+ 141               			PUSH  R13                                         ;save R13,                (2 clocks) 
+ 142               			PUSH  R14                                         ;save R14,                (2 clocks) 
+ 143               			PUSH  R15                                         ;save R15,                (2 clocks) 
+ 144               			PUSH  R16                                         ;save R16,                (2 clocks) 
+ 145               			PUSH  R17                                         ;save R17,                (2 clocks) 
+ 146               			PUSH  R18                                         ;save R18,                (2 clocks) 
+ 147               			PUSH  R19                                         ;save R19,                (2 clocks) 
+ 148               			PUSH  R20                                         ;save R20,                (2 clocks) 
+ 149               			PUSH  R21                                         ;save R21,                (2 clocks) 
+ 150               			PUSH  R22                                         ;save R22,                (2 clocks) 
+ 151               			PUSH  R23                                         ;save R23,                (2 clocks) 
+ 152               			PUSH  R24                                         ;save R24,                (2 clocks) 
+ 153               			PUSH  R25                                         ;save R25,                (2 clocks) 
+ 154               			PUSH  R26                                         ;save R26,                (2 clocks) 
+ 155               			PUSH  R27                                         ;save R27,                (2 clocks) 
+ 156               			PUSH  R28                                         ;save R28,                (2 clocks) 
+ 157               			PUSH  R29                                         ;save R29,                (2 clocks) 
+ 158               			PUSH  R30                                         ;save R30,                (2 clocks) 
+ 159               			PUSH  R31                                         ;save R31,                (2 clocks) 
+ 160               	.endm
+ 161               	
+ 162               	.macro  KER_CNTXT_RS
+ 163               	        ;;===============================context restore====================================;; 
+ 164               			;; total 68 clocks for context restore                                                 
+ 165               			POP   R31                                         ;restore R31,             (2 clocks) 
+ 166               			POP   R30                                         ;restore R30,             (2 clocks) 
+ 167               			POP   R29                                         ;restore R29,             (2 clocks) 
+ 168               			POP   R28                                         ;restore R28,             (2 clocks) 
+ 169               			POP   R27                                         ;restore R27,             (2 clocks) 
+ 170               			POP   R26                                         ;restore R26,             (2 clocks) 
+ 171               			POP   R25                                         ;restore R25,             (2 clocks) 
+ 172               			POP   R24                                         ;restore R24,             (2 clocks) 
+ 173               			POP   R23                                         ;restore R23,             (2 clocks) 
+ 174               			POP   R22                                         ;restore R22,             (2 clocks) 
+ 175               			POP   R21                                         ;restore R21,             (2 clocks) 
+ 176               			POP   R20                                         ;restore R20,             (2 clocks) 
+ 177               			POP   R19                                         ;restore R19,             (2 clocks) 
+ 178               			POP   R18                                         ;restore R18,             (2 clocks) 
+ 179               			POP   R17                                         ;restore R17,             (2 clocks) 
+ 180               			POP   R16                                         ;restore R16,             (2 clocks) 
+ 181               			POP   R15                                         ;restore R15,             (2 clocks) 
+ 182               			POP   R14                                         ;restore R14,             (2 clocks) 
+ 183               			POP   R13                                         ;restore R13,             (2 clocks) 
+ 184               			POP   R12                                         ;restore R12,             (2 clocks) 
+ 185               			POP   R11                                         ;restore R11,             (2 clocks) 
+ 186               			POP   R10                                         ;restore R10,             (2 clocks) 
+ 187               			POP   R9                                          ;restore R9,              (2 clocks) 
+ 188               			POP   R8                                          ;restore R8,              (2 clocks) 
+ 189               			POP   R7                                          ;restore R7,              (2 clocks) 
+ 190               			POP   R6                                          ;restore R6,              (2 clocks) 
+ 191               			POP   R5                                          ;restore R5,              (2 clocks) 
+ 192               			POP   R4                                          ;restore R4,              (2 clocks) 
+ 193               			POP   R3                                          ;restore R3,              (2 clocks) 
+ 194               			POP   R2                                          ;restore R2,              (2 clocks) 
+ 195               			POP   R1                                          ;restore R1,              (2 clocks) 
+ 196               			POP   R0                                          ;fetch SREG,              (2 clocks) 
+ 197               			OUT   IOSREG             , R0                     ;load SREG,               (1 clock ) 
+ 198               			POP   R0                                          ;restore R0,              (2 clocks) 
+ 199               	.endm
+ 200               	
+ 201               	.macro  KER_TICK_INC
+ 202               	        ;;=============================increment tick counter===============================;;
+ 203               			;; total 27 clocks for reloading, 40 bit counter
+ 204               			LDI   R16                , 0x01                   ;load 1 to R16,           (1 clock )
+ 205               			LDS   R17                , Kernel+0x00            ;load Byte0,              (2 clocks)
+ 206               			ADD   R17                , R16                    ;add 1 with Byte0,        (1 clock )
+ 207               			STS   Kernel+0x00        , R17                    ;set Byte0,               (2 clocks)
+ 208               			LDI   R16                , 0x00                   ;load 0 to R16,           (1 clock )
+ 209               			LDS   R17                , Kernel+0x01            ;load Byte1,              (2 clocks)
+ 210               			ADC   R17                , R16                    ;add carry with Byte1,    (1 clock )
+ 211               			STS   Kernel+0x01        , R17                    ;set Byte1,               (2 clocks)
+ 212               			LDS   R17                , Kernel+0x02            ;load Byte2,              (2 clocks)
+ 213               			ADC   R17                , R16                    ;add carry with Byte2,    (1 clock )
+ 214               			STS   Kernel+0x02        , R17                    ;set Byte2,               (2 clocks)
+ 215               			LDS   R17                , Kernel+0x03            ;load Byte3,              (2 clocks)
+ 216               			ADC   R17                , R16                    ;add carry with Byte3,    (1 clock )
+ 217               			STS   Kernel+0x03        , R17                    ;set Byte3,               (2 clocks)
+ 218               			LDS   R17                , Kernel+0x04            ;load Byte4,              (2 clocks)
+ 219               			ADC   R17                , R16                    ;add carry with Byte4,    (1 clock )
+ 220               			STS   Kernel+0x04        , R17                    ;set Byte4,               (2 clocks)
+ 221               	.endm
+ 222               	
+ 223               	
+ 224               	
+ 225               	
+ 226               	
+ 227               	;Initialize interrupt vector subroutine
+ 228               	.global  __vector_16
+ 229               	    __vector_16:
+ 230               		    
+ 231               			;;============================if kernel debug enabled===============================;;
+ 232               		    #ifdef KER_DBG_ENABLE
+ 233:kernel.S      ****         SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio,                (2 clocks)
+ 234               			#endif
+ 235               			
+ 236               			
+ 237               			;;==============================context save========================================;;
+ 238               			;; total 68 clocks for context saving
+ 239               			#ifdef KER_CNTXT_SV_ISR
+ 240:kernel.S      ****         KER_CNTXT_SV
+ 241               			#endif
+ 242               			
+ 243               			;;=============================reload counter value=================================;;
+ 244               			;; total 4 clocks for reloading
+ 245:kernel.S      **** 		LDS   R16                , Kernel+0x08            ;fetch reload value,      (2 clocks) 
+ 246:kernel.S      **** 		STS   SRTCNT0            , R16                    ;Set value to TCNT0,      (2 clocks) 
+ 247               			
+ 248               			
+ 249               			;;=============================increment tick counter===============================;;
+ 250               			;; total 27 clocks for reloading, 40 bit counter
+ 251:kernel.S      **** 		KER_TICK_INC
+ 252               			
+ 253               			
+ 254               			;;========================check current task index, save SP=========================;;
+ 255               			;;
+ 256               			#ifdef KER_TSK_SW_ISR
+ 257               		    LDS   R16                , ker_tski               ;fetch task index,        (2 clocks)
+ 258               			CPI   R16                , 0                      ;check if val!=0          (1 clock )
+ 259               			BRNE  TSK1                                        ;goto saving task1 SP     (2 clocks)
+ 260               			
+ 261               			
+ 262               			
+ 263               			;;======================save stack pointer0, set task index 1=======================;;
+ 264               			;;
+ 265               		TSK0:
+ 266               		    IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
+ 267               			IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
+ 268               			STS   ker_stp+0x00       , R24                    ;load  SPL0,              (2 clocks)
+ 269               			STS   ker_stp+0x01       , R25                    ;load  SPH0,              (2 clocks)
+ 270               			LDI   R16                , 0x01                   ;set ker_tski to 1,       (1 clock )
+ 271               			STS   ker_tski           , R16                    ;load  ker_tski=1,        (2 clocks)
+ 272               			LDS   R24                , ker_stp+0x02           ;fetch SPL0,              (2 clocks)
+ 273               			LDS   R25                , ker_stp+0x03           ;fetch SPH0,              (2 clocks)
+ 274               			OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
+ 275               			OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
+ 276               			RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
+ 277               			
+ 278               			
+ 279               		    ;;======================save stack pointer1, set task index 0=======================;;
+ 280               			;;
+ 281               		TSK1:
+ 282               		    IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
+ 283               			IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
+ 284               			STS   ker_stp+0x02       , R24                    ;load  SPL0,              (2 clocks)
+ 285               			STS   ker_stp+0x03       , R25                    ;load  SPH0,              (2 clocks)
+ 286               			LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
+ 287               			STS   ker_tski           , R16                    ;load  ker_tski=0,        (2 clocks)
+ 288               			LDS   R24                , ker_stp+0x00           ;fetch SPL0,              (2 clocks)
+ 289               			LDS   R25                , ker_stp+0x01           ;fetch SPH0,              (2 clocks)
+ 290               			OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
+ 291               			OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
+ 292               			RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
+ 293               			#endif
  294               			
- 295               			#ifdef KER_DBG_ENABLE
- 296:kernel.S      **** 		SBI   KER_DBG_DDR        , KER_DBG_PIN            ;set bit in DDR,          (2 clocks) 
- 297:kernel.S      **** 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear port bit,          (2 clocks) 
- 298               			#endif
- 299               			
- 300               			
- 301:kernel.S      ****         CLI                                               ;disable global interrupt,(1 clock ) 
- 302:kernel.S      **** 		LDI   R16                , 0x00                   ;store r16 with 0,        (1 clock ) 
- 303:kernel.S      **** 		STS   SRTCCR0A           , R16                    ;clear TCCR0A,            (2 clocks) 
- 304:kernel.S      **** 		STS   SRTCCR0B           , R16                    ;clear TCCR0B,            (2 clocks) 
- 305:kernel.S      **** 		STS   SRTIMSK0           , R16                    ;clear TIMSK0,            (2 clocks) 
- 306:kernel.S      **** 		STS   SRTIFR0            , R16                    ;clear TIFR0,             (2 clocks) 
- 307:kernel.S      **** 		STS   SROCR0A            , R16                    ;clear OCR0A,             (2 clocks) 
- 308:kernel.S      **** 		STS   SROCR0B            , R16                    ;clear OCR0B,             (2 clocks) 
- 309:kernel.S      **** 		STS   SRTCNT0            , R16                    ;clear TCNT0,             (2 clocks) 
- 310:kernel.S      **** 		LDI   R16                , KER_PRS                ;prescaler 64,            (1 clock ) 
- 311:kernel.S      **** 		STS   SRTCCR0B           , R16                    ;set to TCCR0B,           (2 clocks)
- 312:kernel.S      **** 		LDI   R16                , KER_RLD                ;reload value (130),      (1 clock ) 
- 313:kernel.S      **** 		STS   Kernel+0x08        , R16                    ;Kernel[5] reload value,  (2 clocks) 
- 314:kernel.S      **** 		STS   SRTCNT0            , R16                    ;set to TCNT0,            (2 clocks) 
- 315:kernel.S      **** 		LDI   R16                , 0x01                   ;store with TOIE0 enabled,(1 clock ) 
- 316:kernel.S      **** 		STS   SRTIMSK0           , R16                    ;set to TIMSK0,           (2 clocks) 
- 317               			;SEI                                               ;enable global interrupt, (1 clock ) 
- 318:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
- 319               	
- 320               	
- 321               	
- 322               	;;===================================SysTick Value Get======================================;;
- 323               	;; total 20 clocks for SysTick Value Get
- 324               	;; interrupts disabled for 16 clocks
- 325               	Kernel_SysTick_Val_Get:
- 326:kernel.S      ****         IN    R16                , IOSREG                 ;Save SREG,               (1 clock ) 
- 327:kernel.S      ****         CLI                                               ;Disable interrupts,      (1 clock ) 
- 328:kernel.S      **** 		LDS   R18		         , Kernel+0x00            ;Byte0 -> R18 (LSB),      (2 clocks) 
- 329:kernel.S      **** 		LDS   R19		         , Kernel+0x01            ;Byte1 -> R19,            (2 clocks) 
- 330:kernel.S      **** 		LDS   R20		         , Kernel+0x02            ;Byte2 -> R20,            (2 clocks) 
- 331:kernel.S      **** 		LDS   R21		         , Kernel+0x03            ;Byte3 -> R21,            (2 clocks) 
- 332:kernel.S      **** 		LDS   R22		         , Kernel+0x04            ;Byte4 -> R22,            (2 clocks) 
- 333:kernel.S      **** 		LDI   R23		         , 0x00                   ;Byte5 -> R23,            (1 clocks) 
- 334:kernel.S      **** 		LDI   R24		         , 0x00                   ;Byte6 -> R24,            (1 clocks) 
- 335:kernel.S      **** 		LDI   R25		         , 0x00                   ;Byte7 -> R25 (MSB),      (1 clocks) 
- 336:kernel.S      **** 		OUT   IOSREG             , R16          		  ;Restore SREG,            (1 clock )
- 337:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
- 338               	
- 339               	
- 340               	
- 341               	;;=================================Interrupt Status Get=====================================;;
- 342               	;; total 10 clocks for Interrupt Status Get
- 343               	Kernel_Interrupt_Sts_Get:
- 344:kernel.S      ****         LDI   R24		         , 0x00                   ;clear R24,               (1 clock ) 
- 345:kernel.S      ****         IN    R16		         , IOSREG                 ;save SREG in R16,        (1 clock )
- 346:kernel.S      **** 		SBRC  R16		         , 0x07                   ;check I flag->bit7,      (3 clocks)
- 347:kernel.S      **** 		LDI   R24		         , 0x01                   ;set R24 to 1,            (1 clock ) 
- 348:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
- 349               	
- 350               	
+ 295               			
+ 296               		RS_CNTXT:
+ 297               			;;===============================context restore====================================;;
+ 298               			;; total 68 clocks for context restore
+ 299               			#ifdef KER_CNTXT_RS_ISR
+ 300:kernel.S      **** 		KER_CNTXT_RS
+ 301               			#endif
+ 302               			
+ 303               			;;============================if kernel debug enabled===============================;;
+ 304               			#ifdef KER_DBG_ENABLE
+ 305:kernel.S      **** 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear gpio,              (2 clocks)
+ 306               			#endif
+ 307               			
+ 308:kernel.S      **** 		RETI                                              ;return from interrupt,   (4 clocks) 
+ 309               	
+ 310               	
+ 311               	
+ 312               	;;====================================SysTick Reg Init=======================================;;
+ 313               	;; total 32 clocks for SysTick Reg Init, omited debug gpio config
+ 314               	Kernel_SysTick_Reg_Init:
+ 315               	        ;clear all kernel variables
+ 316:kernel.S      **** 		LDI   R16                , 0x00                   ;set 0x00 to R16,         (1 clock )
+ 317:kernel.S      **** 		STS   Kernel+0x00        , R16                    ;clear  kernel[0],        (2 clocks)
+ 318:kernel.S      **** 		STS   Kernel+0x01        , R16                    ;clear  kernel[1],        (2 clocks)
+ 319:kernel.S      **** 		STS   Kernel+0x02        , R16                    ;clear  kernel[2],        (2 clocks)
+ 320:kernel.S      **** 		STS   Kernel+0x03        , R16                    ;clear  kernel[3],        (2 clocks)
+ 321:kernel.S      **** 		STS   Kernel+0x04        , R16                    ;clear  kernel[4],        (2 clocks)
+ 322:kernel.S      **** 		STS   Kernel+0x05        , R16                    ;clear  kernel[5],        (2 clocks)
+ 323:kernel.S      **** 		STS   Kernel+0x06        , R16                    ;clear  kernel[6],        (2 clocks)
+ 324:kernel.S      **** 		STS   Kernel+0x07        , R16                    ;clear  kernel[7],        (2 clocks)
+ 325:kernel.S      **** 		STS   Kernel+0x08        , R16                    ;clear  kernel[8],        (2 clocks)
+ 326               			
+ 327               			#ifdef KER_DBG_ENABLE
+ 328:kernel.S      **** 		SBI   KER_DBG_DDR        , KER_DBG_PIN            ;set bit in DDR,          (2 clocks) 
+ 329:kernel.S      **** 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear port bit,          (2 clocks) 
+ 330               			#endif
+ 331               			
+ 332               			
+ 333:kernel.S      ****         CLI                                               ;disable global interrupt,(1 clock ) 
+ 334:kernel.S      **** 		LDI   R16                , 0x00                   ;store r16 with 0,        (1 clock ) 
+ 335:kernel.S      **** 		STS   SRTCCR0A           , R16                    ;clear TCCR0A,            (2 clocks) 
+ 336:kernel.S      **** 		STS   SRTCCR0B           , R16                    ;clear TCCR0B,            (2 clocks) 
+ 337:kernel.S      **** 		STS   SRTIMSK0           , R16                    ;clear TIMSK0,            (2 clocks) 
+ 338:kernel.S      **** 		STS   SRTIFR0            , R16                    ;clear TIFR0,             (2 clocks) 
+ 339:kernel.S      **** 		STS   SROCR0A            , R16                    ;clear OCR0A,             (2 clocks) 
+ 340:kernel.S      **** 		STS   SROCR0B            , R16                    ;clear OCR0B,             (2 clocks) 
+ 341:kernel.S      **** 		STS   SRTCNT0            , R16                    ;clear TCNT0,             (2 clocks) 
+ 342:kernel.S      **** 		LDI   R16                , KER_PRS                ;prescaler 64,            (1 clock ) 
+ 343:kernel.S      **** 		STS   SRTCCR0B           , R16                    ;set to TCCR0B,           (2 clocks)
+ 344:kernel.S      **** 		LDI   R16                , KER_RLD                ;reload value (130),      (1 clock ) 
+ 345:kernel.S      **** 		STS   Kernel+0x08        , R16                    ;Kernel[5] reload value,  (2 clocks) 
+ 346:kernel.S      **** 		STS   SRTCNT0            , R16                    ;set to TCNT0,            (2 clocks) 
+ 347:kernel.S      **** 		LDI   R16                , 0x01                   ;store with TOIE0 enabled,(1 clock ) 
+ 348:kernel.S      **** 		STS   SRTIMSK0           , R16                    ;set to TIMSK0,           (2 clocks) 
+ 349               			;SEI                                               ;enable global interrupt, (1 clock ) 
+ 350:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
  351               	
  352               	
  353               	
- 354               	
- 355               	
- 356               	
- 357               	
- 358               	
- 359               	
- 360               	
- 361               	
- 362               	;;===================================Kernel Test Task0======================================;;
- 363               	Kernel_Test_Task0:
- 364               	        ;initialize DDR and Port register, total 4 clocks
- 365:kernel.S      ****         SBI   KER_TSK0_DDR       , KER_TSK0_PIN           ;set bit in DDR,          (2 clocks) 
- 366:kernel.S      **** 		CBI   KER_TSK0_PORT      , KER_TSK0_PIN           ;clear port bit,          (2 clocks)
- 367               			 
- 368               	    LOOP0:
- 369               		    ;pin toggle, total 5 clocks
- 370:kernel.S      **** 		IN    R16                , KER_TSK0_PORT          ;load PORT val,           (2 clocks)
- 371:kernel.S      **** 		LDI   R17                , (1<<KER_TSK0_PIN)      ;bit mask for port pin    (1 clock )
- 372:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 373:kernel.S      **** 		OUT   KER_TSK0_PORT      , R16                    ;set new PORT val,        (1 clock )
- 374               			
- 375               			;assign delay loop count val, for 30ms 
- 376:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 377               			
- 378               	    DLY00:
- 379:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 380               			
- 381               		DLY01:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
- 382:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
- 383:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 384:kernel.S      **** 		BRNE  DLY01                                       ;if R17 not equal to 0,   (2 clock ) 
- 385:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 386:kernel.S      **** 		BRNE  DLY00                                       ;if R16 not equal to 0,   (2 clock ) 
- 387:kernel.S      **** 		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock ) 
- 388:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
+ 354               	;;===================================SysTick Value Get======================================;;
+ 355               	;; total 20 clocks for SysTick Value Get
+ 356               	;; interrupts disabled for 16 clocks
+ 357               	Kernel_SysTick_Val_Get:
+ 358:kernel.S      ****         IN    R16                , IOSREG                 ;Save SREG,               (1 clock ) 
+ 359:kernel.S      ****         CLI                                               ;Disable interrupts,      (1 clock ) 
+ 360:kernel.S      **** 		LDS   R18		         , Kernel+0x00            ;Byte0 -> R18 (LSB),      (2 clocks) 
+ 361:kernel.S      **** 		LDS   R19		         , Kernel+0x01            ;Byte1 -> R19,            (2 clocks) 
+ 362:kernel.S      **** 		LDS   R20		         , Kernel+0x02            ;Byte2 -> R20,            (2 clocks) 
+ 363:kernel.S      **** 		LDS   R21		         , Kernel+0x03            ;Byte3 -> R21,            (2 clocks) 
+ 364:kernel.S      **** 		LDS   R22		         , Kernel+0x04            ;Byte4 -> R22,            (2 clocks) 
+ 365:kernel.S      **** 		LDI   R23		         , 0x00                   ;Byte5 -> R23,            (1 clocks) 
+ 366:kernel.S      **** 		LDI   R24		         , 0x00                   ;Byte6 -> R24,            (1 clocks) 
+ 367:kernel.S      **** 		LDI   R25		         , 0x00                   ;Byte7 -> R25 (MSB),      (1 clocks) 
+ 368:kernel.S      **** 		OUT   IOSREG             , R16          		  ;Restore SREG,            (1 clock )
+ 369:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
+ 370               	
+ 371               	
+ 372               	
+ 373               	;;=================================Interrupt Status Get=====================================;;
+ 374               	;; total 10 clocks for Interrupt Status Get
+ 375               	Kernel_Interrupt_Sts_Get:
+ 376:kernel.S      ****         LDI   R24		         , 0x00                   ;clear R24,               (1 clock ) 
+ 377:kernel.S      ****         IN    R16		         , IOSREG                 ;save SREG in R16,        (1 clock )
+ 378:kernel.S      **** 		SBRC  R16		         , 0x07                   ;check I flag->bit7,      (3 clocks)
+ 379:kernel.S      **** 		LDI   R24		         , 0x01                   ;set R24 to 1,            (1 clock ) 
+ 380:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
+ 381               	
+ 382               	
+ 383               	
+ 384               	
+ 385               	
+ 386               	
+ 387               	
+ 388               	
  389               	
  390               	
  391               	
- 392               	;;===================================Kernel Test Task1======================================;;
- 393               	Kernel_Test_Task1:
- 394               	        ;initialize DDR and Port register, total 4 clocks
- 395:kernel.S      ****         SBI   KER_TSK1_DDR       , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
- 396:kernel.S      **** 		CBI   KER_TSK1_PORT      , KER_TSK1_PIN           ;clear port bit,          (2 clocks)
- 397               			 
- 398               	    LOOP1:
- 399               		    ;pin toggle, total 5 clocks
- 400:kernel.S      **** 		IN    R16                , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
- 401:kernel.S      **** 		LDI   R17                , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
- 402:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 403:kernel.S      **** 		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
- 404               			
- 405               			;assign delay loop count val, for 30ms 
- 406:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 407               			
- 408               	    DLY10:
- 409:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 410               			
- 411               		DLY11:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
- 412:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
- 413:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 414:kernel.S      **** 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
- 415:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 416:kernel.S      **** 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
- 417:kernel.S      **** 		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock ) 
- 418               	
- 419               	
- 420               	
- 421               	;;===================================Kernel Test Task2======================================;;
- 422               	Kernel_Test_Task2:
- 423               	        ;initialize DDR and Port register, total 4 clocks
- 424:kernel.S      ****         SBI   KER_TSK2_DDR       , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
- 425:kernel.S      **** 		CBI   KER_TSK2_PORT      , KER_TSK2_PIN           ;clear port bit,          (2 clocks)
- 426               			 
- 427               	    LOOP2:
- 428               		    ;pin toggle, total 5 clocks
- 429:kernel.S      **** 		IN    R16                , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
- 430:kernel.S      **** 		LDI   R17                , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
- 431:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 432:kernel.S      **** 		OUT   KER_TSK2_PORT      , R16                    ;set new PORT val,        (1 clock )
- 433               			
- 434               			;assign delay loop count val, for 30ms 
- 435:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
+ 392               	
+ 393               	
+ 394               	;;===================================Kernel Test Task0======================================;;
+ 395               	Kernel_Test_Task0:
+ 396               	        ;initialize DDR and Port register, total 4 clocks
+ 397:kernel.S      ****         SBI   KER_TSK0_DDR       , KER_TSK0_PIN           ;set bit in DDR,          (2 clocks) 
+ 398:kernel.S      **** 		CBI   KER_TSK0_PORT      , KER_TSK0_PIN           ;clear port bit,          (2 clocks)
+ 399               			 
+ 400               	    LOOP0:
+ 401               		    ;pin toggle, total 5 clocks
+ 402:kernel.S      **** 		IN    R16                , KER_TSK0_PORT          ;load PORT val,           (2 clocks)
+ 403:kernel.S      **** 		LDI   R17                , (1<<KER_TSK0_PIN)      ;bit mask for port pin    (1 clock )
+ 404:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
+ 405:kernel.S      **** 		OUT   KER_TSK0_PORT      , R16                    ;set new PORT val,        (1 clock )
+ 406               			
+ 407               			;assign delay loop count val, for 30ms 
+ 408:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
+ 409               			
+ 410               	    DLY00:
+ 411:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
+ 412               			
+ 413               		DLY01:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
+ 414:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
+ 415:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
+ 416:kernel.S      **** 		BRNE  DLY01                                       ;if R17 not equal to 0,   (2 clock ) 
+ 417:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
+ 418:kernel.S      **** 		BRNE  DLY00                                       ;if R16 not equal to 0,   (2 clock ) 
+ 419:kernel.S      **** 		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock ) 
+ 420:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
+ 421               	
+ 422               	
+ 423               	
+ 424               	;;===================================Kernel Test Task1======================================;;
+ 425               	Kernel_Test_Task1:
+ 426               	        ;initialize DDR and Port register, total 4 clocks
+ 427:kernel.S      ****         SBI   KER_TSK1_DDR       , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
+ 428:kernel.S      **** 		CBI   KER_TSK1_PORT      , KER_TSK1_PIN           ;clear port bit,          (2 clocks)
+ 429               			 
+ 430               	    LOOP1:
+ 431               		    ;pin toggle, total 5 clocks
+ 432:kernel.S      **** 		IN    R16                , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
+ 433:kernel.S      **** 		LDI   R17                , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
+ 434:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
+ 435:kernel.S      **** 		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
  436               			
- 437               	    DLY20:
- 438:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
+ 437               			;assign delay loop count val, for 30ms 
+ 438:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
  439               			
- 440               		DLY21:                                                ;inner loop, 127.5uS@8Mhz (4 clocks)
- 441:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
- 442:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 443:kernel.S      **** 		BRNE  DLY21                                       ;if R17 not equal to 0,   (2 clock ) 
- 444:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 445:kernel.S      **** 		BRNE  DLY20                                       ;if R16 not equal to 0,   (2 clock ) 
- 446:kernel.S      **** 		RJMP  LOOP2                                       ;if R16 is 0->jump,       (2 clock ) 
- 447               	    
- 448               	
- 449               	;;====================================Kernel Task0 Init=====================================;;
- 450               	Kernel_Task0_Init:
- 451               	        ;init stack for task0
- 452:kernel.S      **** 		LDI   R18                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 453:kernel.S      **** 		LDI   R19                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 454               			
- 455:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
- 456:kernel.S      **** 		STS   ker_stk0+KER_STZ-1 , R16                    ;load at stack_top-1,     (2 clocks) 
- 457:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
- 458:kernel.S      **** 		STS   ker_stk0+KER_STZ-2 , R16                    ;load at stack_top-2,     (2 clocks) 
- 459               			
- 460:kernel.S      **** 		SUBI  R18                , 2                      ;SP to point stack start, (1 clock )
- 461:kernel.S      **** 		STS   ker_stp+0          , R18                    ;store current SP,        (2 clocks) 
- 462:kernel.S      **** 		STS   ker_stp+1          , R19                    ;store current SP,        (2 clocks) 
- 463               			
- 464:kernel.S      **** 		OUT   IOSPL              , R18                    ;load SPL                 (1 clock )
- 465:kernel.S      ****         OUT   IOSPH              , R19                    ;load SPH                 (1 clock )
- 466               			
- 467:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
- 468:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
- 469:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
- 470:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 440               	    DLY10:
+ 441:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
+ 442               			
+ 443               		DLY11:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
+ 444:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
+ 445:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
+ 446:kernel.S      **** 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
+ 447:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
+ 448:kernel.S      **** 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
+ 449:kernel.S      **** 		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock ) 
+ 450               	
+ 451               	
+ 452               	
+ 453               	;;===================================Kernel Test Task2======================================;;
+ 454               	Kernel_Test_Task2:
+ 455               	        ;initialize DDR and Port register, total 4 clocks
+ 456:kernel.S      ****         SBI   KER_TSK2_DDR       , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
+ 457:kernel.S      **** 		CBI   KER_TSK2_PORT      , KER_TSK2_PIN           ;clear port bit,          (2 clocks)
+ 458               			 
+ 459               	    LOOP2:
+ 460               		    ;pin toggle, total 5 clocks
+ 461:kernel.S      **** 		IN    R16                , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
+ 462:kernel.S      **** 		LDI   R17                , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
+ 463:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
+ 464:kernel.S      **** 		OUT   KER_TSK2_PORT      , R16                    ;set new PORT val,        (1 clock )
+ 465               			
+ 466               			;assign delay loop count val, for 30ms 
+ 467:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
+ 468               			
+ 469               	    DLY20:
+ 470:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
  471               			
- 472               			
- 473               	        ;;==============================context save========================================;;
- 474               			;; total 68 clocks for context saving
- 475:kernel.S      ****         PUSH  R0                                          ;save R0,                 (2 clocks)
- 476:kernel.S      **** 		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
- 477:kernel.S      **** 		PUSH  R0                                          ;save SREG,               (2 clocks)
- 478:kernel.S      **** 		PUSH  R1                                          ;save R1,                 (2 clocks)   
- 479:kernel.S      **** 		CLR   R1                                          ;clear R1,                (1 clock )
- 480:kernel.S      **** 		PUSH  R2                                          ;save R2,                 (2 clocks)   
- 481:kernel.S      **** 		PUSH  R3                                          ;save R3,                 (2 clocks)   
- 482:kernel.S      **** 		PUSH  R4                                          ;save R4,                 (2 clocks)   
- 483:kernel.S      **** 		PUSH  R5                                          ;save R5,                 (2 clocks)   
- 484:kernel.S      **** 		PUSH  R6                                          ;save R6,                 (2 clocks)   
- 485:kernel.S      **** 		PUSH  R7                                          ;save R7,                 (2 clocks)   
- 486:kernel.S      **** 		PUSH  R8                                          ;save R8,                 (2 clocks)   
- 487:kernel.S      **** 		PUSH  R9                                          ;save R9,                 (2 clocks)   
- 488:kernel.S      **** 		PUSH  R10                                         ;save R10,                (2 clocks)   
- 489:kernel.S      **** 		PUSH  R11                                         ;save R11,                (2 clocks)  
- 490:kernel.S      **** 		PUSH  R12                                         ;save R12,                (2 clocks)  
- 491:kernel.S      **** 		PUSH  R13                                         ;save R13,                (2 clocks)  
- 492:kernel.S      **** 		PUSH  R14                                         ;save R14,                (2 clocks)  
- 493:kernel.S      **** 		PUSH  R15                                         ;save R15,                (2 clocks)  
- 494:kernel.S      **** 		PUSH  R16                                         ;save R16,                (2 clocks)  
- 495:kernel.S      **** 		PUSH  R17                                         ;save R17,                (2 clocks)  
- 496:kernel.S      **** 		PUSH  R18                                         ;save R18,                (2 clocks)  
- 497:kernel.S      **** 		PUSH  R19                                         ;save R19,                (2 clocks)  
- 498:kernel.S      **** 		PUSH  R20                                         ;save R20,                (2 clocks)  
- 499:kernel.S      **** 		PUSH  R21                                         ;save R21,                (2 clocks)  
- 500:kernel.S      **** 		PUSH  R22                                         ;save R22,                (2 clocks)  
- 501:kernel.S      **** 		PUSH  R23                                         ;save R23,                (2 clocks)  
- 502:kernel.S      **** 		PUSH  R24                                         ;save R24,                (2 clocks)  
- 503:kernel.S      **** 		PUSH  R25                                         ;save R25,                (2 clocks)  
- 504:kernel.S      **** 		PUSH  R26                                         ;save R26,                (2 clocks)  
- 505:kernel.S      **** 		PUSH  R27                                         ;save R27,                (2 clocks)  
- 506:kernel.S      **** 		PUSH  R28                                         ;save R28,                (2 clocks)  
- 507:kernel.S      **** 		PUSH  R29                                         ;save R29,                (2 clocks)  
- 508:kernel.S      **** 		PUSH  R30                                         ;save R30,                (2 clocks)  
- 509:kernel.S      **** 		PUSH  R31                                         ;save R31,                (2 clocks) 
- 510               			
- 511               			;--- Step 5: Save current SP into ker_stp[1] (task1 pointer) ---
- 512:kernel.S      ****         IN    R18, IOSPL                                  ;fetch SPL                (1 clock )
- 513:kernel.S      ****         IN    R19, IOSPH                                  ;fetch SPH                (1 clock )
- 514:kernel.S      ****         STS   ker_stp + 0        , R18                    ;set stp of task0         (2 clocks) 
- 515:kernel.S      ****         STS   ker_stp + 1        , R19                    ;set stp of task0         (2 clocks) 
- 516               			
- 517:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
- 518               	
- 519               	
- 520               	
- 521               	;;====================================Kernel Task0 Init=====================================;;
- 522               	Kernel_Task1_Init:
- 523               	        ;init stack for task0
- 524:kernel.S      **** 		LDI   R18                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 525:kernel.S      **** 		LDI   R19                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 526               			
- 527:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
- 528:kernel.S      **** 		STS   ker_stk1+KER_STZ-1 , R16                    ;load at stack_top-1,     (2 clocks) 
- 529:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
- 530:kernel.S      **** 		STS   ker_stk1+KER_STZ-2 , R16                    ;load at stack_top-2,     (2 clocks) 
- 531               			
- 532:kernel.S      **** 		SUBI  R18                , 2                      ;SP to point stack start, (1 clock )
- 533:kernel.S      **** 		STS   ker_stp+2          , R18                    ;store current SP,        (2 clocks) 
- 534:kernel.S      **** 		STS   ker_stp+3          , R19                    ;store current SP,        (2 clocks) 
+ 472               		DLY21:                                                ;inner loop, 127.5uS@8Mhz (4 clocks)
+ 473:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
+ 474:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
+ 475:kernel.S      **** 		BRNE  DLY21                                       ;if R17 not equal to 0,   (2 clock ) 
+ 476:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
+ 477:kernel.S      **** 		BRNE  DLY20                                       ;if R16 not equal to 0,   (2 clock ) 
+ 478:kernel.S      **** 		RJMP  LOOP2                                       ;if R16 is 0->jump,       (2 clock ) 
+ 479               	    
+ 480               	
+ 481               	;;====================================Kernel Task0 Init=====================================;;
+ 482               	Kernel_Task0_Init:
+ 483               	        ;init stack for task0
+ 484:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
+ 485:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+ 486               			
+ 487               			
+ 488               			;debug
+ 489:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 490:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
+ 491:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+ 492:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
+ 493               			
+ 494               			
+ 495:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 496:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 497               			
+ 498:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+ 499:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 500:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
+ 501:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 502               			
+ 503:kernel.S      ****         KER_CNTXT_SV
+ 504               			
+ 505:kernel.S      ****         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+ 506:kernel.S      ****         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+ 507:kernel.S      ****         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+ 508:kernel.S      ****         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+ 509               			
+ 510:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 511               	
+ 512               	
+ 513               	
+ 514               	;;====================================Kernel Task1 Init=====================================;;
+ 515               	Kernel_Task1_Init:
+ 516               	        ;init stack for task1
+ 517:kernel.S      **** 		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
+ 518:kernel.S      **** 		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
+ 519               			
+ 520               			;debug
+ 521:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 522:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
+ 523:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+ 524:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
+ 525               			
+ 526:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 527:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 528               			
+ 529:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
+ 530:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 531:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
+ 532:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 533               			
+ 534:kernel.S      ****         KER_CNTXT_SV
  535               			
- 536:kernel.S      **** 		OUT   IOSPL              , R18                    ;load SPL                 (1 clock )
- 537:kernel.S      ****         OUT   IOSPH              , R19                    ;load SPH                 (1 clock )
- 538               			
- 539:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
- 540:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
- 541:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
- 542:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
- 543               			
- 544               			
- 545               	        ;;==============================context save========================================;;
- 546               			;; total 68 clocks for context saving
- 547:kernel.S      ****         PUSH  R0                                          ;save R0,                 (2 clocks)
- 548:kernel.S      **** 		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
- 549:kernel.S      **** 		PUSH  R0                                          ;save SREG,               (2 clocks)
- 550:kernel.S      **** 		PUSH  R1                                          ;save R1,                 (2 clocks)   
- 551:kernel.S      **** 		CLR   R1                                          ;clear R1,                (1 clock )
- 552:kernel.S      **** 		PUSH  R2                                          ;save R2,                 (2 clocks)   
- 553:kernel.S      **** 		PUSH  R3                                          ;save R3,                 (2 clocks)   
- 554:kernel.S      **** 		PUSH  R4                                          ;save R4,                 (2 clocks)   
- 555:kernel.S      **** 		PUSH  R5                                          ;save R5,                 (2 clocks)   
- 556:kernel.S      **** 		PUSH  R6                                          ;save R6,                 (2 clocks)   
- 557:kernel.S      **** 		PUSH  R7                                          ;save R7,                 (2 clocks)   
- 558:kernel.S      **** 		PUSH  R8                                          ;save R8,                 (2 clocks)   
- 559:kernel.S      **** 		PUSH  R9                                          ;save R9,                 (2 clocks)   
- 560:kernel.S      **** 		PUSH  R10                                         ;save R10,                (2 clocks)   
- 561:kernel.S      **** 		PUSH  R11                                         ;save R11,                (2 clocks)  
- 562:kernel.S      **** 		PUSH  R12                                         ;save R12,                (2 clocks)  
- 563:kernel.S      **** 		PUSH  R13                                         ;save R13,                (2 clocks)  
- 564:kernel.S      **** 		PUSH  R14                                         ;save R14,                (2 clocks)  
- 565:kernel.S      **** 		PUSH  R15                                         ;save R15,                (2 clocks)  
- 566:kernel.S      **** 		PUSH  R16                                         ;save R16,                (2 clocks)  
- 567:kernel.S      **** 		PUSH  R17                                         ;save R17,                (2 clocks)  
- 568:kernel.S      **** 		PUSH  R18                                         ;save R18,                (2 clocks)  
- 569:kernel.S      **** 		PUSH  R19                                         ;save R19,                (2 clocks)  
- 570:kernel.S      **** 		PUSH  R20                                         ;save R20,                (2 clocks)  
- 571:kernel.S      **** 		PUSH  R21                                         ;save R21,                (2 clocks)  
- 572:kernel.S      **** 		PUSH  R22                                         ;save R22,                (2 clocks)  
- 573:kernel.S      **** 		PUSH  R23                                         ;save R23,                (2 clocks)  
- 574:kernel.S      **** 		PUSH  R24                                         ;save R24,                (2 clocks)  
- 575:kernel.S      **** 		PUSH  R25                                         ;save R25,                (2 clocks)  
- 576:kernel.S      **** 		PUSH  R26                                         ;save R26,                (2 clocks)  
- 577:kernel.S      **** 		PUSH  R27                                         ;save R27,                (2 clocks)  
- 578:kernel.S      **** 		PUSH  R28                                         ;save R28,                (2 clocks)  
- 579:kernel.S      **** 		PUSH  R29                                         ;save R29,                (2 clocks)  
- 580:kernel.S      **** 		PUSH  R30                                         ;save R30,                (2 clocks)  
- 581:kernel.S      **** 		PUSH  R31                                         ;save R31,                (2 clocks) 
- 582               			
- 583               			;--- Step 5: Save current SP into ker_stp[1] (task1 pointer) ---
- 584:kernel.S      ****         IN    R18, IOSPL                                  ;fetch SPL                (1 clock )
- 585:kernel.S      ****         IN    R19, IOSPH                                  ;fetch SPH                (1 clock )
- 586:kernel.S      ****         STS   ker_stp + 2        , R18                    ;set stp of task0         (2 clocks) 
- 587:kernel.S      ****         STS   ker_stp + 3        , R19                    ;set stp of task0         (2 clocks) 
- 588               			
- 589:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 536:kernel.S      ****         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+ 537:kernel.S      ****         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+ 538:kernel.S      ****         STS   ker_stp + 2        , R16                    ;set stp of task0         (2 clocks) 
+ 539:kernel.S      ****         STS   ker_stp + 3        , R17                    ;set stp of task0         (2 clocks) 
+ 540               			
+ 541:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 542               	
+ 543               	
+ 544               	;;====================================Kernel Task Debug=====================================;;
+ 545               	Kernel_Task_Debug:
+ 546               	        ;init stack for task1
+ 547:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
+ 548:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+ 549               			
+ 550               			
+ 551               			;debug
+ 552:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 553:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 554:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+ 555:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 556               			
+ 557:kernel.S      **** 		LDS   R24                , IOSPL                  ;copy val to R24          (1 clock )
+ 558:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 559:kernel.S      **** 		LDS   R24                , IOSPH                  ;copy val to R24          (1 clock )
+ 560:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 561               			
+ 562               			
+ 563               			;OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 564               	        ;OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 565               			
+ 566               			;LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+ 567               			;PUSH  R16                                         ;push,                    (2 clocks) 
+ 568               			;LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
+ 569               			;PUSH  R16                                         ;push,                    (2 clocks) 
+ 570               			
+ 571               	        ;KER_CNTXT_SV
+ 572               			
+ 573               	        ;IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+ 574               	        ;IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+ 575               	        ;STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+ 576               	        ;STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+ 577               			
+ 578:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks)
 DEFINED SYMBOLS
-            kernel.S:11     *ABS*:000003e8 KER_TR
-            kernel.S:12     *ABS*:00000003 KER_PRS
-            kernel.S:13     *ABS*:00000082 KER_RLD
-            kernel.S:15     *ABS*:0000000a KER_TSK0_DDR
-            kernel.S:16     *ABS*:0000000b KER_TSK0_PORT
-            kernel.S:17     *ABS*:00000005 KER_TSK0_PIN
-            kernel.S:19     *ABS*:0000000a KER_TSK1_DDR
-            kernel.S:20     *ABS*:0000000b KER_TSK1_PORT
-            kernel.S:21     *ABS*:00000006 KER_TSK1_PIN
-            kernel.S:23     *ABS*:0000000a KER_TSK2_DDR
-            kernel.S:24     *ABS*:0000000b KER_TSK2_PORT
-            kernel.S:25     *ABS*:00000007 KER_TSK2_PIN
-            kernel.S:27     *ABS*:00000080 KER_STZ
-            kernel.S:32     *ABS*:0000005f SRSREG
-            kernel.S:33     *ABS*:0000005e SRSPH
-            kernel.S:34     *ABS*:0000005d SRSPL
-            kernel.S:36     *ABS*:0000006e SRTIMSK0
-            kernel.S:37     *ABS*:00000048 SROCR0B
-            kernel.S:38     *ABS*:00000047 SROCR0A
-            kernel.S:39     *ABS*:00000046 SRTCNT0
-            kernel.S:40     *ABS*:00000045 SRTCCR0B
-            kernel.S:41     *ABS*:00000044 SRTCCR0A
-            kernel.S:42     *ABS*:00000035 SRTIFR0
-            kernel.S:44     *ABS*:00000028 IOOCR0B
-            kernel.S:45     *ABS*:00000027 IOOCR0A
-            kernel.S:46     *ABS*:00000026 IOTCNT0
-            kernel.S:47     *ABS*:00000025 IOTCCR0B
-            kernel.S:48     *ABS*:00000024 IOTCCR0A
-            kernel.S:49     *ABS*:00000015 IOTIFR0
-            kernel.S:51     *ABS*:0000003f IOSREG
-            kernel.S:52     *ABS*:0000003e IOSPH
-            kernel.S:53     *ABS*:0000003d IOSPL
-            kernel.S:60     .bss:00000000 Kernel
-            kernel.S:64     .bss:00000009 ker_tski
-            kernel.S:68     .bss:0000000a ker_stp
-            kernel.S:72     .bss:00000010 ker_stk0
-            kernel.S:76     .bss:00000090 ker_stk1
-            kernel.S:80     .bss:00000110 ker_stk2
-            kernel.S:114    .text:00000000 __vector_16
-            kernel.S:282    .text:00000116 Kernel_SysTick_Reg_Init
-            kernel.S:325    .text:00000178 Kernel_SysTick_Val_Get
-            kernel.S:343    .text:0000019a Kernel_Interrupt_Sts_Get
-            kernel.S:363    .text:000001a4 Kernel_Test_Task0
-            kernel.S:393    .text:000001c2 Kernel_Test_Task1
-            kernel.S:422    .text:000001de Kernel_Test_Task2
-            kernel.S:450    .text:000001fa Kernel_Task0_Init
-            kernel.S:522    .text:00000274 Kernel_Task1_Init
-            kernel.S:216    .text:000000ae TSK1
-            kernel.S:200    .text:0000008e TSK0
-            kernel.S:231    .text:000000ce RS_CNTXT
-            kernel.S:368    .text:000001a8 LOOP0
-            kernel.S:378    .text:000001b2 DLY00
-            kernel.S:381    .text:000001b4 DLY01
-            kernel.S:398    .text:000001c6 LOOP1
-            kernel.S:408    .text:000001d0 DLY10
-            kernel.S:411    .text:000001d2 DLY11
-            kernel.S:427    .text:000001e2 LOOP2
-            kernel.S:437    .text:000001ec DLY20
-            kernel.S:440    .text:000001ee DLY21
+            kernel.S:13     *ABS*:000003e8 KER_TR
+            kernel.S:14     *ABS*:00000003 KER_PRS
+            kernel.S:15     *ABS*:00000082 KER_RLD
+            kernel.S:17     *ABS*:0000000a KER_TSK0_DDR
+            kernel.S:18     *ABS*:0000000b KER_TSK0_PORT
+            kernel.S:19     *ABS*:00000005 KER_TSK0_PIN
+            kernel.S:21     *ABS*:0000000a KER_TSK1_DDR
+            kernel.S:22     *ABS*:0000000b KER_TSK1_PORT
+            kernel.S:23     *ABS*:00000006 KER_TSK1_PIN
+            kernel.S:25     *ABS*:0000000a KER_TSK2_DDR
+            kernel.S:26     *ABS*:0000000b KER_TSK2_PORT
+            kernel.S:27     *ABS*:00000007 KER_TSK2_PIN
+            kernel.S:29     *ABS*:00000080 KER_STZ
+            kernel.S:34     *ABS*:0000005f SRSREG
+            kernel.S:35     *ABS*:0000005e SRSPH
+            kernel.S:36     *ABS*:0000005d SRSPL
+            kernel.S:38     *ABS*:0000006e SRTIMSK0
+            kernel.S:39     *ABS*:00000048 SROCR0B
+            kernel.S:40     *ABS*:00000047 SROCR0A
+            kernel.S:41     *ABS*:00000046 SRTCNT0
+            kernel.S:42     *ABS*:00000045 SRTCCR0B
+            kernel.S:43     *ABS*:00000044 SRTCCR0A
+            kernel.S:44     *ABS*:00000035 SRTIFR0
+            kernel.S:46     *ABS*:00000028 IOOCR0B
+            kernel.S:47     *ABS*:00000027 IOOCR0A
+            kernel.S:48     *ABS*:00000026 IOTCNT0
+            kernel.S:49     *ABS*:00000025 IOTCCR0B
+            kernel.S:50     *ABS*:00000024 IOTCCR0A
+            kernel.S:51     *ABS*:00000015 IOTIFR0
+            kernel.S:53     *ABS*:0000003f IOSREG
+            kernel.S:54     *ABS*:0000003e IOSPH
+            kernel.S:55     *ABS*:0000003d IOSPL
+            kernel.S:69     .bss:00000000 Kernel
+            kernel.S:73     .bss:00000009 ker_tski
+            kernel.S:77     .bss:0000000a ker_stp
+            kernel.S:81     .bss:00000010 ker_stk0
+            kernel.S:85     .bss:00000090 ker_stk1
+            kernel.S:89     .bss:00000110 ker_stk2
+            kernel.S:229    .text:00000000 __vector_16
+            kernel.S:314    .text:000000ce Kernel_SysTick_Reg_Init
+            kernel.S:357    .text:00000130 Kernel_SysTick_Val_Get
+            kernel.S:375    .text:00000152 Kernel_Interrupt_Sts_Get
+            kernel.S:395    .text:0000015c Kernel_Test_Task0
+            kernel.S:425    .text:0000017a Kernel_Test_Task1
+            kernel.S:454    .text:00000196 Kernel_Test_Task2
+            kernel.S:482    .text:000001b2 Kernel_Task0_Init
+            kernel.S:515    .text:00000222 Kernel_Task1_Init
+            kernel.S:545    .text:00000292 Kernel_Task_Debug
+            kernel.S:296    .text:00000086 RS_CNTXT
+            kernel.S:400    .text:00000160 LOOP0
+            kernel.S:410    .text:0000016a DLY00
+            kernel.S:413    .text:0000016c DLY01
+            kernel.S:430    .text:0000017e LOOP1
+            kernel.S:440    .text:00000188 DLY10
+            kernel.S:443    .text:0000018a DLY11
+            kernel.S:459    .text:0000019a LOOP2
+            kernel.S:469    .text:000001a4 DLY20
+            kernel.S:472    .text:000001a6 DLY21
 
 UNDEFINED SYMBOLS
 Kernel_Task2_Init
+Debug_Tx_Byte
+Debug_Tx_Byte_Conf

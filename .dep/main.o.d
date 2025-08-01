@@ -1,3 +1,5 @@
-main.o: main.c kernel.h
+main.o: main.c kernel.h debug.h
 
 kernel.h:
+
+debug.h:

@@ -2,10 +2,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "kernel.h"
+#include "debug.h"
 
 #define  KER_CNTXT_SV_ISR
-#define  KER_TSK_SW_ISR
+;#define  KER_TSK_SW_ISR
 #define  KER_CNTXT_RS_ISR
+
 
 ;define user macros 
 .equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
@@ -51,6 +53,13 @@
 .equ     IOSREG,          0x3F   ;manually defined SREG in IO
 .equ     IOSPH,           0x3E   ;manually defined SPH in IO
 .equ     IOSPL,           0x3D   ;manually defined SPL in IO
+
+
+
+
+
+
+
 
 
 
@@ -107,65 +116,90 @@ ker_stk2:
 .global  Kernel_Task1_Init
 .global  Kernel_Task2_Init
 
+.global  Kernel_Task_Debug
 
 
-;Initialize interrupt vector subroutine
-.global  __vector_16
-    __vector_16:
-	    
-		;;============================if kernel debug enabled===============================;;
-	    #ifdef KER_DBG_ENABLE
-        SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio,                (2 clocks)
-		#endif
-		
-		
-		;;==============================context save========================================;;
-		;; total 68 clocks for context saving
-		#ifdef KER_CNTXT_SV_ISR
-        PUSH  R0                                          ;save R0,                 (2 clocks)
-		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
-		PUSH  R0                                          ;save SREG,               (2 clocks)
-		PUSH  R1                                          ;save R1,                 (2 clocks)   
-		CLR   R1                                          ;clear R1,                (1 clock )
-		PUSH  R2                                          ;save R2,                 (2 clocks)   
-		PUSH  R3                                          ;save R3,                 (2 clocks)   
-		PUSH  R4                                          ;save R4,                 (2 clocks)   
-		PUSH  R5                                          ;save R5,                 (2 clocks)   
-		PUSH  R6                                          ;save R6,                 (2 clocks)   
-		PUSH  R7                                          ;save R7,                 (2 clocks)   
-		PUSH  R8                                          ;save R8,                 (2 clocks)   
-		PUSH  R9                                          ;save R9,                 (2 clocks)   
-		PUSH  R10                                         ;save R10,                (2 clocks)   
-		PUSH  R11                                         ;save R11,                (2 clocks)  
-		PUSH  R12                                         ;save R12,                (2 clocks)  
-		PUSH  R13                                         ;save R13,                (2 clocks)  
-		PUSH  R14                                         ;save R14,                (2 clocks)  
-		PUSH  R15                                         ;save R15,                (2 clocks)  
-		PUSH  R16                                         ;save R16,                (2 clocks)  
-		PUSH  R17                                         ;save R17,                (2 clocks)  
-		PUSH  R18                                         ;save R18,                (2 clocks)  
-		PUSH  R19                                         ;save R19,                (2 clocks)  
-		PUSH  R20                                         ;save R20,                (2 clocks)  
-		PUSH  R21                                         ;save R21,                (2 clocks)  
-		PUSH  R22                                         ;save R22,                (2 clocks)  
-		PUSH  R23                                         ;save R23,                (2 clocks)  
-		PUSH  R24                                         ;save R24,                (2 clocks)  
-		PUSH  R25                                         ;save R25,                (2 clocks)  
-		PUSH  R26                                         ;save R26,                (2 clocks)  
-		PUSH  R27                                         ;save R27,                (2 clocks)  
-		PUSH  R28                                         ;save R28,                (2 clocks)  
-		PUSH  R29                                         ;save R29,                (2 clocks)  
-		PUSH  R30                                         ;save R30,                (2 clocks)  
-		PUSH  R31                                         ;save R31,                (2 clocks)  
-		#endif
-		
-		;;=============================reload counter value=================================;;
-		;; total 4 clocks for reloading
-		LDS   R16                , Kernel+0x08            ;fetch reload value,      (2 clocks) 
-		STS   SRTCNT0            , R16                    ;Set value to TCNT0,      (2 clocks) 
-		
-		
-		;;=============================increment tick counter===============================;;
+.macro  KER_CNTXT_SV
+        ;;==============================context save========================================;; 
+		;; total 68 clocks for context saving                                                  
+        PUSH  R0                                          ;save R0,                 (2 clocks) 
+		IN    R0                 , IOSREG                 ;load SREG,               (1 clock ) 
+		PUSH  R0                                          ;save SREG,               (2 clocks) 
+		PUSH  R1                                          ;save R1,                 (2 clocks) 
+		CLR   R1                                          ;clear R1,                (1 clock ) 
+		PUSH  R2                                          ;save R2,                 (2 clocks) 
+		PUSH  R3                                          ;save R3,                 (2 clocks) 
+		PUSH  R4                                          ;save R4,                 (2 clocks) 
+		PUSH  R5                                          ;save R5,                 (2 clocks) 
+		PUSH  R6                                          ;save R6,                 (2 clocks) 
+		PUSH  R7                                          ;save R7,                 (2 clocks) 
+		PUSH  R8                                          ;save R8,                 (2 clocks) 
+		PUSH  R9                                          ;save R9,                 (2 clocks) 
+		PUSH  R10                                         ;save R10,                (2 clocks) 
+		PUSH  R11                                         ;save R11,                (2 clocks) 
+		PUSH  R12                                         ;save R12,                (2 clocks) 
+		PUSH  R13                                         ;save R13,                (2 clocks) 
+		PUSH  R14                                         ;save R14,                (2 clocks) 
+		PUSH  R15                                         ;save R15,                (2 clocks) 
+		PUSH  R16                                         ;save R16,                (2 clocks) 
+		PUSH  R17                                         ;save R17,                (2 clocks) 
+		PUSH  R18                                         ;save R18,                (2 clocks) 
+		PUSH  R19                                         ;save R19,                (2 clocks) 
+		PUSH  R20                                         ;save R20,                (2 clocks) 
+		PUSH  R21                                         ;save R21,                (2 clocks) 
+		PUSH  R22                                         ;save R22,                (2 clocks) 
+		PUSH  R23                                         ;save R23,                (2 clocks) 
+		PUSH  R24                                         ;save R24,                (2 clocks) 
+		PUSH  R25                                         ;save R25,                (2 clocks) 
+		PUSH  R26                                         ;save R26,                (2 clocks) 
+		PUSH  R27                                         ;save R27,                (2 clocks) 
+		PUSH  R28                                         ;save R28,                (2 clocks) 
+		PUSH  R29                                         ;save R29,                (2 clocks) 
+		PUSH  R30                                         ;save R30,                (2 clocks) 
+		PUSH  R31                                         ;save R31,                (2 clocks) 
+.endm
+
+.macro  KER_CNTXT_RS
+        ;;===============================context restore====================================;; 
+		;; total 68 clocks for context restore                                                 
+		POP   R31                                         ;restore R31,             (2 clocks) 
+		POP   R30                                         ;restore R30,             (2 clocks) 
+		POP   R29                                         ;restore R29,             (2 clocks) 
+		POP   R28                                         ;restore R28,             (2 clocks) 
+		POP   R27                                         ;restore R27,             (2 clocks) 
+		POP   R26                                         ;restore R26,             (2 clocks) 
+		POP   R25                                         ;restore R25,             (2 clocks) 
+		POP   R24                                         ;restore R24,             (2 clocks) 
+		POP   R23                                         ;restore R23,             (2 clocks) 
+		POP   R22                                         ;restore R22,             (2 clocks) 
+		POP   R21                                         ;restore R21,             (2 clocks) 
+		POP   R20                                         ;restore R20,             (2 clocks) 
+		POP   R19                                         ;restore R19,             (2 clocks) 
+		POP   R18                                         ;restore R18,             (2 clocks) 
+		POP   R17                                         ;restore R17,             (2 clocks) 
+		POP   R16                                         ;restore R16,             (2 clocks) 
+		POP   R15                                         ;restore R15,             (2 clocks) 
+		POP   R14                                         ;restore R14,             (2 clocks) 
+		POP   R13                                         ;restore R13,             (2 clocks) 
+		POP   R12                                         ;restore R12,             (2 clocks) 
+		POP   R11                                         ;restore R11,             (2 clocks) 
+		POP   R10                                         ;restore R10,             (2 clocks) 
+		POP   R9                                          ;restore R9,              (2 clocks) 
+		POP   R8                                          ;restore R8,              (2 clocks) 
+		POP   R7                                          ;restore R7,              (2 clocks) 
+		POP   R6                                          ;restore R6,              (2 clocks) 
+		POP   R5                                          ;restore R5,              (2 clocks) 
+		POP   R4                                          ;restore R4,              (2 clocks) 
+		POP   R3                                          ;restore R3,              (2 clocks) 
+		POP   R2                                          ;restore R2,              (2 clocks) 
+		POP   R1                                          ;restore R1,              (2 clocks) 
+		POP   R0                                          ;fetch SREG,              (2 clocks) 
+		OUT   IOSREG             , R0                     ;load SREG,               (1 clock ) 
+		POP   R0                                          ;restore R0,              (2 clocks) 
+.endm
+
+.macro  KER_TICK_INC
+        ;;=============================increment tick counter===============================;;
 		;; total 27 clocks for reloading, 40 bit counter
 		LDI   R16                , 0x01                   ;load 1 to R16,           (1 clock )
 		LDS   R17                , Kernel+0x00            ;load Byte0,              (2 clocks)
@@ -184,6 +218,37 @@ ker_stk2:
 		LDS   R17                , Kernel+0x04            ;load Byte4,              (2 clocks)
 		ADC   R17                , R16                    ;add carry with Byte4,    (1 clock )
 		STS   Kernel+0x04        , R17                    ;set Byte4,               (2 clocks)
+.endm
+
+
+
+
+
+;Initialize interrupt vector subroutine
+.global  __vector_16
+    __vector_16:
+	    
+		;;============================if kernel debug enabled===============================;;
+	    #ifdef KER_DBG_ENABLE
+        SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio,                (2 clocks)
+		#endif
+		
+		
+		;;==============================context save========================================;;
+		;; total 68 clocks for context saving
+		#ifdef KER_CNTXT_SV_ISR
+        KER_CNTXT_SV
+		#endif
+		
+		;;=============================reload counter value=================================;;
+		;; total 4 clocks for reloading
+		LDS   R16                , Kernel+0x08            ;fetch reload value,      (2 clocks) 
+		STS   SRTCNT0            , R16                    ;Set value to TCNT0,      (2 clocks) 
+		
+		
+		;;=============================increment tick counter===============================;;
+		;; total 27 clocks for reloading, 40 bit counter
+		KER_TICK_INC
 		
 		
 		;;========================check current task index, save SP=========================;;
@@ -232,40 +297,7 @@ ker_stk2:
 		;;===============================context restore====================================;;
 		;; total 68 clocks for context restore
 		#ifdef KER_CNTXT_RS_ISR
-		POP   R31                                         ;restore R31,             (2 clocks) 
-		POP   R30                                         ;restore R30,             (2 clocks) 
-		POP   R29                                         ;restore R29,             (2 clocks)
-		POP   R28                                         ;restore R28,             (2 clocks) 
-		POP   R27                                         ;restore R27,             (2 clocks) 
-		POP   R26                                         ;restore R26,             (2 clocks) 
-		POP   R25                                         ;restore R25,             (2 clocks) 
-		POP   R24                                         ;restore R24,             (2 clocks) 
-		POP   R23                                         ;restore R23,             (2 clocks) 
-		POP   R22                                         ;restore R22,             (2 clocks) 
-		POP   R21                                         ;restore R21,             (2 clocks) 
-		POP   R20                                         ;restore R20,             (2 clocks) 
-		POP   R19                                         ;restore R19,             (2 clocks) 
-		POP   R18                                         ;restore R18,             (2 clocks) 
-		POP   R17                                         ;restore R17,             (2 clocks) 
-		POP   R16                                         ;restore R16,             (2 clocks) 
-		POP   R15                                         ;restore R15,             (2 clocks) 
-		POP   R14                                         ;restore R14,             (2 clocks) 
-		POP   R13                                         ;restore R13,             (2 clocks) 
-		POP   R12                                         ;restore R12,             (2 clocks) 
-		POP   R11                                         ;restore R11,             (2 clocks) 
-		POP   R10                                         ;restore R10,             (2 clocks) 
-		POP   R9                                          ;restore R9,              (2 clocks) 
-		POP   R8                                          ;restore R8,              (2 clocks) 
-		POP   R7                                          ;restore R7,              (2 clocks) 
-		POP   R6                                          ;restore R6,              (2 clocks) 
-		POP   R5                                          ;restore R5,              (2 clocks) 
-		POP   R4                                          ;restore R4,              (2 clocks) 
-		POP   R3                                          ;restore R3,              (2 clocks) 
-		POP   R2                                          ;restore R2,              (2 clocks) 
-		POP   R1                                          ;restore R1,              (2 clocks) 
-		POP   R0                                          ;fetch SREG,              (2 clocks) 
-		OUT   0x3F               , R0                     ;load SREG,               (1 clock ) 
-		POP   R0                                          ;restore R0,              (2 clocks) 
+		KER_CNTXT_RS
 		#endif
 		
 		;;============================if kernel debug enabled===============================;;
@@ -449,141 +481,101 @@ Kernel_Test_Task2:
 ;;====================================Kernel Task0 Init=====================================;;
 Kernel_Task0_Init:
         ;init stack for task0
-		LDI   R18                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
-		LDI   R19                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
+		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
 		
-		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
-		STS   ker_stk0+KER_STZ-1 , R16                    ;load at stack_top-1,     (2 clocks) 
-		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
-		STS   ker_stk0+KER_STZ-2 , R16                    ;load at stack_top-2,     (2 clocks) 
 		
-		SUBI  R18                , 2                      ;SP to point stack start, (1 clock )
-		STS   ker_stp+0          , R18                    ;store current SP,        (2 clocks) 
-		STS   ker_stp+1          , R19                    ;store current SP,        (2 clocks) 
+		;debug
+		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte                               ;send via uart
+		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte                               ;send via uart
 		
-		OUT   IOSPL              , R18                    ;load SPL                 (1 clock )
-        OUT   IOSPH              , R19                    ;load SPH                 (1 clock )
+		
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
 		
 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
 		PUSH  R16                                         ;push,                    (2 clocks) 
 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
 		PUSH  R16                                         ;push,                    (2 clocks) 
 		
+        KER_CNTXT_SV
 		
-        ;;==============================context save========================================;;
-		;; total 68 clocks for context saving
-        PUSH  R0                                          ;save R0,                 (2 clocks)
-		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
-		PUSH  R0                                          ;save SREG,               (2 clocks)
-		PUSH  R1                                          ;save R1,                 (2 clocks)   
-		CLR   R1                                          ;clear R1,                (1 clock )
-		PUSH  R2                                          ;save R2,                 (2 clocks)   
-		PUSH  R3                                          ;save R3,                 (2 clocks)   
-		PUSH  R4                                          ;save R4,                 (2 clocks)   
-		PUSH  R5                                          ;save R5,                 (2 clocks)   
-		PUSH  R6                                          ;save R6,                 (2 clocks)   
-		PUSH  R7                                          ;save R7,                 (2 clocks)   
-		PUSH  R8                                          ;save R8,                 (2 clocks)   
-		PUSH  R9                                          ;save R9,                 (2 clocks)   
-		PUSH  R10                                         ;save R10,                (2 clocks)   
-		PUSH  R11                                         ;save R11,                (2 clocks)  
-		PUSH  R12                                         ;save R12,                (2 clocks)  
-		PUSH  R13                                         ;save R13,                (2 clocks)  
-		PUSH  R14                                         ;save R14,                (2 clocks)  
-		PUSH  R15                                         ;save R15,                (2 clocks)  
-		PUSH  R16                                         ;save R16,                (2 clocks)  
-		PUSH  R17                                         ;save R17,                (2 clocks)  
-		PUSH  R18                                         ;save R18,                (2 clocks)  
-		PUSH  R19                                         ;save R19,                (2 clocks)  
-		PUSH  R20                                         ;save R20,                (2 clocks)  
-		PUSH  R21                                         ;save R21,                (2 clocks)  
-		PUSH  R22                                         ;save R22,                (2 clocks)  
-		PUSH  R23                                         ;save R23,                (2 clocks)  
-		PUSH  R24                                         ;save R24,                (2 clocks)  
-		PUSH  R25                                         ;save R25,                (2 clocks)  
-		PUSH  R26                                         ;save R26,                (2 clocks)  
-		PUSH  R27                                         ;save R27,                (2 clocks)  
-		PUSH  R28                                         ;save R28,                (2 clocks)  
-		PUSH  R29                                         ;save R29,                (2 clocks)  
-		PUSH  R30                                         ;save R30,                (2 clocks)  
-		PUSH  R31                                         ;save R31,                (2 clocks) 
-		
-		;--- Step 5: Save current SP into ker_stp[1] (task1 pointer) ---
-        IN    R18, IOSPL                                  ;fetch SPL                (1 clock )
-        IN    R19, IOSPH                                  ;fetch SPH                (1 clock )
-        STS   ker_stp + 0        , R18                    ;set stp of task0         (2 clocks) 
-        STS   ker_stp + 1        , R19                    ;set stp of task0         (2 clocks) 
+        IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+        IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+        STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+        STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
 		
         RET                                               ;return from subroutine,  (4 clocks) 
 
 
 
-;;====================================Kernel Task0 Init=====================================;;
+;;====================================Kernel Task1 Init=====================================;;
 Kernel_Task1_Init:
-        ;init stack for task0
-		LDI   R18                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
-		LDI   R19                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
+        ;init stack for task1
+		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
+		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
 		
-		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
-		STS   ker_stk1+KER_STZ-1 , R16                    ;load at stack_top-1,     (2 clocks) 
-		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
-		STS   ker_stk1+KER_STZ-2 , R16                    ;load at stack_top-2,     (2 clocks) 
+		;debug
+		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte                               ;send via uart
+		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte                               ;send via uart
 		
-		SUBI  R18                , 2                      ;SP to point stack start, (1 clock )
-		STS   ker_stp+2          , R18                    ;store current SP,        (2 clocks) 
-		STS   ker_stp+3          , R19                    ;store current SP,        (2 clocks) 
-		
-		OUT   IOSPL              , R18                    ;load SPL                 (1 clock )
-        OUT   IOSPH              , R19                    ;load SPH                 (1 clock )
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
 		
 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
 		PUSH  R16                                         ;push,                    (2 clocks) 
 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
 		PUSH  R16                                         ;push,                    (2 clocks) 
 		
+        KER_CNTXT_SV
 		
-        ;;==============================context save========================================;;
-		;; total 68 clocks for context saving
-        PUSH  R0                                          ;save R0,                 (2 clocks)
-		IN    R0                 , IOSREG                 ;load SREG,               (1 clock )
-		PUSH  R0                                          ;save SREG,               (2 clocks)
-		PUSH  R1                                          ;save R1,                 (2 clocks)   
-		CLR   R1                                          ;clear R1,                (1 clock )
-		PUSH  R2                                          ;save R2,                 (2 clocks)   
-		PUSH  R3                                          ;save R3,                 (2 clocks)   
-		PUSH  R4                                          ;save R4,                 (2 clocks)   
-		PUSH  R5                                          ;save R5,                 (2 clocks)   
-		PUSH  R6                                          ;save R6,                 (2 clocks)   
-		PUSH  R7                                          ;save R7,                 (2 clocks)   
-		PUSH  R8                                          ;save R8,                 (2 clocks)   
-		PUSH  R9                                          ;save R9,                 (2 clocks)   
-		PUSH  R10                                         ;save R10,                (2 clocks)   
-		PUSH  R11                                         ;save R11,                (2 clocks)  
-		PUSH  R12                                         ;save R12,                (2 clocks)  
-		PUSH  R13                                         ;save R13,                (2 clocks)  
-		PUSH  R14                                         ;save R14,                (2 clocks)  
-		PUSH  R15                                         ;save R15,                (2 clocks)  
-		PUSH  R16                                         ;save R16,                (2 clocks)  
-		PUSH  R17                                         ;save R17,                (2 clocks)  
-		PUSH  R18                                         ;save R18,                (2 clocks)  
-		PUSH  R19                                         ;save R19,                (2 clocks)  
-		PUSH  R20                                         ;save R20,                (2 clocks)  
-		PUSH  R21                                         ;save R21,                (2 clocks)  
-		PUSH  R22                                         ;save R22,                (2 clocks)  
-		PUSH  R23                                         ;save R23,                (2 clocks)  
-		PUSH  R24                                         ;save R24,                (2 clocks)  
-		PUSH  R25                                         ;save R25,                (2 clocks)  
-		PUSH  R26                                         ;save R26,                (2 clocks)  
-		PUSH  R27                                         ;save R27,                (2 clocks)  
-		PUSH  R28                                         ;save R28,                (2 clocks)  
-		PUSH  R29                                         ;save R29,                (2 clocks)  
-		PUSH  R30                                         ;save R30,                (2 clocks)  
-		PUSH  R31                                         ;save R31,                (2 clocks) 
-		
-		;--- Step 5: Save current SP into ker_stp[1] (task1 pointer) ---
-        IN    R18, IOSPL                                  ;fetch SPL                (1 clock )
-        IN    R19, IOSPH                                  ;fetch SPH                (1 clock )
-        STS   ker_stp + 2        , R18                    ;set stp of task0         (2 clocks) 
-        STS   ker_stp + 3        , R19                    ;set stp of task0         (2 clocks) 
+        IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+        IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+        STS   ker_stp + 2        , R16                    ;set stp of task0         (2 clocks) 
+        STS   ker_stp + 3        , R17                    ;set stp of task0         (2 clocks) 
 		
         RET                                               ;return from subroutine,  (4 clocks) 
+
+
+;;====================================Kernel Task Debug=====================================;;
+Kernel_Task_Debug:
+        ;init stack for task1
+		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
+		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+		
+		
+		;debug
+		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDS   R24                , IOSPL                  ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		LDS   R24                , IOSPH                  ;copy val to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		
+		;OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+        ;OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+		
+		;LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+		;PUSH  R16                                         ;push,                    (2 clocks) 
+		;LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
+		;PUSH  R16                                         ;push,                    (2 clocks) 
+		
+        ;KER_CNTXT_SV
+		
+        ;IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+        ;IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+        ;STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+        ;STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+		
+        RET                                               ;return from subroutine,  (4 clocks)
+
+
+
