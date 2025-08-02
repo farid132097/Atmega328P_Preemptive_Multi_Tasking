@@ -1079,38 +1079,78 @@
  544               	;;====================================Kernel Task Debug=====================================;;
  545               	Kernel_Task_Debug:
  546               	        ;init stack for task1
- 547:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 548:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+ 547:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock ) 
+ 548:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock ) 
  549               			
  550               			
- 551               			;debug
- 552:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 551               			;print stack0 RAMEND
+ 552:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock ) 
  553:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 554:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
+ 554:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock ) 
  555:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
  556               			
- 557:kernel.S      **** 		LDS   R24                , IOSPL                  ;copy val to R24          (1 clock )
- 558:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 559:kernel.S      **** 		LDS   R24                , IOSPH                  ;copy val to R24          (1 clock )
- 560:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 561               			
+ 557               			;print current SP
+ 558:kernel.S      **** 		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 559:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 560:kernel.S      **** 		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 561:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
  562               			
- 563               			;OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 564               	        ;OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 565               			
- 566               			;LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
- 567               			;PUSH  R16                                         ;push,                    (2 clocks) 
- 568               			;LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
- 569               			;PUSH  R16                                         ;push,                    (2 clocks) 
- 570               			
- 571               	        ;KER_CNTXT_SV
+ 563               			;assign SP
+ 564:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock ) 
+ 565:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock ) 
+ 566               			
+ 567               			;print assigned SP
+ 568:kernel.S      **** 		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 569:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 570:kernel.S      **** 		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 571:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
  572               			
- 573               	        ;IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
- 574               	        ;IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
- 575               	        ;STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
- 576               	        ;STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
- 577               			
- 578:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks)
+ 573               			
+ 574:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
+ 575:kernel.S      **** 		LDI   R17                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
+ 576:kernel.S      **** 		PUSH  R16                                         ;push                     (1 clock )
+ 577:kernel.S      **** 		PUSH  R17                                         ;push                     (1 clock )
+ 578               			
+ 579               			;print SP
+ 580:kernel.S      **** 		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 581:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 582:kernel.S      **** 		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 583:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 584               			
+ 585               			;print SP
+ 586:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock ) 
+ 587:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 588:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock ) 
+ 589:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 590               			
+ 591               	        
+ 592               			
+ 593               			
+ 594               			;LDS   R24                , ker_stk0+KER_STZ-1     ;copy val to R24          (1 clock ) 
+ 595               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 596               			;LDS   R24                , ker_stk0+KER_STZ-2     ;copy val to R24          (1 clock ) 
+ 597               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 598               			
+ 599               			
+ 600               			;LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock ) 
+ 601               			;PUSH  R16                                         ;push,                    (2 clocks) 
+ 602               			;LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock ) 
+ 603               			;PUSH  R16                                         ;push,                    (2 clocks) 
+ 604               			
+ 605               	        ;KER_CNTXT_SV
+ 606               			
+ 607               	        ;IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+ 608               	        ;IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+ 609               	        ;STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+ 610               	        ;STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+ 611               			
+ 612               			
+ 613               			;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 614               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 615               			;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 616               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 617               			
+ 618:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks)
 DEFINED SYMBOLS
             kernel.S:13     *ABS*:000003e8 KER_TR
             kernel.S:14     *ABS*:00000003 KER_PRS

@@ -7,6 +7,9 @@
 
 
 ;define hardware register addresses macros 
+.equ    SRGPIOR0,     0x3E   ;manually defined GPIOR0 in SRAM
+.equ    SRGPIOR1,     0x4A   ;manually defined GPIOR1 in SRAM
+.equ    SRGPIOR2,     0x4B   ;manually defined GPIOR2 in SRAM
 .equ    SRUDR0  ,     0xC6   ;manually defined UDR0 in SRAM
 .equ    SRUBRR0H,     0xC5   ;manually defined UBRR0H in SRAM
 .equ    SRUBRR0L,     0xC4   ;manually defined UBRR0L in SRAM
@@ -42,27 +45,31 @@ Debug_Init:
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte:
-        ;transmit using UART0->TX
+		;print using UART0->TX
+		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
     __WAIT0:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
 		RJMP  __WAIT0                                     ;wait until UDRE0 is set, (2 clocks)
+		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
-        ;transmit using UART0->TX
+        
+		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
     __WAIT1:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
-		RJMP  __WAIT1                                     ;wait until UDRE0 is set, (2 clocks)
+		RJMP  __WAIT1                                     ;wait until TXC0 is set,  (2 clocks)
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
+		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 

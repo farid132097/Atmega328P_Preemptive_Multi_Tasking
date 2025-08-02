@@ -3,27 +3,27 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000003b2  00000000  00000000  00000074  2**1
+  0 .text         000003e6  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000190  00800100  00800100  00000426  2**0
+  1 .bss          00000190  00800100  00800100  0000045a  2**0
                   ALLOC
-  2 .stab         00000828  00000000  00000000  00000428  2**2
+  2 .stab         00000930  00000000  00000000  0000045c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      0000006c  00000000  00000000  00000c50  2**0
+  3 .stabstr      0000006e  00000000  00000000  00000d8c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000020  00000000  00000000  00000cbc  2**0
+  4 .debug_aranges 00000020  00000000  00000000  00000dfa  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 0000001b  00000000  00000000  00000cdc  2**0
+  5 .debug_pubnames 0000001b  00000000  00000000  00000e1a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000076  00000000  00000000  00000cf7  2**0
+  6 .debug_info   00000076  00000000  00000000  00000e35  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000041  00000000  00000000  00000d6d  2**0
+  7 .debug_abbrev 00000041  00000000  00000000  00000eab  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000068  00000000  00000000  00000dae  2**0
+  8 .debug_line   00000060  00000000  00000000  00000eec  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000020  00000000  00000000  00000e18  2**2
+  9 .debug_frame  00000020  00000000  00000000  00000f4c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000009a  00000000  00000000  00000e38  2**0
+ 10 .debug_str    00000099  00000000  00000000  00000f6c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -45,7 +45,7 @@ Disassembly of section .text:
   34:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
   38:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
   3c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
-  40:	0c 94 5a 00 	jmp	0xb4	; 0xb4 <__vector_16>
+  40:	0c 94 56 00 	jmp	0xac	; 0xac <__vector_16>
   44:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
   48:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
   4c:	0c 94 4f 00 	jmp	0x9e	; 0x9e <__bad_interrupt>
@@ -71,7 +71,7 @@ Disassembly of section .text:
   82:	00 00       	nop
   84:	00 00       	nop
   86:	00 00       	nop
-  88:	15 c0       	rjmp	.+42     	; 0xb4 <__vector_16>
+  88:	11 c0       	rjmp	.+34     	; 0xac <__vector_16>
 
 0000008a <__ctors_end>:
   8a:	11 24       	eor	r1, r1
@@ -81,7 +81,7 @@ Disassembly of section .text:
   92:	de bf       	out	0x3e, r29	; 62
   94:	cd bf       	out	0x3d, r28	; 61
   96:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
-  9a:	0c 94 d7 01 	jmp	0x3ae	; 0x3ae <_exit>
+  9a:	0c 94 f1 01 	jmp	0x3e2	; 0x3e2 <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -93,705 +93,757 @@ int main(void) {
     
 	
 	Debug_Init();
-  a2:	0e 94 b4 01 	call	0x368	; 0x368 <Debug_Init>
-    Kernel_SysTick_Reg_Init(1000);
-  a6:	88 ee       	ldi	r24, 0xE8	; 232
-  a8:	93 e0       	ldi	r25, 0x03	; 3
-  aa:	0e 94 c1 00 	call	0x182	; 0x182 <Kernel_SysTick_Reg_Init>
+  a2:	0e 94 c6 01 	call	0x38c	; 0x38c <Debug_Init>
+    //Kernel_SysTick_Reg_Init(1000);
 	Kernel_Task_Debug();
-  ae:	0e 94 a3 01 	call	0x346	; 0x346 <Kernel_Task_Debug>
-  b2:	ff cf       	rjmp	.-2      	; 0xb2 <main+0x10>
+  a6:	0e 94 9f 01 	call	0x33e	; 0x33e <Kernel_Task_Debug>
+  aa:	ff cf       	rjmp	.-2      	; 0xaa <main+0x8>
 
-000000b4 <__vector_16>:
+000000ac <__vector_16>:
 .global  __vector_16
     __vector_16:
 	    
 		;;============================if kernel debug enabled===============================;;
 	    #ifdef KER_DBG_ENABLE
         SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio,                (2 clocks)
-  b4:	29 9a       	sbi	0x05, 1	; 5
+  ac:	29 9a       	sbi	0x05, 1	; 5
 		
 		
 		;;==============================context save========================================;;
 		;; total 68 clocks for context saving
 		#ifdef KER_CNTXT_SV_ISR
         KER_CNTXT_SV
-  b6:	0f 92       	push	r0
-  b8:	0f b6       	in	r0, 0x3f	; 63
-  ba:	0f 92       	push	r0
-  bc:	1f 92       	push	r1
-  be:	11 24       	eor	r1, r1
-  c0:	2f 92       	push	r2
-  c2:	3f 92       	push	r3
-  c4:	4f 92       	push	r4
-  c6:	5f 92       	push	r5
-  c8:	6f 92       	push	r6
-  ca:	7f 92       	push	r7
-  cc:	8f 92       	push	r8
-  ce:	9f 92       	push	r9
-  d0:	af 92       	push	r10
-  d2:	bf 92       	push	r11
-  d4:	cf 92       	push	r12
-  d6:	df 92       	push	r13
-  d8:	ef 92       	push	r14
-  da:	ff 92       	push	r15
-  dc:	0f 93       	push	r16
-  de:	1f 93       	push	r17
-  e0:	2f 93       	push	r18
-  e2:	3f 93       	push	r19
-  e4:	4f 93       	push	r20
-  e6:	5f 93       	push	r21
-  e8:	6f 93       	push	r22
-  ea:	7f 93       	push	r23
-  ec:	8f 93       	push	r24
-  ee:	9f 93       	push	r25
-  f0:	af 93       	push	r26
-  f2:	bf 93       	push	r27
-  f4:	cf 93       	push	r28
-  f6:	df 93       	push	r29
-  f8:	ef 93       	push	r30
-  fa:	ff 93       	push	r31
+  ae:	0f 92       	push	r0
+  b0:	0f b6       	in	r0, 0x3f	; 63
+  b2:	0f 92       	push	r0
+  b4:	1f 92       	push	r1
+  b6:	11 24       	eor	r1, r1
+  b8:	2f 92       	push	r2
+  ba:	3f 92       	push	r3
+  bc:	4f 92       	push	r4
+  be:	5f 92       	push	r5
+  c0:	6f 92       	push	r6
+  c2:	7f 92       	push	r7
+  c4:	8f 92       	push	r8
+  c6:	9f 92       	push	r9
+  c8:	af 92       	push	r10
+  ca:	bf 92       	push	r11
+  cc:	cf 92       	push	r12
+  ce:	df 92       	push	r13
+  d0:	ef 92       	push	r14
+  d2:	ff 92       	push	r15
+  d4:	0f 93       	push	r16
+  d6:	1f 93       	push	r17
+  d8:	2f 93       	push	r18
+  da:	3f 93       	push	r19
+  dc:	4f 93       	push	r20
+  de:	5f 93       	push	r21
+  e0:	6f 93       	push	r22
+  e2:	7f 93       	push	r23
+  e4:	8f 93       	push	r24
+  e6:	9f 93       	push	r25
+  e8:	af 93       	push	r26
+  ea:	bf 93       	push	r27
+  ec:	cf 93       	push	r28
+  ee:	df 93       	push	r29
+  f0:	ef 93       	push	r30
+  f2:	ff 93       	push	r31
 		#endif
 		
 		;;=============================reload counter value=================================;;
 		;; total 4 clocks for reloading
 		LDS   R16                , Kernel+0x08            ;fetch reload value,      (2 clocks) 
-  fc:	00 91 08 01 	lds	r16, 0x0108
+  f4:	00 91 08 01 	lds	r16, 0x0108
 		STS   SRTCNT0            , R16                    ;Set value to TCNT0,      (2 clocks) 
- 100:	00 93 46 00 	sts	0x0046, r16
+  f8:	00 93 46 00 	sts	0x0046, r16
 		
 		
 		;;=============================increment tick counter===============================;;
 		;; total 27 clocks for reloading, 40 bit counter
 		KER_TICK_INC
- 104:	01 e0       	ldi	r16, 0x01	; 1
- 106:	10 91 00 01 	lds	r17, 0x0100
- 10a:	10 0f       	add	r17, r16
- 10c:	10 93 00 01 	sts	0x0100, r17
- 110:	00 e0       	ldi	r16, 0x00	; 0
- 112:	10 91 01 01 	lds	r17, 0x0101
- 116:	10 1f       	adc	r17, r16
- 118:	10 93 01 01 	sts	0x0101, r17
- 11c:	10 91 02 01 	lds	r17, 0x0102
- 120:	10 1f       	adc	r17, r16
- 122:	10 93 02 01 	sts	0x0102, r17
- 126:	10 91 03 01 	lds	r17, 0x0103
- 12a:	10 1f       	adc	r17, r16
- 12c:	10 93 03 01 	sts	0x0103, r17
- 130:	10 91 04 01 	lds	r17, 0x0104
- 134:	10 1f       	adc	r17, r16
- 136:	10 93 04 01 	sts	0x0104, r17
+  fc:	01 e0       	ldi	r16, 0x01	; 1
+  fe:	10 91 00 01 	lds	r17, 0x0100
+ 102:	10 0f       	add	r17, r16
+ 104:	10 93 00 01 	sts	0x0100, r17
+ 108:	00 e0       	ldi	r16, 0x00	; 0
+ 10a:	10 91 01 01 	lds	r17, 0x0101
+ 10e:	10 1f       	adc	r17, r16
+ 110:	10 93 01 01 	sts	0x0101, r17
+ 114:	10 91 02 01 	lds	r17, 0x0102
+ 118:	10 1f       	adc	r17, r16
+ 11a:	10 93 02 01 	sts	0x0102, r17
+ 11e:	10 91 03 01 	lds	r17, 0x0103
+ 122:	10 1f       	adc	r17, r16
+ 124:	10 93 03 01 	sts	0x0103, r17
+ 128:	10 91 04 01 	lds	r17, 0x0104
+ 12c:	10 1f       	adc	r17, r16
+ 12e:	10 93 04 01 	sts	0x0104, r17
 
-0000013a <RS_CNTXT>:
+00000132 <RS_CNTXT>:
 		
 	RS_CNTXT:
 		;;===============================context restore====================================;;
 		;; total 68 clocks for context restore
 		#ifdef KER_CNTXT_RS_ISR
 		KER_CNTXT_RS
- 13a:	ff 91       	pop	r31
- 13c:	ef 91       	pop	r30
- 13e:	df 91       	pop	r29
- 140:	cf 91       	pop	r28
- 142:	bf 91       	pop	r27
- 144:	af 91       	pop	r26
- 146:	9f 91       	pop	r25
- 148:	8f 91       	pop	r24
- 14a:	7f 91       	pop	r23
- 14c:	6f 91       	pop	r22
- 14e:	5f 91       	pop	r21
- 150:	4f 91       	pop	r20
- 152:	3f 91       	pop	r19
- 154:	2f 91       	pop	r18
- 156:	1f 91       	pop	r17
- 158:	0f 91       	pop	r16
- 15a:	ff 90       	pop	r15
- 15c:	ef 90       	pop	r14
- 15e:	df 90       	pop	r13
- 160:	cf 90       	pop	r12
- 162:	bf 90       	pop	r11
- 164:	af 90       	pop	r10
- 166:	9f 90       	pop	r9
- 168:	8f 90       	pop	r8
- 16a:	7f 90       	pop	r7
- 16c:	6f 90       	pop	r6
- 16e:	5f 90       	pop	r5
- 170:	4f 90       	pop	r4
- 172:	3f 90       	pop	r3
- 174:	2f 90       	pop	r2
- 176:	1f 90       	pop	r1
- 178:	0f 90       	pop	r0
- 17a:	0f be       	out	0x3f, r0	; 63
- 17c:	0f 90       	pop	r0
+ 132:	ff 91       	pop	r31
+ 134:	ef 91       	pop	r30
+ 136:	df 91       	pop	r29
+ 138:	cf 91       	pop	r28
+ 13a:	bf 91       	pop	r27
+ 13c:	af 91       	pop	r26
+ 13e:	9f 91       	pop	r25
+ 140:	8f 91       	pop	r24
+ 142:	7f 91       	pop	r23
+ 144:	6f 91       	pop	r22
+ 146:	5f 91       	pop	r21
+ 148:	4f 91       	pop	r20
+ 14a:	3f 91       	pop	r19
+ 14c:	2f 91       	pop	r18
+ 14e:	1f 91       	pop	r17
+ 150:	0f 91       	pop	r16
+ 152:	ff 90       	pop	r15
+ 154:	ef 90       	pop	r14
+ 156:	df 90       	pop	r13
+ 158:	cf 90       	pop	r12
+ 15a:	bf 90       	pop	r11
+ 15c:	af 90       	pop	r10
+ 15e:	9f 90       	pop	r9
+ 160:	8f 90       	pop	r8
+ 162:	7f 90       	pop	r7
+ 164:	6f 90       	pop	r6
+ 166:	5f 90       	pop	r5
+ 168:	4f 90       	pop	r4
+ 16a:	3f 90       	pop	r3
+ 16c:	2f 90       	pop	r2
+ 16e:	1f 90       	pop	r1
+ 170:	0f 90       	pop	r0
+ 172:	0f be       	out	0x3f, r0	; 63
+ 174:	0f 90       	pop	r0
 		#endif
 		
 		;;============================if kernel debug enabled===============================;;
 		#ifdef KER_DBG_ENABLE
 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear gpio,              (2 clocks)
- 17e:	29 98       	cbi	0x05, 1	; 5
+ 176:	29 98       	cbi	0x05, 1	; 5
 		#endif
 		
 		RETI                                              ;return from interrupt,   (4 clocks) 
- 180:	18 95       	reti
+ 178:	18 95       	reti
 
-00000182 <Kernel_SysTick_Reg_Init>:
+0000017a <Kernel_SysTick_Reg_Init>:
 
 ;;====================================SysTick Reg Init=======================================;;
 ;; total 32 clocks for SysTick Reg Init, omited debug gpio config
 Kernel_SysTick_Reg_Init:
         ;clear all kernel variables
 		LDI   R16                , 0x00                   ;set 0x00 to R16,         (1 clock )
- 182:	00 e0       	ldi	r16, 0x00	; 0
+ 17a:	00 e0       	ldi	r16, 0x00	; 0
 		STS   Kernel+0x00        , R16                    ;clear  kernel[0],        (2 clocks)
- 184:	00 93 00 01 	sts	0x0100, r16
+ 17c:	00 93 00 01 	sts	0x0100, r16
 		STS   Kernel+0x01        , R16                    ;clear  kernel[1],        (2 clocks)
- 188:	00 93 01 01 	sts	0x0101, r16
+ 180:	00 93 01 01 	sts	0x0101, r16
 		STS   Kernel+0x02        , R16                    ;clear  kernel[2],        (2 clocks)
- 18c:	00 93 02 01 	sts	0x0102, r16
+ 184:	00 93 02 01 	sts	0x0102, r16
 		STS   Kernel+0x03        , R16                    ;clear  kernel[3],        (2 clocks)
- 190:	00 93 03 01 	sts	0x0103, r16
+ 188:	00 93 03 01 	sts	0x0103, r16
 		STS   Kernel+0x04        , R16                    ;clear  kernel[4],        (2 clocks)
- 194:	00 93 04 01 	sts	0x0104, r16
+ 18c:	00 93 04 01 	sts	0x0104, r16
 		STS   Kernel+0x05        , R16                    ;clear  kernel[5],        (2 clocks)
- 198:	00 93 05 01 	sts	0x0105, r16
+ 190:	00 93 05 01 	sts	0x0105, r16
 		STS   Kernel+0x06        , R16                    ;clear  kernel[6],        (2 clocks)
- 19c:	00 93 06 01 	sts	0x0106, r16
+ 194:	00 93 06 01 	sts	0x0106, r16
 		STS   Kernel+0x07        , R16                    ;clear  kernel[7],        (2 clocks)
- 1a0:	00 93 07 01 	sts	0x0107, r16
+ 198:	00 93 07 01 	sts	0x0107, r16
 		STS   Kernel+0x08        , R16                    ;clear  kernel[8],        (2 clocks)
- 1a4:	00 93 08 01 	sts	0x0108, r16
+ 19c:	00 93 08 01 	sts	0x0108, r16
 		
 		#ifdef KER_DBG_ENABLE
 		SBI   KER_DBG_DDR        , KER_DBG_PIN            ;set bit in DDR,          (2 clocks) 
- 1a8:	21 9a       	sbi	0x04, 1	; 4
+ 1a0:	21 9a       	sbi	0x04, 1	; 4
 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear port bit,          (2 clocks) 
- 1aa:	29 98       	cbi	0x05, 1	; 5
+ 1a2:	29 98       	cbi	0x05, 1	; 5
 		#endif
 		
 		
         CLI                                               ;disable global interrupt,(1 clock ) 
- 1ac:	f8 94       	cli
+ 1a4:	f8 94       	cli
 		LDI   R16                , 0x00                   ;store r16 with 0,        (1 clock ) 
- 1ae:	00 e0       	ldi	r16, 0x00	; 0
+ 1a6:	00 e0       	ldi	r16, 0x00	; 0
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A,            (2 clocks) 
- 1b0:	00 93 44 00 	sts	0x0044, r16
+ 1a8:	00 93 44 00 	sts	0x0044, r16
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B,            (2 clocks) 
- 1b4:	00 93 45 00 	sts	0x0045, r16
+ 1ac:	00 93 45 00 	sts	0x0045, r16
 		STS   SRTIMSK0           , R16                    ;clear TIMSK0,            (2 clocks) 
- 1b8:	00 93 6e 00 	sts	0x006E, r16
+ 1b0:	00 93 6e 00 	sts	0x006E, r16
 		STS   SRTIFR0            , R16                    ;clear TIFR0,             (2 clocks) 
- 1bc:	00 93 35 00 	sts	0x0035, r16
+ 1b4:	00 93 35 00 	sts	0x0035, r16
 		STS   SROCR0A            , R16                    ;clear OCR0A,             (2 clocks) 
- 1c0:	00 93 47 00 	sts	0x0047, r16
+ 1b8:	00 93 47 00 	sts	0x0047, r16
 		STS   SROCR0B            , R16                    ;clear OCR0B,             (2 clocks) 
- 1c4:	00 93 48 00 	sts	0x0048, r16
+ 1bc:	00 93 48 00 	sts	0x0048, r16
 		STS   SRTCNT0            , R16                    ;clear TCNT0,             (2 clocks) 
- 1c8:	00 93 46 00 	sts	0x0046, r16
+ 1c0:	00 93 46 00 	sts	0x0046, r16
 		LDI   R16                , KER_PRS                ;prescaler 64,            (1 clock ) 
- 1cc:	03 e0       	ldi	r16, 0x03	; 3
+ 1c4:	03 e0       	ldi	r16, 0x03	; 3
 		STS   SRTCCR0B           , R16                    ;set to TCCR0B,           (2 clocks)
- 1ce:	00 93 45 00 	sts	0x0045, r16
+ 1c6:	00 93 45 00 	sts	0x0045, r16
 		LDI   R16                , KER_RLD                ;reload value (130),      (1 clock ) 
- 1d2:	02 e8       	ldi	r16, 0x82	; 130
+ 1ca:	02 e8       	ldi	r16, 0x82	; 130
 		STS   Kernel+0x08        , R16                    ;Kernel[5] reload value,  (2 clocks) 
- 1d4:	00 93 08 01 	sts	0x0108, r16
+ 1cc:	00 93 08 01 	sts	0x0108, r16
 		STS   SRTCNT0            , R16                    ;set to TCNT0,            (2 clocks) 
- 1d8:	00 93 46 00 	sts	0x0046, r16
+ 1d0:	00 93 46 00 	sts	0x0046, r16
 		LDI   R16                , 0x01                   ;store with TOIE0 enabled,(1 clock ) 
- 1dc:	01 e0       	ldi	r16, 0x01	; 1
+ 1d4:	01 e0       	ldi	r16, 0x01	; 1
 		STS   SRTIMSK0           , R16                    ;set to TIMSK0,           (2 clocks) 
- 1de:	00 93 6e 00 	sts	0x006E, r16
+ 1d6:	00 93 6e 00 	sts	0x006E, r16
 		;SEI                                               ;enable global interrupt, (1 clock ) 
 		RET                                               ;return from subroutine,  (4 clocks) 
- 1e2:	08 95       	ret
+ 1da:	08 95       	ret
 
-000001e4 <Kernel_SysTick_Val_Get>:
+000001dc <Kernel_SysTick_Val_Get>:
 
 ;;===================================SysTick Value Get======================================;;
 ;; total 20 clocks for SysTick Value Get
 ;; interrupts disabled for 16 clocks
 Kernel_SysTick_Val_Get:
         IN    R16                , IOSREG                 ;Save SREG,               (1 clock ) 
- 1e4:	0f b7       	in	r16, 0x3f	; 63
+ 1dc:	0f b7       	in	r16, 0x3f	; 63
         CLI                                               ;Disable interrupts,      (1 clock ) 
- 1e6:	f8 94       	cli
+ 1de:	f8 94       	cli
 		LDS   R18		         , Kernel+0x00            ;Byte0 -> R18 (LSB),      (2 clocks) 
- 1e8:	20 91 00 01 	lds	r18, 0x0100
+ 1e0:	20 91 00 01 	lds	r18, 0x0100
 		LDS   R19		         , Kernel+0x01            ;Byte1 -> R19,            (2 clocks) 
- 1ec:	30 91 01 01 	lds	r19, 0x0101
+ 1e4:	30 91 01 01 	lds	r19, 0x0101
 		LDS   R20		         , Kernel+0x02            ;Byte2 -> R20,            (2 clocks) 
- 1f0:	40 91 02 01 	lds	r20, 0x0102
+ 1e8:	40 91 02 01 	lds	r20, 0x0102
 		LDS   R21		         , Kernel+0x03            ;Byte3 -> R21,            (2 clocks) 
- 1f4:	50 91 03 01 	lds	r21, 0x0103
+ 1ec:	50 91 03 01 	lds	r21, 0x0103
 		LDS   R22		         , Kernel+0x04            ;Byte4 -> R22,            (2 clocks) 
- 1f8:	60 91 04 01 	lds	r22, 0x0104
+ 1f0:	60 91 04 01 	lds	r22, 0x0104
 		LDI   R23		         , 0x00                   ;Byte5 -> R23,            (1 clocks) 
- 1fc:	70 e0       	ldi	r23, 0x00	; 0
+ 1f4:	70 e0       	ldi	r23, 0x00	; 0
 		LDI   R24		         , 0x00                   ;Byte6 -> R24,            (1 clocks) 
- 1fe:	80 e0       	ldi	r24, 0x00	; 0
+ 1f6:	80 e0       	ldi	r24, 0x00	; 0
 		LDI   R25		         , 0x00                   ;Byte7 -> R25 (MSB),      (1 clocks) 
- 200:	90 e0       	ldi	r25, 0x00	; 0
+ 1f8:	90 e0       	ldi	r25, 0x00	; 0
 		OUT   IOSREG             , R16          		  ;Restore SREG,            (1 clock )
- 202:	0f bf       	out	0x3f, r16	; 63
+ 1fa:	0f bf       	out	0x3f, r16	; 63
 		RET                                               ;return from subroutine,  (4 clocks) 
- 204:	08 95       	ret
+ 1fc:	08 95       	ret
 
-00000206 <Kernel_Interrupt_Sts_Get>:
+000001fe <Kernel_Interrupt_Sts_Get>:
 
 
 ;;=================================Interrupt Status Get=====================================;;
 ;; total 10 clocks for Interrupt Status Get
 Kernel_Interrupt_Sts_Get:
         LDI   R24		         , 0x00                   ;clear R24,               (1 clock ) 
- 206:	80 e0       	ldi	r24, 0x00	; 0
+ 1fe:	80 e0       	ldi	r24, 0x00	; 0
         IN    R16		         , IOSREG                 ;save SREG in R16,        (1 clock )
- 208:	0f b7       	in	r16, 0x3f	; 63
+ 200:	0f b7       	in	r16, 0x3f	; 63
 		SBRC  R16		         , 0x07                   ;check I flag->bit7,      (3 clocks)
- 20a:	07 fd       	sbrc	r16, 7
+ 202:	07 fd       	sbrc	r16, 7
 		LDI   R24		         , 0x01                   ;set R24 to 1,            (1 clock ) 
- 20c:	81 e0       	ldi	r24, 0x01	; 1
+ 204:	81 e0       	ldi	r24, 0x01	; 1
 		RET                                               ;return from subroutine,  (4 clocks) 
- 20e:	08 95       	ret
+ 206:	08 95       	ret
 
-00000210 <Kernel_Test_Task0>:
+00000208 <Kernel_Test_Task0>:
 
 
 ;;===================================Kernel Test Task0======================================;;
 Kernel_Test_Task0:
         ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK0_DDR       , KER_TSK0_PIN           ;set bit in DDR,          (2 clocks) 
- 210:	55 9a       	sbi	0x0a, 5	; 10
+ 208:	55 9a       	sbi	0x0a, 5	; 10
 		CBI   KER_TSK0_PORT      , KER_TSK0_PIN           ;clear port bit,          (2 clocks)
- 212:	5d 98       	cbi	0x0b, 5	; 11
+ 20a:	5d 98       	cbi	0x0b, 5	; 11
 
-00000214 <LOOP0>:
+0000020c <LOOP0>:
 		 
     LOOP0:
 	    ;pin toggle, total 5 clocks
 		IN    R16                , KER_TSK0_PORT          ;load PORT val,           (2 clocks)
- 214:	0b b1       	in	r16, 0x0b	; 11
+ 20c:	0b b1       	in	r16, 0x0b	; 11
 		LDI   R17                , (1<<KER_TSK0_PIN)      ;bit mask for port pin    (1 clock )
- 216:	10 e2       	ldi	r17, 0x20	; 32
+ 20e:	10 e2       	ldi	r17, 0x20	; 32
 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 218:	01 27       	eor	r16, r17
+ 210:	01 27       	eor	r16, r17
 		OUT   KER_TSK0_PORT      , R16                    ;set new PORT val,        (1 clock )
- 21a:	0b b9       	out	0x0b, r16	; 11
+ 212:	0b b9       	out	0x0b, r16	; 11
 		
 		;assign delay loop count val, for 30ms 
 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 21c:	0b ee       	ldi	r16, 0xEB	; 235
+ 214:	0b ee       	ldi	r16, 0xEB	; 235
 
-0000021e <DLY00>:
+00000216 <DLY00>:
 		
     DLY00:
 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 21e:	1f ef       	ldi	r17, 0xFF	; 255
+ 216:	1f ef       	ldi	r17, 0xFF	; 255
 
-00000220 <DLY01>:
+00000218 <DLY01>:
 		
 	DLY01:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
 		NOP                                               ;no operation,            (1 clock )
- 220:	00 00       	nop
+ 218:	00 00       	nop
 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 222:	1a 95       	dec	r17
+ 21a:	1a 95       	dec	r17
 		BRNE  DLY01                                       ;if R17 not equal to 0,   (2 clock ) 
- 224:	e9 f7       	brne	.-6      	; 0x220 <DLY01>
+ 21c:	e9 f7       	brne	.-6      	; 0x218 <DLY01>
 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 226:	0a 95       	dec	r16
+ 21e:	0a 95       	dec	r16
 		BRNE  DLY00                                       ;if R16 not equal to 0,   (2 clock ) 
- 228:	d1 f7       	brne	.-12     	; 0x21e <DLY00>
+ 220:	d1 f7       	brne	.-12     	; 0x216 <DLY00>
 		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock ) 
- 22a:	f4 cf       	rjmp	.-24     	; 0x214 <LOOP0>
+ 222:	f4 cf       	rjmp	.-24     	; 0x20c <LOOP0>
 		RET                                               ;return from subroutine,  (4 clocks) 
- 22c:	08 95       	ret
+ 224:	08 95       	ret
 
-0000022e <Kernel_Test_Task1>:
+00000226 <Kernel_Test_Task1>:
 
 
 ;;===================================Kernel Test Task1======================================;;
 Kernel_Test_Task1:
         ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK1_DDR       , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
- 22e:	56 9a       	sbi	0x0a, 6	; 10
+ 226:	56 9a       	sbi	0x0a, 6	; 10
 		CBI   KER_TSK1_PORT      , KER_TSK1_PIN           ;clear port bit,          (2 clocks)
- 230:	5e 98       	cbi	0x0b, 6	; 11
+ 228:	5e 98       	cbi	0x0b, 6	; 11
 
-00000232 <LOOP1>:
+0000022a <LOOP1>:
 		 
     LOOP1:
 	    ;pin toggle, total 5 clocks
 		IN    R16                , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
- 232:	0b b1       	in	r16, 0x0b	; 11
+ 22a:	0b b1       	in	r16, 0x0b	; 11
 		LDI   R17                , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
- 234:	10 e4       	ldi	r17, 0x40	; 64
+ 22c:	10 e4       	ldi	r17, 0x40	; 64
 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 236:	01 27       	eor	r16, r17
+ 22e:	01 27       	eor	r16, r17
 		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
- 238:	0b b9       	out	0x0b, r16	; 11
+ 230:	0b b9       	out	0x0b, r16	; 11
 		
 		;assign delay loop count val, for 30ms 
 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 23a:	0b ee       	ldi	r16, 0xEB	; 235
+ 232:	0b ee       	ldi	r16, 0xEB	; 235
 
-0000023c <DLY10>:
+00000234 <DLY10>:
 		
     DLY10:
 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 23c:	1f ef       	ldi	r17, 0xFF	; 255
+ 234:	1f ef       	ldi	r17, 0xFF	; 255
 
-0000023e <DLY11>:
+00000236 <DLY11>:
 		
 	DLY11:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
 		NOP                                               ;no operation,            (1 clock )
- 23e:	00 00       	nop
+ 236:	00 00       	nop
 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 240:	1a 95       	dec	r17
+ 238:	1a 95       	dec	r17
 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
- 242:	e9 f7       	brne	.-6      	; 0x23e <DLY11>
+ 23a:	e9 f7       	brne	.-6      	; 0x236 <DLY11>
 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 244:	0a 95       	dec	r16
+ 23c:	0a 95       	dec	r16
 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
- 246:	d1 f7       	brne	.-12     	; 0x23c <DLY10>
+ 23e:	d1 f7       	brne	.-12     	; 0x234 <DLY10>
 		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock ) 
- 248:	f4 cf       	rjmp	.-24     	; 0x232 <LOOP1>
+ 240:	f4 cf       	rjmp	.-24     	; 0x22a <LOOP1>
 
-0000024a <Kernel_Test_Task2>:
+00000242 <Kernel_Test_Task2>:
 
 
 ;;===================================Kernel Test Task2======================================;;
 Kernel_Test_Task2:
         ;initialize DDR and Port register, total 4 clocks
         SBI   KER_TSK2_DDR       , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
- 24a:	57 9a       	sbi	0x0a, 7	; 10
+ 242:	57 9a       	sbi	0x0a, 7	; 10
 		CBI   KER_TSK2_PORT      , KER_TSK2_PIN           ;clear port bit,          (2 clocks)
- 24c:	5f 98       	cbi	0x0b, 7	; 11
+ 244:	5f 98       	cbi	0x0b, 7	; 11
 
-0000024e <LOOP2>:
+00000246 <LOOP2>:
 		 
     LOOP2:
 	    ;pin toggle, total 5 clocks
 		IN    R16                , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
- 24e:	0b b1       	in	r16, 0x0b	; 11
+ 246:	0b b1       	in	r16, 0x0b	; 11
 		LDI   R17                , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
- 250:	10 e8       	ldi	r17, 0x80	; 128
+ 248:	10 e8       	ldi	r17, 0x80	; 128
 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 252:	01 27       	eor	r16, r17
+ 24a:	01 27       	eor	r16, r17
 		OUT   KER_TSK2_PORT      , R16                    ;set new PORT val,        (1 clock )
- 254:	0b b9       	out	0x0b, r16	; 11
+ 24c:	0b b9       	out	0x0b, r16	; 11
 		
 		;assign delay loop count val, for 30ms 
 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 256:	0b ee       	ldi	r16, 0xEB	; 235
+ 24e:	0b ee       	ldi	r16, 0xEB	; 235
 
-00000258 <DLY20>:
+00000250 <DLY20>:
 		
     DLY20:
 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 258:	1f ef       	ldi	r17, 0xFF	; 255
+ 250:	1f ef       	ldi	r17, 0xFF	; 255
 
-0000025a <DLY21>:
+00000252 <DLY21>:
 		
 	DLY21:                                                ;inner loop, 127.5uS@8Mhz (4 clocks)
 		NOP                                               ;no operation,            (1 clock )
- 25a:	00 00       	nop
+ 252:	00 00       	nop
 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 25c:	1a 95       	dec	r17
+ 254:	1a 95       	dec	r17
 		BRNE  DLY21                                       ;if R17 not equal to 0,   (2 clock ) 
- 25e:	e9 f7       	brne	.-6      	; 0x25a <DLY21>
+ 256:	e9 f7       	brne	.-6      	; 0x252 <DLY21>
 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 260:	0a 95       	dec	r16
+ 258:	0a 95       	dec	r16
 		BRNE  DLY20                                       ;if R16 not equal to 0,   (2 clock ) 
- 262:	d1 f7       	brne	.-12     	; 0x258 <DLY20>
+ 25a:	d1 f7       	brne	.-12     	; 0x250 <DLY20>
 		RJMP  LOOP2                                       ;if R16 is 0->jump,       (2 clock ) 
- 264:	f4 cf       	rjmp	.-24     	; 0x24e <LOOP2>
+ 25c:	f4 cf       	rjmp	.-24     	; 0x246 <LOOP2>
 
-00000266 <Kernel_Task0_Init>:
+0000025e <Kernel_Task0_Init>:
     
 
 ;;====================================Kernel Task0 Init=====================================;;
 Kernel_Task0_Init:
         ;init stack for task0
 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 266:	00 e9       	ldi	r16, 0x90	; 144
+ 25e:	00 e9       	ldi	r16, 0x90	; 144
 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 268:	11 e0       	ldi	r17, 0x01	; 1
+ 260:	11 e0       	ldi	r17, 0x01	; 1
 		
 		
 		;debug
 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
- 26a:	80 2f       	mov	r24, r16
+ 262:	80 2f       	mov	r24, r16
 		CALL  Debug_Tx_Byte                               ;send via uart
- 26c:	0e 94 c4 01 	call	0x388	; 0x388 <Debug_Tx_Byte>
+ 264:	0e 94 d6 01 	call	0x3ac	; 0x3ac <Debug_Tx_Byte>
 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
- 270:	81 2f       	mov	r24, r17
+ 268:	81 2f       	mov	r24, r17
 		CALL  Debug_Tx_Byte                               ;send via uart
- 272:	0e 94 c4 01 	call	0x388	; 0x388 <Debug_Tx_Byte>
+ 26a:	0e 94 d6 01 	call	0x3ac	; 0x3ac <Debug_Tx_Byte>
 		
 		
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 276:	0d bf       	out	0x3d, r16	; 61
+ 26e:	0d bf       	out	0x3d, r16	; 61
         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 278:	1e bf       	out	0x3e, r17	; 62
+ 270:	1e bf       	out	0x3e, r17	; 62
 		
 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
- 27a:	00 e1       	ldi	r16, 0x10	; 16
+ 272:	08 e0       	ldi	r16, 0x08	; 8
 		PUSH  R16                                         ;push,                    (2 clocks) 
- 27c:	0f 93       	push	r16
+ 274:	0f 93       	push	r16
 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
- 27e:	02 e0       	ldi	r16, 0x02	; 2
+ 276:	02 e0       	ldi	r16, 0x02	; 2
 		PUSH  R16                                         ;push,                    (2 clocks) 
- 280:	0f 93       	push	r16
+ 278:	0f 93       	push	r16
 		
         KER_CNTXT_SV
- 282:	0f 92       	push	r0
- 284:	0f b6       	in	r0, 0x3f	; 63
- 286:	0f 92       	push	r0
- 288:	1f 92       	push	r1
- 28a:	11 24       	eor	r1, r1
- 28c:	2f 92       	push	r2
- 28e:	3f 92       	push	r3
- 290:	4f 92       	push	r4
- 292:	5f 92       	push	r5
- 294:	6f 92       	push	r6
- 296:	7f 92       	push	r7
- 298:	8f 92       	push	r8
- 29a:	9f 92       	push	r9
- 29c:	af 92       	push	r10
- 29e:	bf 92       	push	r11
- 2a0:	cf 92       	push	r12
- 2a2:	df 92       	push	r13
- 2a4:	ef 92       	push	r14
- 2a6:	ff 92       	push	r15
- 2a8:	0f 93       	push	r16
- 2aa:	1f 93       	push	r17
- 2ac:	2f 93       	push	r18
- 2ae:	3f 93       	push	r19
- 2b0:	4f 93       	push	r20
- 2b2:	5f 93       	push	r21
- 2b4:	6f 93       	push	r22
- 2b6:	7f 93       	push	r23
- 2b8:	8f 93       	push	r24
- 2ba:	9f 93       	push	r25
- 2bc:	af 93       	push	r26
- 2be:	bf 93       	push	r27
- 2c0:	cf 93       	push	r28
- 2c2:	df 93       	push	r29
- 2c4:	ef 93       	push	r30
- 2c6:	ff 93       	push	r31
+ 27a:	0f 92       	push	r0
+ 27c:	0f b6       	in	r0, 0x3f	; 63
+ 27e:	0f 92       	push	r0
+ 280:	1f 92       	push	r1
+ 282:	11 24       	eor	r1, r1
+ 284:	2f 92       	push	r2
+ 286:	3f 92       	push	r3
+ 288:	4f 92       	push	r4
+ 28a:	5f 92       	push	r5
+ 28c:	6f 92       	push	r6
+ 28e:	7f 92       	push	r7
+ 290:	8f 92       	push	r8
+ 292:	9f 92       	push	r9
+ 294:	af 92       	push	r10
+ 296:	bf 92       	push	r11
+ 298:	cf 92       	push	r12
+ 29a:	df 92       	push	r13
+ 29c:	ef 92       	push	r14
+ 29e:	ff 92       	push	r15
+ 2a0:	0f 93       	push	r16
+ 2a2:	1f 93       	push	r17
+ 2a4:	2f 93       	push	r18
+ 2a6:	3f 93       	push	r19
+ 2a8:	4f 93       	push	r20
+ 2aa:	5f 93       	push	r21
+ 2ac:	6f 93       	push	r22
+ 2ae:	7f 93       	push	r23
+ 2b0:	8f 93       	push	r24
+ 2b2:	9f 93       	push	r25
+ 2b4:	af 93       	push	r26
+ 2b6:	bf 93       	push	r27
+ 2b8:	cf 93       	push	r28
+ 2ba:	df 93       	push	r29
+ 2bc:	ef 93       	push	r30
+ 2be:	ff 93       	push	r31
 		
         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
- 2c8:	0d b7       	in	r16, 0x3d	; 61
+ 2c0:	0d b7       	in	r16, 0x3d	; 61
         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
- 2ca:	1e b7       	in	r17, 0x3e	; 62
+ 2c2:	1e b7       	in	r17, 0x3e	; 62
         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
- 2cc:	00 93 0a 01 	sts	0x010A, r16
+ 2c4:	00 93 0a 01 	sts	0x010A, r16
         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
- 2d0:	10 93 0b 01 	sts	0x010B, r17
+ 2c8:	10 93 0b 01 	sts	0x010B, r17
 		
         RET                                               ;return from subroutine,  (4 clocks) 
- 2d4:	08 95       	ret
+ 2cc:	08 95       	ret
 
-000002d6 <Kernel_Task1_Init>:
+000002ce <Kernel_Task1_Init>:
 
 
 ;;====================================Kernel Task1 Init=====================================;;
 Kernel_Task1_Init:
         ;init stack for task1
 		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 2d6:	00 e1       	ldi	r16, 0x10	; 16
+ 2ce:	00 e1       	ldi	r16, 0x10	; 16
 		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 2d8:	12 e0       	ldi	r17, 0x02	; 2
+ 2d0:	12 e0       	ldi	r17, 0x02	; 2
 		
 		;debug
 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
- 2da:	80 2f       	mov	r24, r16
+ 2d2:	80 2f       	mov	r24, r16
 		CALL  Debug_Tx_Byte                               ;send via uart
- 2dc:	0e 94 c4 01 	call	0x388	; 0x388 <Debug_Tx_Byte>
+ 2d4:	0e 94 d6 01 	call	0x3ac	; 0x3ac <Debug_Tx_Byte>
 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
- 2e0:	81 2f       	mov	r24, r17
+ 2d8:	81 2f       	mov	r24, r17
 		CALL  Debug_Tx_Byte                               ;send via uart
- 2e2:	0e 94 c4 01 	call	0x388	; 0x388 <Debug_Tx_Byte>
+ 2da:	0e 94 d6 01 	call	0x3ac	; 0x3ac <Debug_Tx_Byte>
 		
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 2e6:	0d bf       	out	0x3d, r16	; 61
+ 2de:	0d bf       	out	0x3d, r16	; 61
         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 2e8:	1e bf       	out	0x3e, r17	; 62
+ 2e0:	1e bf       	out	0x3e, r17	; 62
 		
 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
- 2ea:	0e e2       	ldi	r16, 0x2E	; 46
+ 2e2:	06 e2       	ldi	r16, 0x26	; 38
 		PUSH  R16                                         ;push,                    (2 clocks) 
- 2ec:	0f 93       	push	r16
+ 2e4:	0f 93       	push	r16
 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
- 2ee:	02 e0       	ldi	r16, 0x02	; 2
+ 2e6:	02 e0       	ldi	r16, 0x02	; 2
 		PUSH  R16                                         ;push,                    (2 clocks) 
- 2f0:	0f 93       	push	r16
+ 2e8:	0f 93       	push	r16
 		
         KER_CNTXT_SV
- 2f2:	0f 92       	push	r0
- 2f4:	0f b6       	in	r0, 0x3f	; 63
- 2f6:	0f 92       	push	r0
- 2f8:	1f 92       	push	r1
- 2fa:	11 24       	eor	r1, r1
- 2fc:	2f 92       	push	r2
- 2fe:	3f 92       	push	r3
- 300:	4f 92       	push	r4
- 302:	5f 92       	push	r5
- 304:	6f 92       	push	r6
- 306:	7f 92       	push	r7
- 308:	8f 92       	push	r8
- 30a:	9f 92       	push	r9
- 30c:	af 92       	push	r10
- 30e:	bf 92       	push	r11
- 310:	cf 92       	push	r12
- 312:	df 92       	push	r13
- 314:	ef 92       	push	r14
- 316:	ff 92       	push	r15
- 318:	0f 93       	push	r16
- 31a:	1f 93       	push	r17
- 31c:	2f 93       	push	r18
- 31e:	3f 93       	push	r19
- 320:	4f 93       	push	r20
- 322:	5f 93       	push	r21
- 324:	6f 93       	push	r22
- 326:	7f 93       	push	r23
- 328:	8f 93       	push	r24
- 32a:	9f 93       	push	r25
- 32c:	af 93       	push	r26
- 32e:	bf 93       	push	r27
- 330:	cf 93       	push	r28
- 332:	df 93       	push	r29
- 334:	ef 93       	push	r30
- 336:	ff 93       	push	r31
+ 2ea:	0f 92       	push	r0
+ 2ec:	0f b6       	in	r0, 0x3f	; 63
+ 2ee:	0f 92       	push	r0
+ 2f0:	1f 92       	push	r1
+ 2f2:	11 24       	eor	r1, r1
+ 2f4:	2f 92       	push	r2
+ 2f6:	3f 92       	push	r3
+ 2f8:	4f 92       	push	r4
+ 2fa:	5f 92       	push	r5
+ 2fc:	6f 92       	push	r6
+ 2fe:	7f 92       	push	r7
+ 300:	8f 92       	push	r8
+ 302:	9f 92       	push	r9
+ 304:	af 92       	push	r10
+ 306:	bf 92       	push	r11
+ 308:	cf 92       	push	r12
+ 30a:	df 92       	push	r13
+ 30c:	ef 92       	push	r14
+ 30e:	ff 92       	push	r15
+ 310:	0f 93       	push	r16
+ 312:	1f 93       	push	r17
+ 314:	2f 93       	push	r18
+ 316:	3f 93       	push	r19
+ 318:	4f 93       	push	r20
+ 31a:	5f 93       	push	r21
+ 31c:	6f 93       	push	r22
+ 31e:	7f 93       	push	r23
+ 320:	8f 93       	push	r24
+ 322:	9f 93       	push	r25
+ 324:	af 93       	push	r26
+ 326:	bf 93       	push	r27
+ 328:	cf 93       	push	r28
+ 32a:	df 93       	push	r29
+ 32c:	ef 93       	push	r30
+ 32e:	ff 93       	push	r31
 		
         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
- 338:	0d b7       	in	r16, 0x3d	; 61
+ 330:	0d b7       	in	r16, 0x3d	; 61
         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
- 33a:	1e b7       	in	r17, 0x3e	; 62
+ 332:	1e b7       	in	r17, 0x3e	; 62
         STS   ker_stp + 2        , R16                    ;set stp of task0         (2 clocks) 
- 33c:	00 93 0c 01 	sts	0x010C, r16
+ 334:	00 93 0c 01 	sts	0x010C, r16
         STS   ker_stp + 3        , R17                    ;set stp of task0         (2 clocks) 
- 340:	10 93 0d 01 	sts	0x010D, r17
+ 338:	10 93 0d 01 	sts	0x010D, r17
 		
         RET                                               ;return from subroutine,  (4 clocks) 
- 344:	08 95       	ret
+ 33c:	08 95       	ret
 
-00000346 <Kernel_Task_Debug>:
+0000033e <Kernel_Task_Debug>:
 
 
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
         ;init stack for task1
-		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 346:	00 e9       	ldi	r16, 0x90	; 144
-		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 348:	11 e0       	ldi	r17, 0x01	; 1
+		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock ) 
+ 33e:	00 e9       	ldi	r16, 0x90	; 144
+		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock ) 
+ 340:	11 e0       	ldi	r17, 0x01	; 1
 		
 		
-		;debug
-		MOV   R24                , R16                    ;copy val to R24          (1 clock )
- 34a:	80 2f       	mov	r24, r16
+		;print stack0 RAMEND
+		MOV   R24                , R16                    ;copy val to R24          (1 clock ) 
+ 342:	80 2f       	mov	r24, r16
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 34c:	0e 94 cb 01 	call	0x396	; 0x396 <Debug_Tx_Byte_Conf>
-		MOV   R24                , R17                    ;copy val to R24          (1 clock )
- 350:	81 2f       	mov	r24, r17
+ 344:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		MOV   R24                , R17                    ;copy val to R24          (1 clock ) 
+ 348:	81 2f       	mov	r24, r17
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 352:	0e 94 cb 01 	call	0x396	; 0x396 <Debug_Tx_Byte_Conf>
+ 34a:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
 		
-		LDS   R24                , IOSPL                  ;copy val to R24          (1 clock )
- 356:	80 91 3d 00 	lds	r24, 0x003D
+		;print current SP
+		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 34e:	8d b7       	in	r24, 0x3d	; 61
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 35a:	0e 94 cb 01 	call	0x396	; 0x396 <Debug_Tx_Byte_Conf>
-		LDS   R24                , IOSPH                  ;copy val to R24          (1 clock )
- 35e:	80 91 3e 00 	lds	r24, 0x003E
+ 350:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 354:	8e b7       	in	r24, 0x3e	; 62
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 362:	0e 94 cb 01 	call	0x396	; 0x396 <Debug_Tx_Byte_Conf>
-        ;IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
-        ;IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
-        ;STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
-        ;STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+ 356:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		
+		;assign SP
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock ) 
+ 35a:	0d bf       	out	0x3d, r16	; 61
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock ) 
+ 35c:	1e bf       	out	0x3e, r17	; 62
+		
+		;print assigned SP
+		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 35e:	8d b7       	in	r24, 0x3d	; 61
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 360:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 364:	8e b7       	in	r24, 0x3e	; 62
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 366:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		
+		
+		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
+ 36a:	08 e0       	ldi	r16, 0x08	; 8
+		LDI   R17                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
+ 36c:	12 e0       	ldi	r17, 0x02	; 2
+		PUSH  R16                                         ;push                     (1 clock )
+ 36e:	0f 93       	push	r16
+		PUSH  R17                                         ;push                     (1 clock )
+ 370:	1f 93       	push	r17
+		
+		;print SP
+		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+ 372:	8d b7       	in	r24, 0x3d	; 61
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 374:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+ 378:	8e b7       	in	r24, 0x3e	; 62
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 37a:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		
+		;print SP
+		MOV   R24                , R16                    ;copy val to R24          (1 clock ) 
+ 37e:	80 2f       	mov	r24, r16
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 380:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		MOV   R24                , R17                    ;copy val to R24          (1 clock ) 
+ 384:	81 2f       	mov	r24, r17
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 386:	0e 94 e1 01 	call	0x3c2	; 0x3c2 <Debug_Tx_Byte_Conf>
+		;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
         RET                                               ;return from subroutine,  (4 clocks)
- 366:	08 95       	ret
+ 38a:	08 95       	ret
 
-00000368 <Debug_Init>:
+0000038c <Debug_Init>:
 
 
 ;;========================================Debug Init========================================;;
 Debug_Init:
         ;init registers for UART0
 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
- 368:	02 e0       	ldi	r16, 0x02	; 2
+ 38c:	02 e0       	ldi	r16, 0x02	; 2
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
- 36a:	00 93 c0 00 	sts	0x00C0, r16
+ 38e:	00 93 c0 00 	sts	0x00C0, r16
 		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
- 36e:	00 e0       	ldi	r16, 0x00	; 0
+ 392:	00 e0       	ldi	r16, 0x00	; 0
 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
- 370:	00 93 c5 00 	sts	0x00C5, r16
+ 394:	00 93 c5 00 	sts	0x00C5, r16
 		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
- 374:	03 e0       	ldi	r16, 0x03	; 3
+ 398:	03 e0       	ldi	r16, 0x03	; 3
 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
- 376:	00 93 c4 00 	sts	0x00C4, r16
+ 39a:	00 93 c4 00 	sts	0x00C4, r16
 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
- 37a:	06 e0       	ldi	r16, 0x06	; 6
+ 39e:	06 e0       	ldi	r16, 0x06	; 6
 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
- 37c:	00 93 c2 00 	sts	0x00C2, r16
+ 3a0:	00 93 c2 00 	sts	0x00C2, r16
 		LDI   R16                , (1<<3)                 ;enable tx,               (1 clock )
- 380:	08 e0       	ldi	r16, 0x08	; 8
+ 3a4:	08 e0       	ldi	r16, 0x08	; 8
 		STS   SRUCSR0B           , R16                    ;load val to UCSR0B,      (2 clocks)
- 382:	00 93 c1 00 	sts	0x00C1, r16
+ 3a6:	00 93 c1 00 	sts	0x00C1, r16
         RET                                               ;return from subroutine,  (4 clocks) 
- 386:	08 95       	ret
+ 3aa:	08 95       	ret
 
-00000388 <Debug_Tx_Byte>:
+000003ac <Debug_Tx_Byte>:
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte:
-        ;transmit using UART0->TX
+		;print using UART0->TX
+		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
+ 3ac:	00 93 3e 00 	sts	0x003E, r16
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
- 388:	80 93 c6 00 	sts	0x00C6, r24
+ 3b0:	80 93 c6 00 	sts	0x00C6, r24
 
-0000038c <__WAIT0>:
+000003b4 <__WAIT0>:
 		
     __WAIT0:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 38c:	00 91 c0 00 	lds	r16, 0x00C0
+ 3b4:	00 91 c0 00 	lds	r16, 0x00C0
 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
- 390:	05 ff       	sbrs	r16, 5
+ 3b8:	05 ff       	sbrs	r16, 5
 		RJMP  __WAIT0                                     ;wait until UDRE0 is set, (2 clocks)
- 392:	fc cf       	rjmp	.-8      	; 0x38c <__WAIT0>
+ 3ba:	fc cf       	rjmp	.-8      	; 0x3b4 <__WAIT0>
+		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
+ 3bc:	00 91 3e 00 	lds	r16, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 394:	08 95       	ret
+ 3c0:	08 95       	ret
 
-00000396 <Debug_Tx_Byte_Conf>:
+000003c2 <Debug_Tx_Byte_Conf>:
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
-        ;transmit using UART0->TX
+        
+		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
+ 3c2:	00 93 3e 00 	sts	0x003E, r16
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
- 396:	80 93 c6 00 	sts	0x00C6, r24
+ 3c6:	80 93 c6 00 	sts	0x00C6, r24
 
-0000039a <__WAIT1>:
+000003ca <__WAIT1>:
 		
     __WAIT1:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 39a:	00 91 c0 00 	lds	r16, 0x00C0
+ 3ca:	00 91 c0 00 	lds	r16, 0x00C0
 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
- 39e:	06 ff       	sbrs	r16, 6
-		RJMP  __WAIT1                                     ;wait until UDRE0 is set, (2 clocks)
- 3a0:	fc cf       	rjmp	.-8      	; 0x39a <__WAIT1>
+ 3ce:	06 ff       	sbrs	r16, 6
+		RJMP  __WAIT1                                     ;wait until TXC0 is set,  (2 clocks)
+ 3d0:	fc cf       	rjmp	.-8      	; 0x3ca <__WAIT1>
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 3a2:	00 91 c0 00 	lds	r16, 0x00C0
+ 3d2:	00 91 c0 00 	lds	r16, 0x00C0
 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
- 3a6:	00 64       	ori	r16, 0x40	; 64
+ 3d6:	00 64       	ori	r16, 0x40	; 64
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
- 3a8:	00 93 c0 00 	sts	0x00C0, r16
+ 3d8:	00 93 c0 00 	sts	0x00C0, r16
+		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
+ 3dc:	00 91 3e 00 	lds	r16, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 3ac:	08 95       	ret
+ 3e0:	08 95       	ret
 
-000003ae <_exit>:
- 3ae:	f8 94       	cli
+000003e2 <_exit>:
+ 3e2:	f8 94       	cli
 
-000003b0 <__stop_program>:
- 3b0:	ff cf       	rjmp	.-2      	; 0x3b0 <__stop_program>
+000003e4 <__stop_program>:
+ 3e4:	ff cf       	rjmp	.-2      	; 0x3e4 <__stop_program>

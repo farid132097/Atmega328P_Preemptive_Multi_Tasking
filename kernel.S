@@ -544,28 +544,62 @@ Kernel_Task1_Init:
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
         ;init stack for task1
-		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
-		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock ) 
+		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock ) 
 		
 		
-		;debug
-		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+		;print stack0 RAMEND
+		MOV   R24                , R16                    ;copy val to R24          (1 clock ) 
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		MOV   R24                , R17                    ;copy val to R24          (1 clock )
-		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		
-		LDS   R24                , IOSPL                  ;copy val to R24          (1 clock )
-		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		LDS   R24                , IOSPH                  ;copy val to R24          (1 clock )
+		MOV   R24                , R17                    ;copy val to R24          (1 clock ) 
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
+		;print current SP
+		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
-		;OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
-        ;OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+		;assign SP
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock ) 
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock ) 
 		
-		;LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+		;print assigned SP
+		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		
+		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
+		LDI   R17                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
+		PUSH  R16                                         ;push                     (1 clock )
+		PUSH  R17                                         ;push                     (1 clock )
+		
+		;print SP
+		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		;print SP
+		MOV   R24                , R16                    ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R24                , R17                    ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+        
+		
+		
+		;LDS   R24                , ker_stk0+KER_STZ-1     ;copy val to R24          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , ker_stk0+KER_STZ-2     ;copy val to R24          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		
+		;LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock ) 
 		;PUSH  R16                                         ;push,                    (2 clocks) 
-		;LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
+		;LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock ) 
 		;PUSH  R16                                         ;push,                    (2 clocks) 
 		
         ;KER_CNTXT_SV
@@ -574,6 +608,12 @@ Kernel_Task_Debug:
         ;IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
         ;STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
         ;STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+		
+		
+		;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
         RET                                               ;return from subroutine,  (4 clocks)
 

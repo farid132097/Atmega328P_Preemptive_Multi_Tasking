@@ -12,7 +12,7 @@ int main(void) {
     
 	
 	Debug_Init();
-    Kernel_SysTick_Reg_Init(1000);
+    //Kernel_SysTick_Reg_Init(1000);
 	Kernel_Task_Debug();
 	//Kernel_Task0_Init();
 	//Kernel_Task1_Init();
