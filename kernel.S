@@ -64,30 +64,24 @@
 
 
 ;Initialize global variables
-.section .bss
-.global  Kernel                  ;declare global space for kernel
-Kernel:
-.skip 9                          ;5B->TickCounter, 1B->ovf
+.section  .bss
+.global   Kernel                  ;declare global space for kernel
+Kernel:   .skip 10                ;5B->TickCounter, 1B->ovf, 4B->Reserved
 
-.global  ker_tski                ;declare global space for task index
-ker_tski:
-.skip 1   
+.global   ker_tski                ;declare global space for task index
+ker_tski: .skip 2                 ;1B->TaskIndex, 1B->Reserved
 
-.global  ker_stp                 ;declare global space for stack pointers
-ker_stp:
-.skip 6                         
+.global   ker_stp                 ;declare global space for stack pointers
+ker_stp:  .skip 6                 ;2B->STP0, 2B->STP1, 2B->STP2
 
-.global  ker_stk0                ;declare global space for stack of task0
-ker_stk0:
-.skip KER_STZ                         
+.global   ker_stk0                ;declare global space for stack of task0
+ker_stk0: .skip KER_STZ           ;KER_STZ B->Stack0
 
-.global  ker_stk1                ;declare global space for stack of task1
-ker_stk1:
-.skip KER_STZ                        
+.global   ker_stk1                ;declare global space for stack of task1
+ker_stk1: .skip KER_STZ           ;KER_STZ B->Stack1
 
-.global  ker_stk2                ;declare global space for stack of task2
-ker_stk2:
-.skip KER_STZ                         
+.global   ker_stk2                ;declare global space for stack of task2
+ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 
 
 
@@ -117,6 +111,7 @@ ker_stk2:
 .global  Kernel_Task2_Init
 
 .global  Kernel_Task_Debug
+.global  Kernel_Task_Debug1
 
 
 .macro  KER_CNTXT_SV
@@ -543,28 +538,31 @@ Kernel_Task1_Init:
 
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
+		
         ;init stack for task1
 		;LDI   R18                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock ) 
 		;LDI   R19                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock ) 
 		
 		
-		;print stack0 RAMEND, printed -> 0x0190
+		;print stack0 RAMEND, printed -> 0x92 0x01
 		;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
-		;print current SP, printed -> 0x08FB
+		;print current SP, printed -> 0xFB 0x08
 		;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
+		
+		
 		;assign SP
 		;OUT   IOSPL              , R18                    ;load SPL                 (1 clock ) 
         ;OUT   IOSPH              , R19                    ;load SPH                 (1 clock ) 
 		
-		;print assigned SP, printed -> 0x0190
+		;print assigned SP, printed -> 0x92 0x01
 		;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
@@ -574,57 +572,211 @@ Kernel_Task_Debug:
 		;LDI   R18                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
 		;LDI   R19                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
 		
-		;print function address, printed -> 0x0208
+		
+
+		;print function address, printed -> 0x08 0x02
 		;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf 
 		
-		;PUSH  R19                                         ;push                     (1 clock )
-		;PUSH  R18                                         ;push                     (1 clock )
 		
-		;print SP, printed ->0x018E
+		
+		;print from stack, HighByte->LowByte printed -> 0xBD 0x01 0x00 0x00 0x00 0x00
+		;LDS   R24                , ker_stk0+KER_STZ-0     ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , ker_stk0+KER_STZ-1     ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , ker_stk0+KER_STZ-2     ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , ker_stk0+KER_STZ-3     ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , ker_stk0+KER_STZ-4     ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , ker_stk0+KER_STZ-5     ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		;LDI   R18                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
+		;LDI   R19                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
+		
+		;PUSH  R18                                         ;push                     (1 clock )
+		;PUSH  R19                                         ;push                     (1 clock )
+		
+		
+		;print SP, printed ->0x90 0x01
 		;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
-		;print function address, printed -> 0x0208
+		;print function address, printed -> 0x08 0x02
 		;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
 		
-		;LDI   R18                , 0x02
-		;STS   ker_stk0+KER_STZ-1 , R18
-		;LDI   R18                , 0x08
-		;STS   ker_stk0+KER_STZ-2 , R18
+        ;print from stack, HighByte->LowByte printed -> 0x02 0x08 0xD3 0x01 0x00 0x00
+		;print from stack, LowByte->HighByte printed -> 0x08 0x02 0xD3 0x01 0x00 0x00
 		
-        ;print return address in stack, printed -> 0xCF08
-		;LDS   R24                , ker_stk0+KER_STZ-1     ;fetch top SPL1,          (1 clock ) 
+		
+		LDI   R30                , IOSPL
+		LDI   R31                , IOSPH
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-0)
+		LDI   R31                , hi8(RAMEND-0)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-1)
+		LDI   R31                , hi8(RAMEND-1)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-2)
+		LDI   R31                , hi8(RAMEND-2)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-3)
+		LDI   R31                , hi8(RAMEND-3)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-4)
+		LDI   R31                , hi8(RAMEND-4)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-5)
+		LDI   R31                , hi8(RAMEND-5)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-6)
+		LDI   R31                , hi8(RAMEND-6)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-7)
+		LDI   R31                , hi8(RAMEND-7)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-8)
+		LDI   R31                , hi8(RAMEND-8)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-9)
+		LDI   R31                , hi8(RAMEND-9)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-10)
+		LDI   R31                , hi8(RAMEND-10)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		
+		;LDS   R24                , RAMEND-1               ;fetch top SPL1,          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		;LDS   R24                , ker_stk0+KER_STZ-2     ;fetch top SPL1,          (1 clock ) 
+		;LDS   R24                , RAMEND-2               ;fetch top SPL1,          (1 clock ) 
 		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		;RET                                                ;return from subroutine,  (4 clocks)
+		;LDS   R24                , RAMEND-3               ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-4               ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-5               ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-6               ;fetch top SPL1,          (1 clock ) 
+	    ;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-7               ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-8               ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-9               ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		;LDS   R24                , RAMEND-10              ;fetch top SPL1,          (1 clock ) 
+		;CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
-		CLI
-		LDI   R16                , lo8(ker_stk0+KER_STZ)          
-		LDI   R17                , hi8(ker_stk0+KER_STZ)            
-		OUT   IOSPL              , R16                     
-        OUT   IOSPH              , R17                     
-		LDI   R18                , lo8(Kernel_Test_Task0)  
-		LDI   R19                , hi8(Kernel_Test_Task0)  
-		PUSH  R18
-		PUSH  R19
+		LDI   R18                , lo8(Kernel_Task_Debug1);fetch task0 low address  (1 clock )
+		LDI   R19                , hi8(Kernel_Task_Debug1);fetch task0 high address (1 clock )
 		
-		; OPTIONAL: Debug - read stack content before RET
-        LDS R24, ker_stk0 + KER_STZ - 1     ; should be low byte
-        CALL Debug_Tx_Byte_Conf
-        LDS R24, ker_stk0 + KER_STZ - 2     ; should be high byte
-        CALL Debug_Tx_Byte_Conf
+		;print function address, printed -> 0x08 0x02
+		MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		
-        RET 
+		CALL  Kernel_Task_Debug1
+		RET                                               ;return from subroutine,  (4 clocks)
+		
 
 
 
+;;====================================Kernel Task Debug1=====================================;;
+Kernel_Task_Debug1:
+		LDI   R30                , IOSPL
+		LDI   R31                , IOSPH
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-0)
+		LDI   R31                , hi8(RAMEND-0)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-1)
+		LDI   R31                , hi8(RAMEND-1)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-2)
+		LDI   R31                , hi8(RAMEND-2)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-3)
+		LDI   R31                , hi8(RAMEND-3)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-4)
+		LDI   R31                , hi8(RAMEND-4)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-5)
+		LDI   R31                , hi8(RAMEND-5)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-6)
+		LDI   R31                , hi8(RAMEND-6)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-7)
+		LDI   R31                , hi8(RAMEND-7)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-8)
+		LDI   R31                , hi8(RAMEND-8)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-9)
+		LDI   R31                , hi8(RAMEND-9)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		
+		LDI   R30                , lo8(RAMEND-10)
+		LDI   R31                , hi8(RAMEND-10)
+		LD    R24                , Z
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		RET                                               ;return from subroutine,  (4 clocks)
+		

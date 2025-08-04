@@ -35,6 +35,7 @@ extern void      Kernel_Task1_Init(void);
 extern void      Kernel_Task2_Init(void);
 
 extern void      Kernel_Task_Debug(void);
+extern void      Kernel_Task_Debug1(void);
 
 #endif
 
