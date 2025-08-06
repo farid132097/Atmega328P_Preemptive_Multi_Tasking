@@ -27,6 +27,10 @@
 .global  Debug_Tx_Word_Conf
 .global  Debug_Tx_DWord_Conf
 
+.global  Debug_Tx_From_RAM
+.global  Debug_Tx_RAM_Area
+
+
 ;;========================================Debug Init========================================;;
 Debug_Init:
         ;init registers for UART0
@@ -45,7 +49,7 @@ Debug_Init:
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte:
-		;print using UART0->TX
+		;write single byte to data register (Arg R24)
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
@@ -59,7 +63,7 @@ Debug_Tx_Byte:
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
-        ;print using UART0->TX (argument R24)
+        ;write single byte to data register and wait until tx is complete (Arg R24)
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
@@ -75,7 +79,7 @@ Debug_Tx_Byte_Conf:
 
 ;;======================================Debug Tx Word=======================================;;
 Debug_Tx_Word_Conf:
-        ;print using UART0->TX (arguments R24-R25)
+        ;write 2 bytes to data register and wait until tx is complete (Arg R24, R25)
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
@@ -83,7 +87,7 @@ Debug_Tx_Word_Conf:
 
 ;;=====================================Debug Tx DWord=======================================;;
 Debug_Tx_DWord_Conf:
-        ;print using UART0->TX (arguments R22-R25)
+        ;write 4 bytes to data register and wait until tx is complete (Arg R22-R25)
 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
 		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
@@ -96,3 +100,24 @@ Debug_Tx_DWord_Conf:
         RET                                               ;return from subroutine,  (4 clocks) 
 
 
+
+;;===================================Debug Tx RAM Area======================================;;
+Debug_Tx_From_RAM:
+        ;print data from RAM address (Arg R24-R25)
+		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
+		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
+		LD    R24                , Z                      ;load val to R24          (2 clocks)
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
+
+
+;;===================================Debug Tx RAM Area======================================;;
+Debug_Tx_RAM_Area:
+        ;print data from RAM address (arguments R24:R25, R22)
+	__DUMP_BYTES:
+	    CALL  Debug_Tx_From_RAM                           ;send via uart from ram
+		SUBI  R24                , 0x01                   ;decrement from LSByte
+        SBCI  R25                , 0x00                   ;decrement if carry
+		SUBI  R22                , 0x01                   ;decrement
+		BRNE  __DUMP_BYTES
+        RET                                               ;return from subroutine,  (4 clocks) 

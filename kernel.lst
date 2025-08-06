@@ -1074,211 +1074,49 @@
  539               	;;====================================Kernel Task Debug=====================================;;
  540               	Kernel_Task_Debug:
  541               			
- 542               	        ;init stack for task1
- 543               			;LDI   R18                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock ) 
- 544               			;LDI   R19                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock ) 
- 545               			
+ 542:kernel.S      **** 		LDI   R16                , lo8(0x06FF)
+ 543:kernel.S      **** 		LDI   R17                , hi8(0x06FF)
+ 544:kernel.S      **** 		OUT   IOSPL              , R16
+ 545:kernel.S      **** 		OUT   IOSPH              , R17
  546               			
- 547               			;print stack0 RAMEND, printed -> 0x92 0x01
- 548               			;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
- 549               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 550               			;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
- 551               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 552               			
- 553               			;print current SP, printed -> 0xFB 0x08
- 554               			;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
- 555               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 556               			;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
- 557               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 558               			
+ 547:kernel.S      **** 		IN    R24                , IOSPL
+ 548:kernel.S      **** 		IN    R25                , IOSPH
+ 549:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
+ 550               			
+ 551:kernel.S      **** 		LDI   R24                , lo8(0x06FF)
+ 552:kernel.S      **** 		LDI   R25                , hi8(0x06FF)
+ 553:kernel.S      **** 		LDI   R22                , 0x08
+ 554               			
+ 555:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 556               			
+ 557:kernel.S      **** 	    CALL  Kernel_Task_Debug1
+ 558:kernel.S      **** 		RET                         
  559               			
- 560               			
- 561               			;assign SP
- 562               			;OUT   IOSPL              , R18                    ;load SPL                 (1 clock ) 
- 563               	        ;OUT   IOSPH              , R19                    ;load SPH                 (1 clock ) 
- 564               			
- 565               			;print assigned SP, printed -> 0x92 0x01
- 566               			;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
- 567               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 568               			;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
- 569               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 570               			
- 571               			
- 572               			;LDI   R18                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
- 573               			;LDI   R19                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
- 574               			
- 575               			
- 576               	
- 577               			;print function address, printed -> 0x08 0x02
- 578               			;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
- 579               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 580               			;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
- 581               			;CALL  Debug_Tx_Byte_Conf 
- 582               			
+ 560               	
+ 561               	
+ 562               	
+ 563               	;;====================================Kernel Task Debug1=====================================;;
+ 564               	Kernel_Task_Debug1:
+ 565               			
+ 566               			;creating gap between data
+ 567:kernel.S      **** 		LDI   R24                , 0xFF
+ 568:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 569:kernel.S      **** 		LDI   R24                , 0xFF
+ 570:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 571:kernel.S      **** 		LDI   R24                , 0xFF
+ 572:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 573               			
+ 574:kernel.S      **** 		IN    R24                , IOSPL
+ 575:kernel.S      **** 		IN    R25                , IOSPH
+ 576:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
+ 577               			
+ 578:kernel.S      **** 		LDI   R24                , lo8(0x06FF)
+ 579:kernel.S      **** 		LDI   R25                , hi8(0x06FF)
+ 580:kernel.S      **** 		LDI   R22                , 0x08
+ 581               			
+ 582:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
  583               			
- 584               			
- 585               			;print from stack, HighByte->LowByte printed -> 0xBD 0x01 0x00 0x00 0x00 0x00
- 586               			;LDS   R24                , ker_stk0+KER_STZ-0     ;fetch top SPL1,          (1 clock ) 
- 587               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 588               			;LDS   R24                , ker_stk0+KER_STZ-1     ;fetch top SPL1,          (1 clock ) 
- 589               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 590               			;LDS   R24                , ker_stk0+KER_STZ-2     ;fetch top SPL1,          (1 clock ) 
- 591               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 592               			;LDS   R24                , ker_stk0+KER_STZ-3     ;fetch top SPL1,          (1 clock ) 
- 593               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 594               			;LDS   R24                , ker_stk0+KER_STZ-4     ;fetch top SPL1,          (1 clock ) 
- 595               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 596               			;LDS   R24                , ker_stk0+KER_STZ-5     ;fetch top SPL1,          (1 clock ) 
- 597               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 598               			
- 599               			;LDI   R18                , lo8(Kernel_Test_Task0) ;fetch task0 low address  (1 clock )
- 600               			;LDI   R19                , hi8(Kernel_Test_Task0) ;fetch task0 high address (1 clock )
- 601               			
- 602               			;PUSH  R18                                         ;push                     (1 clock )
- 603               			;PUSH  R19                                         ;push                     (1 clock )
- 604               			
- 605               			
- 606               			;print SP, printed ->0x90 0x01
- 607               			;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
- 608               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 609               			;IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
- 610               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 611               			
- 612               			;print function address, printed -> 0x08 0x02
- 613               			;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
- 614               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 615               			;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
- 616               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 617               			
- 618               			
- 619               	        ;print from stack, HighByte->LowByte printed -> 0x02 0x08 0xD3 0x01 0x00 0x00
- 620               			;print from stack, LowByte->HighByte printed -> 0x08 0x02 0xD3 0x01 0x00 0x00
- 621               			
- 622               			
- 623               			;print assigned SP, printed -> 
- 624               			;IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
- 625               			;IN    R25                , IOSPH                  ;copy val to R24          (1 clock ) 
- 626               			;CALL  Debug_Tx_Word_Conf                          ;send via uart
- 627               			
- 628               			
- 629               			;LDI   R24                , lo8(RAMEND-0)
- 630               			;LDI   R25                , hi8(RAMEND-0)
- 631               			;CALL  Debug_Tx_Word_Conf                          ;send via uart
- 632               			
- 633:kernel.S      **** 		LDI   R24                , lo8(0x1234)
- 634:kernel.S      **** 		LDI   R25                , hi8(0x1234)
- 635:kernel.S      **** 		CALL  Debug_Tx_Word_Conf
- 636:kernel.S      **** 		LDI   R24                , lo8(0x1335)
- 637:kernel.S      **** 		LDI   R25                , hi8(0x1335)
- 638:kernel.S      **** 		CALL  Debug_Tx_Word_Conf
- 639               			
- 640               			
- 641               			
- 642               			;LDI   R24                , lo8(0x1234)
- 643               			;LDI   R25                , hi8(0x1234)
- 644               			;CALL  Debug_Tx_Word_Conf
- 645               			
- 646               			
- 647               			
- 648               			;LDS   R24                , RAMEND-1               ;fetch top SPL1,          (1 clock ) 
- 649               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 650               			;LDS   R24                , RAMEND-2               ;fetch top SPL1,          (1 clock ) 
- 651               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 652               			;LDS   R24                , RAMEND-3               ;fetch top SPL1,          (1 clock ) 
- 653               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 654               			;LDS   R24                , RAMEND-4               ;fetch top SPL1,          (1 clock ) 
- 655               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 656               			;LDS   R24                , RAMEND-5               ;fetch top SPL1,          (1 clock ) 
- 657               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 658               			;LDS   R24                , RAMEND-6               ;fetch top SPL1,          (1 clock ) 
- 659               		    ;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 660               			;LDS   R24                , RAMEND-7               ;fetch top SPL1,          (1 clock ) 
- 661               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 662               			;LDS   R24                , RAMEND-8               ;fetch top SPL1,          (1 clock ) 
- 663               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 664               			;LDS   R24                , RAMEND-9               ;fetch top SPL1,          (1 clock ) 
- 665               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 666               			;LDS   R24                , RAMEND-10              ;fetch top SPL1,          (1 clock ) 
- 667               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 668               			;LDI   R16                , 0x00
- 669               			;LDI   R24                , lo8(0x1335);fetch task0 low address  (1 clock )
- 670               			;LDI   R25                , hi8(0x1335);fetch task0 high address (1 clock )
- 671               			;CALL  Debug_Tx_Word_Conf                          ;send via uart
- 672               			;print function address, printed -> 0x08 0x02
- 673               			;MOV   R24                , R18                    ;copy val to R24          (1 clock ) 
- 674               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 675               			;MOV   R24                , R19                    ;copy val to R24          (1 clock ) 
- 676               			;CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 677               			
- 678               			;CALL  Kernel_Task_Debug1
- 679:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks)
- 680               			
- 681               	
- 682               	
- 683               	
- 684               	;;====================================Kernel Task Debug1=====================================;;
- 685               	Kernel_Task_Debug1:
- 686               			;print assigned SP, printed -> 
- 687:kernel.S      **** 		IN    R24                , IOSPL                  ;copy val to R24          (1 clock ) 
- 688:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 689:kernel.S      **** 		IN    R24                , IOSPH                  ;copy val to R24          (1 clock ) 
- 690:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 691               			
- 692:kernel.S      **** 		LDI   R30                , lo8(RAMEND-0)
- 693:kernel.S      **** 		LDI   R31                , hi8(RAMEND-0)
- 694:kernel.S      **** 		LD    R24                , Z
- 695:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 696               			
- 697:kernel.S      **** 		LDI   R30                , lo8(RAMEND-1)
- 698:kernel.S      **** 		LDI   R31                , hi8(RAMEND-1)
- 699:kernel.S      **** 		LD    R24                , Z
- 700:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 701               			
- 702:kernel.S      **** 		LDI   R30                , lo8(RAMEND-2)
- 703:kernel.S      **** 		LDI   R31                , hi8(RAMEND-2)
- 704:kernel.S      **** 		LD    R24                , Z
- 705:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 706               			
- 707:kernel.S      **** 		LDI   R30                , lo8(RAMEND-3)
- 708:kernel.S      **** 		LDI   R31                , hi8(RAMEND-3)
- 709:kernel.S      **** 		LD    R24                , Z
- 710:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 711               			
- 712:kernel.S      **** 		LDI   R30                , lo8(RAMEND-4)
- 713:kernel.S      **** 		LDI   R31                , hi8(RAMEND-4)
- 714:kernel.S      **** 		LD    R24                , Z
- 715:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 716               			
- 717:kernel.S      **** 		LDI   R30                , lo8(RAMEND-5)
- 718:kernel.S      **** 		LDI   R31                , hi8(RAMEND-5)
- 719:kernel.S      **** 		LD    R24                , Z
- 720:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 721               			
- 722:kernel.S      **** 		LDI   R30                , lo8(RAMEND-6)
- 723:kernel.S      **** 		LDI   R31                , hi8(RAMEND-6)
- 724:kernel.S      **** 		LD    R24                , Z
- 725:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 726               			
- 727:kernel.S      **** 		LDI   R30                , lo8(RAMEND-7)
- 728:kernel.S      **** 		LDI   R31                , hi8(RAMEND-7)
- 729:kernel.S      **** 		LD    R24                , Z
- 730:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 731               			
- 732:kernel.S      **** 		LDI   R30                , lo8(RAMEND-8)
- 733:kernel.S      **** 		LDI   R31                , hi8(RAMEND-8)
- 734:kernel.S      **** 		LD    R24                , Z
- 735:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 736               			
- 737:kernel.S      **** 		LDI   R30                , lo8(RAMEND-9)
- 738:kernel.S      **** 		LDI   R31                , hi8(RAMEND-9)
- 739:kernel.S      **** 		LD    R24                , Z
- 740:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 741               			
- 742:kernel.S      **** 		LDI   R30                , lo8(RAMEND-10)
- 743:kernel.S      **** 		LDI   R31                , hi8(RAMEND-10)
- 744:kernel.S      **** 		LD    R24                , Z
- 745:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 746:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks)
+ 584               			;RET                                     
 DEFINED SYMBOLS
             kernel.S:13     *ABS*:000003e8 KER_TR
             kernel.S:14     *ABS*:00000003 KER_PRS
@@ -1328,7 +1166,7 @@ DEFINED SYMBOLS
             kernel.S:477    .text:000001b2 Kernel_Task0_Init
             kernel.S:510    .text:00000222 Kernel_Task1_Init
             kernel.S:540    .text:00000292 Kernel_Task_Debug
-            kernel.S:685    .text:000002a4 Kernel_Task_Debug1
+            kernel.S:564    .text:000002b2 Kernel_Task_Debug1
             kernel.S:291    .text:00000086 RS_CNTXT
             kernel.S:395    .text:00000160 LOOP0
             kernel.S:405    .text:0000016a DLY00
@@ -1344,4 +1182,5 @@ UNDEFINED SYMBOLS
 Kernel_Task2_Init
 Debug_Tx_Byte
 Debug_Tx_Word_Conf
+Debug_Tx_RAM_Area
 Debug_Tx_Byte_Conf

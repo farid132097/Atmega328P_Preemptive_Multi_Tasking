@@ -458,73 +458,100 @@
   27               	.global  Debug_Tx_Word_Conf
   28               	.global  Debug_Tx_DWord_Conf
   29               	
-  30               	;;========================================Debug Init========================================;;
-  31               	Debug_Init:
-  32               	        ;init registers for UART0
-  33:debug.S       **** 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
-  34:debug.S       **** 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
-  35:debug.S       **** 		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
-  36:debug.S       **** 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
-  37:debug.S       **** 		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
-  38:debug.S       **** 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
-  39:debug.S       **** 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
-  40:debug.S       **** 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
-  41:debug.S       **** 		LDI   R16                , (1<<3)                 ;enable tx,               (1 clock )
-  42:debug.S       **** 		STS   SRUCSR0B           , R16                    ;load val to UCSR0B,      (2 clocks)
-  43:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
-  44               	
-  45               	
-  46               	;;=========================================Debug Tx=========================================;;
-  47               	Debug_Tx_Byte:
-  48               			;print using UART0->TX
-  49:debug.S       **** 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
-  50:debug.S       **** 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
-  51               			
-  52               	    __WAIT0:
-  53:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
-  54:debug.S       **** 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
-  55:debug.S       **** 		RJMP  __WAIT0                                     ;wait until UDRE0 is set, (2 clocks)
-  56:debug.S       **** 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
-  57:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
-  58               	
-  59               	
-  60               	;;=========================================Debug Tx=========================================;;
-  61               	Debug_Tx_Byte_Conf:
-  62               	        ;print using UART0->TX (argument R24)
-  63:debug.S       **** 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
-  64:debug.S       **** 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
-  65               			
-  66               	    __WAIT1:
-  67:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
-  68:debug.S       **** 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
-  69:debug.S       **** 		RJMP  __WAIT1                                     ;wait until TXC0 is set,  (2 clocks)
-  70:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
-  71:debug.S       **** 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
-  72:debug.S       **** 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
-  73:debug.S       **** 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
-  74:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
-  75               	
-  76               	;;======================================Debug Tx Word=======================================;;
-  77               	Debug_Tx_Word_Conf:
-  78               	        ;print using UART0->TX (arguments R24-R25)
-  79:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-  80:debug.S       **** 		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
-  81:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-  82:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
-  83               	
-  84               	;;=====================================Debug Tx DWord=======================================;;
-  85               	Debug_Tx_DWord_Conf:
-  86               	        ;print using UART0->TX (arguments R22-R25)
-  87:debug.S       **** 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
-  88:debug.S       **** 		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
-  89:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-  90:debug.S       **** 		MOV   R24                , R23                    ;copy R23 to R24          (1 clock )
-  91:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-  92:debug.S       **** 		LDS   R24                , SRGPIOR1               ;restore R24              (2 clocks)
+  30               	.global  Debug_Tx_From_RAM
+  31               	.global  Debug_Tx_RAM_Area
+  32               	
+  33               	
+  34               	;;========================================Debug Init========================================;;
+  35               	Debug_Init:
+  36               	        ;init registers for UART0
+  37:debug.S       **** 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
+  38:debug.S       **** 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
+  39:debug.S       **** 		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
+  40:debug.S       **** 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
+  41:debug.S       **** 		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
+  42:debug.S       **** 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
+  43:debug.S       **** 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
+  44:debug.S       **** 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
+  45:debug.S       **** 		LDI   R16                , (1<<3)                 ;enable tx,               (1 clock )
+  46:debug.S       **** 		STS   SRUCSR0B           , R16                    ;load val to UCSR0B,      (2 clocks)
+  47:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+  48               	
+  49               	
+  50               	;;=========================================Debug Tx=========================================;;
+  51               	Debug_Tx_Byte:
+  52               			;write single byte to data register (Arg R24)
+  53:debug.S       **** 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
+  54:debug.S       **** 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
+  55               			
+  56               	    __WAIT0:
+  57:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
+  58:debug.S       **** 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
+  59:debug.S       **** 		RJMP  __WAIT0                                     ;wait until UDRE0 is set, (2 clocks)
+  60:debug.S       **** 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
+  61:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+  62               	
+  63               	
+  64               	;;=========================================Debug Tx=========================================;;
+  65               	Debug_Tx_Byte_Conf:
+  66               	        ;write single byte to data register and wait until tx is complete (Arg R24)
+  67:debug.S       **** 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
+  68:debug.S       **** 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
+  69               			
+  70               	    __WAIT1:
+  71:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
+  72:debug.S       **** 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
+  73:debug.S       **** 		RJMP  __WAIT1                                     ;wait until TXC0 is set,  (2 clocks)
+  74:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
+  75:debug.S       **** 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
+  76:debug.S       **** 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
+  77:debug.S       **** 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
+  78:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+  79               	
+  80               	;;======================================Debug Tx Word=======================================;;
+  81               	Debug_Tx_Word_Conf:
+  82               	        ;write 2 bytes to data register and wait until tx is complete (Arg R24, R25)
+  83:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+  84:debug.S       **** 		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
+  85:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+  86:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+  87               	
+  88               	;;=====================================Debug Tx DWord=======================================;;
+  89               	Debug_Tx_DWord_Conf:
+  90               	        ;write 4 bytes to data register and wait until tx is complete (Arg R22-R25)
+  91:debug.S       **** 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
+  92:debug.S       **** 		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
   93:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-  94:debug.S       **** 		MOV   R24                , R25                    ;copy R22 to R24          (1 clock )
+  94:debug.S       **** 		MOV   R24                , R23                    ;copy R23 to R24          (1 clock )
   95:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-  96:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+  96:debug.S       **** 		LDS   R24                , SRGPIOR1               ;restore R24              (2 clocks)
+  97:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+  98:debug.S       **** 		MOV   R24                , R25                    ;copy R22 to R24          (1 clock )
+  99:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 100:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 101               	
+ 102               	
+ 103               	
+ 104               	;;===================================Debug Tx RAM Area======================================;;
+ 105               	Debug_Tx_From_RAM:
+ 106               	        ;print data from RAM address (Arg R24-R25)
+ 107:debug.S       **** 		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
+ 108:debug.S       **** 		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
+ 109:debug.S       **** 		LD    R24                , Z                      ;load val to R24          (2 clocks)
+ 110:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 111:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 112               	
+ 113               	
+ 114               	;;===================================Debug Tx RAM Area======================================;;
+ 115               	Debug_Tx_RAM_Area:
+ 116               	        ;print data from RAM address (arguments R24:R25, R22)
+ 117               		__DUMP_BYTES:
+ 118:debug.S       **** 	    CALL  Debug_Tx_From_RAM                           ;send via uart from ram
+ 119:debug.S       **** 		SUBI  R24                , 0x01                   ;decrement from LSByte
+ 120:debug.S       ****         SBCI  R25                , 0x00                   ;decrement if carry
+ 121:debug.S       **** 		SUBI  R22                , 0x01                   ;decrement
+ 122:debug.S       **** 		BRNE  __DUMP_BYTES
+ 123:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
 DEFINED SYMBOLS
              debug.S:10     *ABS*:0000003e SRGPIOR0
              debug.S:11     *ABS*:0000004a SRGPIOR1
@@ -535,12 +562,15 @@ DEFINED SYMBOLS
              debug.S:16     *ABS*:000000c2 SRUCSR0C
              debug.S:17     *ABS*:000000c1 SRUCSR0B
              debug.S:18     *ABS*:000000c0 SRUCSR0A
-             debug.S:31     .text:00000000 Debug_Init
-             debug.S:47     .text:00000020 Debug_Tx_Byte
-             debug.S:61     .text:00000036 Debug_Tx_Byte_Conf
-             debug.S:77     .text:00000056 Debug_Tx_Word_Conf
-             debug.S:85     .text:00000062 Debug_Tx_DWord_Conf
-             debug.S:52     .text:00000028 __WAIT0
-             debug.S:66     .text:0000003e __WAIT1
+             debug.S:35     .text:00000000 Debug_Init
+             debug.S:51     .text:00000020 Debug_Tx_Byte
+             debug.S:65     .text:00000036 Debug_Tx_Byte_Conf
+             debug.S:81     .text:00000056 Debug_Tx_Word_Conf
+             debug.S:89     .text:00000062 Debug_Tx_DWord_Conf
+             debug.S:105    .text:00000082 Debug_Tx_From_RAM
+             debug.S:115    .text:0000008e Debug_Tx_RAM_Area
+             debug.S:56     .text:00000028 __WAIT0
+             debug.S:70     .text:0000003e __WAIT1
+             debug.S:117    .text:0000008e __DUMP_BYTES
 
 NO UNDEFINED SYMBOLS
