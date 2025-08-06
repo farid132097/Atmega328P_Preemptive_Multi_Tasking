@@ -24,8 +24,8 @@
 .global  Debug_Init
 .global  Debug_Tx_Byte
 .global  Debug_Tx_Byte_Conf
-
-
+.global  Debug_Tx_Word_Conf
+.global  Debug_Tx_DWord_Conf
 
 ;;========================================Debug Init========================================;;
 Debug_Init:
@@ -59,7 +59,7 @@ Debug_Tx_Byte:
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
-        
+        ;print using UART0->TX (argument R24)
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
@@ -72,4 +72,27 @@ Debug_Tx_Byte_Conf:
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
+
+;;======================================Debug Tx Word=======================================;;
+Debug_Tx_Word_Conf:
+        ;print using UART0->TX (arguments R24-R25)
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
+
+;;=====================================Debug Tx DWord=======================================;;
+Debug_Tx_DWord_Conf:
+        ;print using UART0->TX (arguments R22-R25)
+		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
+		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R24                , R23                    ;copy R23 to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		LDS   R24                , SRGPIOR1               ;restore R24              (2 clocks)
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R24                , R25                    ;copy R22 to R24          (1 clock )
+		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
+
 
