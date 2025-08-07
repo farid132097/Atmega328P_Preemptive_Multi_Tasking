@@ -539,37 +539,41 @@ Kernel_Task1_Init:
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
 		
-		LDI   R16                , lo8(RAMEND-0)
-		LDI   R17                , hi8(RAMEND-0)
+		LDI   R16                , lo8(0x08FF)
 		OUT   IOSPL              , R16
-		OUT   IOSPH              , R17
+		LDI   R16                , hi8(0x08FF)
+		OUT   IOSPH              , R16
+		
+		IN    R24                , IOSPL
+		IN    R25                , IOSPH
+		CALL  Debug_Tx_Word_Conf 
+		LDI   R24                , lo8(0x08FF)
+		LDI   R25                , hi8(0x08FF)
+		LDI   R22                , 0x02
+		CALL  Debug_Tx_RAM_Area
+		
+		LDI R16, lo8(Kernel_Test_Task1)
+        MOV R24, R16
+        CALL Debug_Tx_Byte_Conf
+     
+        LDI R16, hi8(Kernel_Test_Task1)
+        MOV R24, R16
+        CALL Debug_Tx_Byte_Conf
+		
+		LDI   R16                , lo8(Kernel_Test_Task1)
+		PUSH  R16                                         
+		LDI   R16                , hi8(Kernel_Test_Task1)
+		PUSH  R16                                        
 		
 		IN    R24                , IOSPL
 		IN    R25                , IOSPH
 		CALL  Debug_Tx_Word_Conf 
 		
-		;LDI   R24                , lo8(RAMEND-0)
-		;LDI   R25                , hi8(RAMEND-0)
-		;LDI   R22                , 0x08
-		;CALL  Debug_Tx_RAM_Area
-		
-		LDI   R18                , 0x12
-		PUSH  R18	
-		LDI   R18                , 0x34
-		PUSH  R18
-		LDI   R18                , 0x56
-		PUSH  R18
-		LDI   R18                , 0x78
-		PUSH  R18
-		
-        
-		
-		LDI   R24                , lo8(0x08FF)
-		LDI   R25                , hi8(0x08FF)
-		LDI   R22                , 0x08
+		LDI   R24                , lo8(0x08FD)
+		LDI   R25                , hi8(0x08FD)
+		LDI   R22                , 0x02
 		CALL  Debug_Tx_RAM_Area
 		
-	    ;CALL  Kernel_Task_Debug1
 		RET                         
 		
 
@@ -593,7 +597,6 @@ Kernel_Task_Debug1:
 		LDI   R24                , lo8(RAMEND-0)
 		LDI   R25                , hi8(RAMEND-0)
 		LDI   R22                , 0x08
-		
 		CALL  Debug_Tx_RAM_Area
 		
 		;RET                                     

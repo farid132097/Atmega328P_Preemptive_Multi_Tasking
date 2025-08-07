@@ -3,27 +3,27 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000043a  00000000  00000000  00000074  2**1
+  0 .text         00000454  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000192  00800100  00800100  000004ae  2**0
+  1 .bss          00000192  00800100  00800100  000004c8  2**0
                   ALLOC
-  2 .stab         00000ad4  00000000  00000000  000004b0  2**2
+  2 .stab         00000b40  00000000  00000000  000004c8  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      0000006e  00000000  00000000  00000f84  2**0
+  3 .stabstr      0000006e  00000000  00000000  00001008  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000020  00000000  00000000  00000ff2  2**0
+  4 .debug_aranges 00000020  00000000  00000000  00001076  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 0000001b  00000000  00000000  00001012  2**0
+  5 .debug_pubnames 0000001b  00000000  00000000  00001096  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000076  00000000  00000000  0000102d  2**0
+  6 .debug_info   00000076  00000000  00000000  000010b1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000041  00000000  00000000  000010a3  2**0
+  7 .debug_abbrev 00000041  00000000  00000000  00001127  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000060  00000000  00000000  000010e4  2**0
+  8 .debug_line   00000060  00000000  00000000  00001168  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000020  00000000  00000000  00001144  2**2
+  9 .debug_frame  00000020  00000000  00000000  000011c8  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000099  00000000  00000000  00001164  2**0
+ 10 .debug_str    00000099  00000000  00000000  000011e8  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -81,7 +81,7 @@ Disassembly of section .text:
   92:	de bf       	out	0x3e, r29	; 62
   94:	cd bf       	out	0x3d, r28	; 61
   96:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
-  9a:	0c 94 1b 02 	jmp	0x436	; 0x436 <_exit>
+  9a:	0c 94 28 02 	jmp	0x450	; 0x450 <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -93,7 +93,7 @@ int main(void) {
     
 	
 	Debug_Init();
-  a2:	0e 94 c7 01 	call	0x38e	; 0x38e <Debug_Init>
+  a2:	0e 94 d4 01 	call	0x3a8	; 0x3a8 <Debug_Init>
 	Kernel_Task_Debug();
   a6:	0e 94 9f 01 	call	0x33e	; 0x33e <Kernel_Task_Debug>
   aa:	ff cf       	rjmp	.-2      	; 0xaa <main+0x8>
@@ -517,11 +517,11 @@ Kernel_Task0_Init:
 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
  262:	80 2f       	mov	r24, r16
 		CALL  Debug_Tx_Byte                               ;send via uart
- 264:	0e 94 d7 01 	call	0x3ae	; 0x3ae <Debug_Tx_Byte>
+ 264:	0e 94 e4 01 	call	0x3c8	; 0x3c8 <Debug_Tx_Byte>
 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
  268:	81 2f       	mov	r24, r17
 		CALL  Debug_Tx_Byte                               ;send via uart
- 26a:	0e 94 d7 01 	call	0x3ae	; 0x3ae <Debug_Tx_Byte>
+ 26a:	0e 94 e4 01 	call	0x3c8	; 0x3c8 <Debug_Tx_Byte>
 		
 		
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
@@ -602,11 +602,11 @@ Kernel_Task1_Init:
 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
  2d2:	80 2f       	mov	r24, r16
 		CALL  Debug_Tx_Byte                               ;send via uart
- 2d4:	0e 94 d7 01 	call	0x3ae	; 0x3ae <Debug_Tx_Byte>
+ 2d4:	0e 94 e4 01 	call	0x3c8	; 0x3c8 <Debug_Tx_Byte>
 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
  2d8:	81 2f       	mov	r24, r17
 		CALL  Debug_Tx_Byte                               ;send via uart
- 2da:	0e 94 d7 01 	call	0x3ae	; 0x3ae <Debug_Tx_Byte>
+ 2da:	0e 94 e4 01 	call	0x3c8	; 0x3c8 <Debug_Tx_Byte>
 		
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
  2de:	0d bf       	out	0x3d, r16	; 61
@@ -677,269 +677,282 @@ Kernel_Task1_Init:
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
 		
-		LDI   R16                , lo8(RAMEND-0)
+		LDI   R16                , lo8(0x08FF)
  33e:	0f ef       	ldi	r16, 0xFF	; 255
-		LDI   R17                , hi8(RAMEND-0)
- 340:	18 e0       	ldi	r17, 0x08	; 8
 		OUT   IOSPL              , R16
- 342:	0d bf       	out	0x3d, r16	; 61
-		OUT   IOSPH              , R17
- 344:	1e bf       	out	0x3e, r17	; 62
+ 340:	0d bf       	out	0x3d, r16	; 61
+		LDI   R16                , hi8(0x08FF)
+ 342:	08 e0       	ldi	r16, 0x08	; 8
+		OUT   IOSPH              , R16
+ 344:	0e bf       	out	0x3e, r16	; 62
 		
 		IN    R24                , IOSPL
  346:	8d b7       	in	r24, 0x3d	; 61
 		IN    R25                , IOSPH
  348:	9e b7       	in	r25, 0x3e	; 62
 		CALL  Debug_Tx_Word_Conf 
- 34a:	0e 94 f2 01 	call	0x3e4	; 0x3e4 <Debug_Tx_Word_Conf>
-		;LDI   R24                , lo8(RAMEND-0)
-		;LDI   R25                , hi8(RAMEND-0)
-		;LDI   R22                , 0x08
-		;CALL  Debug_Tx_RAM_Area
-		
-		LDI   R18                , 0x12
- 34e:	22 e1       	ldi	r18, 0x12	; 18
-		PUSH  R18	
- 350:	2f 93       	push	r18
-		LDI   R18                , 0x34
- 352:	24 e3       	ldi	r18, 0x34	; 52
-		PUSH  R18
- 354:	2f 93       	push	r18
-		LDI   R18                , 0x56
- 356:	26 e5       	ldi	r18, 0x56	; 86
-		PUSH  R18
- 358:	2f 93       	push	r18
-		LDI   R18                , 0x78
- 35a:	28 e7       	ldi	r18, 0x78	; 120
-		PUSH  R18
- 35c:	2f 93       	push	r18
-		
-        
-		
+ 34a:	0e 94 ff 01 	call	0x3fe	; 0x3fe <Debug_Tx_Word_Conf>
 		LDI   R24                , lo8(0x08FF)
- 35e:	8f ef       	ldi	r24, 0xFF	; 255
+ 34e:	8f ef       	ldi	r24, 0xFF	; 255
 		LDI   R25                , hi8(0x08FF)
- 360:	98 e0       	ldi	r25, 0x08	; 8
-		LDI   R22                , 0x08
- 362:	68 e0       	ldi	r22, 0x08	; 8
+ 350:	98 e0       	ldi	r25, 0x08	; 8
+		LDI   R22                , 0x02
+ 352:	62 e0       	ldi	r22, 0x02	; 2
 		CALL  Debug_Tx_RAM_Area
- 364:	0e 94 14 02 	call	0x428	; 0x428 <Debug_Tx_RAM_Area>
+ 354:	0e 94 21 02 	call	0x442	; 0x442 <Debug_Tx_RAM_Area>
 		
-	    ;CALL  Kernel_Task_Debug1
+		LDI R16, lo8(Kernel_Test_Task1)
+ 358:	06 e2       	ldi	r16, 0x26	; 38
+        MOV R24, R16
+ 35a:	80 2f       	mov	r24, r16
+        CALL Debug_Tx_Byte_Conf
+ 35c:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
+     
+        LDI R16, hi8(Kernel_Test_Task1)
+ 360:	02 e0       	ldi	r16, 0x02	; 2
+        MOV R24, R16
+ 362:	80 2f       	mov	r24, r16
+        CALL Debug_Tx_Byte_Conf
+ 364:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
+		
+		LDI   R16                , lo8(Kernel_Test_Task1)
+ 368:	06 e2       	ldi	r16, 0x26	; 38
+		PUSH  R16                                         
+ 36a:	0f 93       	push	r16
+		LDI   R16                , hi8(Kernel_Test_Task1)
+ 36c:	02 e0       	ldi	r16, 0x02	; 2
+		PUSH  R16                                        
+ 36e:	0f 93       	push	r16
+		
+		IN    R24                , IOSPL
+ 370:	8d b7       	in	r24, 0x3d	; 61
+		IN    R25                , IOSPH
+ 372:	9e b7       	in	r25, 0x3e	; 62
+		CALL  Debug_Tx_Word_Conf 
+ 374:	0e 94 ff 01 	call	0x3fe	; 0x3fe <Debug_Tx_Word_Conf>
+		
+		LDI   R24                , lo8(0x08FD)
+ 378:	8d ef       	ldi	r24, 0xFD	; 253
+		LDI   R25                , hi8(0x08FD)
+ 37a:	98 e0       	ldi	r25, 0x08	; 8
+		LDI   R22                , 0x02
+ 37c:	62 e0       	ldi	r22, 0x02	; 2
+		CALL  Debug_Tx_RAM_Area
+ 37e:	0e 94 21 02 	call	0x442	; 0x442 <Debug_Tx_RAM_Area>
+		
 		RET                         
- 368:	08 95       	ret
+ 382:	08 95       	ret
 
-0000036a <Kernel_Task_Debug1>:
+00000384 <Kernel_Task_Debug1>:
 
 ;;====================================Kernel Task Debug1=====================================;;
 Kernel_Task_Debug1:
 		
 		;creating gap between data
 		LDI   R24                , 0xFF
- 36a:	8f ef       	ldi	r24, 0xFF	; 255
+ 384:	8f ef       	ldi	r24, 0xFF	; 255
 		CALL  Debug_Tx_Byte_Conf
- 36c:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 386:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		LDI   R24                , 0xFF
- 370:	8f ef       	ldi	r24, 0xFF	; 255
+ 38a:	8f ef       	ldi	r24, 0xFF	; 255
 		CALL  Debug_Tx_Byte_Conf
- 372:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 38c:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		LDI   R24                , 0xFF
- 376:	8f ef       	ldi	r24, 0xFF	; 255
+ 390:	8f ef       	ldi	r24, 0xFF	; 255
 		CALL  Debug_Tx_Byte_Conf
- 378:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 392:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		
 		IN    R24                , IOSPL
- 37c:	8d b7       	in	r24, 0x3d	; 61
+ 396:	8d b7       	in	r24, 0x3d	; 61
 		IN    R25                , IOSPH
- 37e:	9e b7       	in	r25, 0x3e	; 62
+ 398:	9e b7       	in	r25, 0x3e	; 62
 		CALL  Debug_Tx_Word_Conf 
- 380:	0e 94 f2 01 	call	0x3e4	; 0x3e4 <Debug_Tx_Word_Conf>
+ 39a:	0e 94 ff 01 	call	0x3fe	; 0x3fe <Debug_Tx_Word_Conf>
 		
 		LDI   R24                , lo8(RAMEND-0)
- 384:	8f ef       	ldi	r24, 0xFF	; 255
+ 39e:	8f ef       	ldi	r24, 0xFF	; 255
 		LDI   R25                , hi8(RAMEND-0)
- 386:	98 e0       	ldi	r25, 0x08	; 8
+ 3a0:	98 e0       	ldi	r25, 0x08	; 8
 		LDI   R22                , 0x08
- 388:	68 e0       	ldi	r22, 0x08	; 8
-		
+ 3a2:	68 e0       	ldi	r22, 0x08	; 8
 		CALL  Debug_Tx_RAM_Area
- 38a:	0e 94 14 02 	call	0x428	; 0x428 <Debug_Tx_RAM_Area>
+ 3a4:	0e 94 21 02 	call	0x442	; 0x442 <Debug_Tx_RAM_Area>
 
-0000038e <Debug_Init>:
+000003a8 <Debug_Init>:
 
 
 ;;========================================Debug Init========================================;;
 Debug_Init:
         ;init registers for UART0
 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
- 38e:	02 e0       	ldi	r16, 0x02	; 2
+ 3a8:	02 e0       	ldi	r16, 0x02	; 2
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
- 390:	00 93 c0 00 	sts	0x00C0, r16
+ 3aa:	00 93 c0 00 	sts	0x00C0, r16
 		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
- 394:	00 e0       	ldi	r16, 0x00	; 0
+ 3ae:	00 e0       	ldi	r16, 0x00	; 0
 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
- 396:	00 93 c5 00 	sts	0x00C5, r16
+ 3b0:	00 93 c5 00 	sts	0x00C5, r16
 		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
- 39a:	03 e0       	ldi	r16, 0x03	; 3
+ 3b4:	03 e0       	ldi	r16, 0x03	; 3
 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
- 39c:	00 93 c4 00 	sts	0x00C4, r16
+ 3b6:	00 93 c4 00 	sts	0x00C4, r16
 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
- 3a0:	06 e0       	ldi	r16, 0x06	; 6
+ 3ba:	06 e0       	ldi	r16, 0x06	; 6
 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
- 3a2:	00 93 c2 00 	sts	0x00C2, r16
+ 3bc:	00 93 c2 00 	sts	0x00C2, r16
 		LDI   R16                , (1<<3)                 ;enable tx,               (1 clock )
- 3a6:	08 e0       	ldi	r16, 0x08	; 8
+ 3c0:	08 e0       	ldi	r16, 0x08	; 8
 		STS   SRUCSR0B           , R16                    ;load val to UCSR0B,      (2 clocks)
- 3a8:	00 93 c1 00 	sts	0x00C1, r16
+ 3c2:	00 93 c1 00 	sts	0x00C1, r16
         RET                                               ;return from subroutine,  (4 clocks) 
- 3ac:	08 95       	ret
+ 3c6:	08 95       	ret
 
-000003ae <Debug_Tx_Byte>:
+000003c8 <Debug_Tx_Byte>:
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte:
 		;write single byte to data register (Arg R24)
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
- 3ae:	00 93 3e 00 	sts	0x003E, r16
+ 3c8:	00 93 3e 00 	sts	0x003E, r16
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
- 3b2:	80 93 c6 00 	sts	0x00C6, r24
+ 3cc:	80 93 c6 00 	sts	0x00C6, r24
 
-000003b6 <__WAIT0>:
+000003d0 <__WAIT0>:
 		
     __WAIT0:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 3b6:	00 91 c0 00 	lds	r16, 0x00C0
+ 3d0:	00 91 c0 00 	lds	r16, 0x00C0
 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
- 3ba:	05 ff       	sbrs	r16, 5
+ 3d4:	05 ff       	sbrs	r16, 5
 		RJMP  __WAIT0                                     ;wait until UDRE0 is set, (2 clocks)
- 3bc:	fc cf       	rjmp	.-8      	; 0x3b6 <__WAIT0>
+ 3d6:	fc cf       	rjmp	.-8      	; 0x3d0 <__WAIT0>
 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
- 3be:	00 91 3e 00 	lds	r16, 0x003E
+ 3d8:	00 91 3e 00 	lds	r16, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 3c2:	08 95       	ret
+ 3dc:	08 95       	ret
 
-000003c4 <Debug_Tx_Byte_Conf>:
+000003de <Debug_Tx_Byte_Conf>:
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
         ;write single byte to data register and wait until tx is complete (Arg R24)
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
- 3c4:	00 93 3e 00 	sts	0x003E, r16
+ 3de:	00 93 3e 00 	sts	0x003E, r16
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
- 3c8:	80 93 c6 00 	sts	0x00C6, r24
+ 3e2:	80 93 c6 00 	sts	0x00C6, r24
 
-000003cc <__WAIT1>:
+000003e6 <__WAIT1>:
 		
     __WAIT1:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 3cc:	00 91 c0 00 	lds	r16, 0x00C0
+ 3e6:	00 91 c0 00 	lds	r16, 0x00C0
 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
- 3d0:	06 ff       	sbrs	r16, 6
+ 3ea:	06 ff       	sbrs	r16, 6
 		RJMP  __WAIT1                                     ;wait until TXC0 is set,  (2 clocks)
- 3d2:	fc cf       	rjmp	.-8      	; 0x3cc <__WAIT1>
+ 3ec:	fc cf       	rjmp	.-8      	; 0x3e6 <__WAIT1>
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 3d4:	00 91 c0 00 	lds	r16, 0x00C0
+ 3ee:	00 91 c0 00 	lds	r16, 0x00C0
 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
- 3d8:	00 64       	ori	r16, 0x40	; 64
+ 3f2:	00 64       	ori	r16, 0x40	; 64
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
- 3da:	00 93 c0 00 	sts	0x00C0, r16
+ 3f4:	00 93 c0 00 	sts	0x00C0, r16
 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
- 3de:	00 91 3e 00 	lds	r16, 0x003E
+ 3f8:	00 91 3e 00 	lds	r16, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 3e2:	08 95       	ret
+ 3fc:	08 95       	ret
 
-000003e4 <Debug_Tx_Word_Conf>:
+000003fe <Debug_Tx_Word_Conf>:
 
 ;;======================================Debug Tx Word=======================================;;
 Debug_Tx_Word_Conf:
         ;write 2 bytes to data register and wait until tx is complete (Arg R24, R25)
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 3e4:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 3fe:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
- 3e8:	89 2f       	mov	r24, r25
+ 402:	89 2f       	mov	r24, r25
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 3ea:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 404:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
         RET                                               ;return from subroutine,  (4 clocks) 
- 3ee:	08 95       	ret
+ 408:	08 95       	ret
 
-000003f0 <Debug_Tx_DWord_Conf>:
+0000040a <Debug_Tx_DWord_Conf>:
 
 ;;=====================================Debug Tx DWord=======================================;;
 Debug_Tx_DWord_Conf:
         ;write 4 bytes to data register and wait until tx is complete (Arg R22-R25)
 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
- 3f0:	80 93 4a 00 	sts	0x004A, r24
+ 40a:	80 93 4a 00 	sts	0x004A, r24
 		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
- 3f4:	86 2f       	mov	r24, r22
+ 40e:	86 2f       	mov	r24, r22
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 3f6:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 410:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		MOV   R24                , R23                    ;copy R23 to R24          (1 clock )
- 3fa:	87 2f       	mov	r24, r23
+ 414:	87 2f       	mov	r24, r23
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 3fc:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 416:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		LDS   R24                , SRGPIOR1               ;restore R24              (2 clocks)
- 400:	80 91 4a 00 	lds	r24, 0x004A
+ 41a:	80 91 4a 00 	lds	r24, 0x004A
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 404:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 41e:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		MOV   R24                , R25                    ;copy R22 to R24          (1 clock )
- 408:	89 2f       	mov	r24, r25
+ 422:	89 2f       	mov	r24, r25
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 40a:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 424:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
         RET                                               ;return from subroutine,  (4 clocks) 
- 40e:	08 95       	ret
+ 428:	08 95       	ret
 
-00000410 <Debug_Tx_From_RAM>:
+0000042a <Debug_Tx_From_RAM>:
 
 
 ;;===================================Debug Tx RAM Area======================================;;
 Debug_Tx_From_RAM:
         ;print data from RAM address (Arg R24-R25)
 		MOV   R16                , R30                    ;copy R30 to R16          (1 clock )
- 410:	0e 2f       	mov	r16, r30
+ 42a:	0e 2f       	mov	r16, r30
 		MOV   R17                , R31                    ;copy R31 to R17          (1 clock )
- 412:	1f 2f       	mov	r17, r31
+ 42c:	1f 2f       	mov	r17, r31
 		MOV   R18                , R24                    ;copy R24 to R18          (1 clock )
- 414:	28 2f       	mov	r18, r24
+ 42e:	28 2f       	mov	r18, r24
 		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
- 416:	e8 2f       	mov	r30, r24
+ 430:	e8 2f       	mov	r30, r24
 		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
- 418:	f9 2f       	mov	r31, r25
+ 432:	f9 2f       	mov	r31, r25
 		LD    R24                , Z                      ;load val to R24          (2 clocks)
- 41a:	80 81       	ld	r24, Z
+ 434:	80 81       	ld	r24, Z
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 41c:	0e 94 e2 01 	call	0x3c4	; 0x3c4 <Debug_Tx_Byte_Conf>
+ 436:	0e 94 ef 01 	call	0x3de	; 0x3de <Debug_Tx_Byte_Conf>
 		MOV   R30                , R16                    ;copy R16 to R30          (1 clock )
- 420:	e0 2f       	mov	r30, r16
+ 43a:	e0 2f       	mov	r30, r16
 		MOV   R31                , R17                    ;copy R17 to R31          (1 clock )
- 422:	f1 2f       	mov	r31, r17
+ 43c:	f1 2f       	mov	r31, r17
 		MOV   R24                , R18                    ;copy R18 to R24          (1 clock )
- 424:	82 2f       	mov	r24, r18
+ 43e:	82 2f       	mov	r24, r18
         RET                                               ;return from subroutine,  (4 clocks) 
- 426:	08 95       	ret
+ 440:	08 95       	ret
 
-00000428 <Debug_Tx_RAM_Area>:
+00000442 <Debug_Tx_RAM_Area>:
 
 ;;===================================Debug Tx RAM Area======================================;;
 Debug_Tx_RAM_Area:
         ;print data from RAM address (arguments R24:R25, R22)
 	__DUMP_BYTES:
 	    CALL  Debug_Tx_From_RAM                           ;send via uart from ram
- 428:	0e 94 08 02 	call	0x410	; 0x410 <Debug_Tx_From_RAM>
+ 442:	0e 94 15 02 	call	0x42a	; 0x42a <Debug_Tx_From_RAM>
 		SUBI  R24                , 0x01                   ;decrement from LSByte
- 42c:	81 50       	subi	r24, 0x01	; 1
+ 446:	81 50       	subi	r24, 0x01	; 1
         SBCI  R25                , 0x00                   ;decrement if carry
- 42e:	90 40       	sbci	r25, 0x00	; 0
+ 448:	90 40       	sbci	r25, 0x00	; 0
 		SUBI  R22                , 0x01                   ;decrement
- 430:	61 50       	subi	r22, 0x01	; 1
+ 44a:	61 50       	subi	r22, 0x01	; 1
 		BRNE  __DUMP_BYTES
- 432:	d1 f7       	brne	.-12     	; 0x428 <Debug_Tx_RAM_Area>
+ 44c:	d1 f7       	brne	.-12     	; 0x442 <Debug_Tx_RAM_Area>
         RET                                               ;return from subroutine,  (4 clocks) 
- 434:	08 95       	ret
+ 44e:	08 95       	ret
 
-00000436 <_exit>:
- 436:	f8 94       	cli
+00000450 <_exit>:
+ 450:	f8 94       	cli
 
-00000438 <__stop_program>:
- 438:	ff cf       	rjmp	.-2      	; 0x438 <__stop_program>
+00000452 <__stop_program>:
+ 452:	ff cf       	rjmp	.-2      	; 0x452 <__stop_program>
