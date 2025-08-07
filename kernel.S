@@ -411,8 +411,7 @@ Kernel_Test_Task0:
 		BRNE  DLY01                                       ;if R17 not equal to 0,   (2 clock ) 
 		DEC   R16                                         ;decrement R16 val,       (1 clock )
 		BRNE  DLY00                                       ;if R16 not equal to 0,   (2 clock ) 
-		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock ) 
-		RET                                               ;return from subroutine,  (4 clocks) 
+		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock )  
 
 
 
@@ -441,7 +440,6 @@ Kernel_Test_Task1:
 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
 		DEC   R16                                         ;decrement R16 val,       (1 clock )
 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
-		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock ) 
 
 
 
@@ -539,43 +537,62 @@ Kernel_Task1_Init:
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
 		
-		LDI   R16                , lo8(0x08FF)
+		;LDI   R16                , lo8(0x0805)
+		;OUT   IOSPL              , R16
+		;LDI   R16                , hi8(0x0805)
+		;OUT   IOSPH              , R16
+		
+		;IN    R24                , IOSPL
+		;IN    R25                , IOSPH
+		;CALL  Debug_Tx_Word_Conf 
+		
+		;LDI   R24                , lo8(0x0805)
+		;LDI   R25                , hi8(0x0805)
+		;LDI   R22                , 0x04
+		;CALL  Debug_Tx_RAM_Area
+		
+		;LDI   R16                , lo8(Kernel_Test_Task0)
+		;PUSH  R16                 
+		;LDI   R16                , hi8(Kernel_Test_Task0)
+		;PUSH  R16                
+		
+		LDI   R20                , 0x00
+		STS   0x0805             , R20
+		LDI   R20                , 0x02
+		STS   0x0804             , R20
+		LDI   R20                , 0x08
+		STS   0x0803             , R20
+		LDI   R20                , 0x22
+		STS   0x0802             , R20
+		
+		
+		;IN    R24                , IOSPL
+		;IN    R25                , IOSPH
+		;CALL  Debug_Tx_Word_Conf 
+		
+		LDI   R24                , lo8(0x0805)
+		LDI   R25                , hi8(0x0805)
+		LDI   R22                , 0x04
+		CALL  Debug_Tx_RAM_Area
+		
+		LDI   R16                , lo8(0x0803)
 		OUT   IOSPL              , R16
-		LDI   R16                , hi8(0x08FF)
+		LDI   R16                , hi8(0x0803)
 		OUT   IOSPH              , R16
 		
 		IN    R24                , IOSPL
 		IN    R25                , IOSPH
 		CALL  Debug_Tx_Word_Conf 
-		LDI   R24                , lo8(0x08FF)
-		LDI   R25                , hi8(0x08FF)
-		LDI   R22                , 0x02
+		
+		LDI   R24                , lo8(0x0805)
+		LDI   R25                , hi8(0x0805)
+		LDI   R22                , 0x04
 		CALL  Debug_Tx_RAM_Area
+	    
+		;RET                         
 		
-		LDI R16, lo8(Kernel_Test_Task1)
-        MOV R24, R16
-        CALL Debug_Tx_Byte_Conf
-     
-        LDI R16, hi8(Kernel_Test_Task1)
-        MOV R24, R16
-        CALL Debug_Tx_Byte_Conf
-		
-		LDI   R16                , lo8(Kernel_Test_Task1)
-		PUSH  R16                                         
-		LDI   R16                , hi8(Kernel_Test_Task1)
-		PUSH  R16                                        
-		
-		IN    R24                , IOSPL
-		IN    R25                , IOSPH
-		CALL  Debug_Tx_Word_Conf 
-		
-		LDI   R24                , lo8(0x08FD)
-		LDI   R25                , hi8(0x08FD)
-		LDI   R22                , 0x02
-		CALL  Debug_Tx_RAM_Area
-		
-		RET                         
-		
+	BLOCKED:
+	    JMP   BLOCKED
 
 
 

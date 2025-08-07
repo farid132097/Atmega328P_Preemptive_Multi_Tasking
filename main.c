@@ -18,6 +18,7 @@ int main(void) {
 	//Kernel_Task_Debug();
 	//Kernel_Task0_Init();
 	//Kernel_Task1_Init();
+	//Kernel_Test_Task0();
 	//sei();
 	
 	

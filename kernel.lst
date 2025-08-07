@@ -946,195 +946,212 @@
  411:kernel.S      **** 		BRNE  DLY01                                       ;if R17 not equal to 0,   (2 clock ) 
  412:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
  413:kernel.S      **** 		BRNE  DLY00                                       ;if R16 not equal to 0,   (2 clock ) 
- 414:kernel.S      **** 		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock ) 
- 415:kernel.S      **** 		RET                                               ;return from subroutine,  (4 clocks) 
+ 414:kernel.S      **** 		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock )  
+ 415               	
  416               	
  417               	
- 418               	
- 419               	;;===================================Kernel Test Task1======================================;;
- 420               	Kernel_Test_Task1:
- 421               	        ;initialize DDR and Port register, total 4 clocks
- 422:kernel.S      ****         SBI   KER_TSK1_DDR       , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
- 423:kernel.S      **** 		CBI   KER_TSK1_PORT      , KER_TSK1_PIN           ;clear port bit,          (2 clocks)
- 424               			 
- 425               	    LOOP1:
- 426               		    ;pin toggle, total 5 clocks
- 427:kernel.S      **** 		IN    R16                , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
- 428:kernel.S      **** 		LDI   R17                , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
- 429:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 430:kernel.S      **** 		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
- 431               			
- 432               			;assign delay loop count val, for 30ms 
- 433:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 434               			
- 435               	    DLY10:
- 436:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 437               			
- 438               		DLY11:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
- 439:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
- 440:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 441:kernel.S      **** 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
- 442:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 443:kernel.S      **** 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
- 444:kernel.S      **** 		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock ) 
+ 418               	;;===================================Kernel Test Task1======================================;;
+ 419               	Kernel_Test_Task1:
+ 420               	        ;initialize DDR and Port register, total 4 clocks
+ 421:kernel.S      ****         SBI   KER_TSK1_DDR       , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
+ 422:kernel.S      **** 		CBI   KER_TSK1_PORT      , KER_TSK1_PIN           ;clear port bit,          (2 clocks)
+ 423               			 
+ 424               	    LOOP1:
+ 425               		    ;pin toggle, total 5 clocks
+ 426:kernel.S      **** 		IN    R16                , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
+ 427:kernel.S      **** 		LDI   R17                , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
+ 428:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
+ 429:kernel.S      **** 		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
+ 430               			
+ 431               			;assign delay loop count val, for 30ms 
+ 432:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
+ 433               			
+ 434               	    DLY10:
+ 435:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
+ 436               			
+ 437               		DLY11:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
+ 438:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
+ 439:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
+ 440:kernel.S      **** 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
+ 441:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
+ 442:kernel.S      **** 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
+ 443               	
+ 444               	
  445               	
- 446               	
- 447               	
- 448               	;;===================================Kernel Test Task2======================================;;
- 449               	Kernel_Test_Task2:
- 450               	        ;initialize DDR and Port register, total 4 clocks
- 451:kernel.S      ****         SBI   KER_TSK2_DDR       , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
- 452:kernel.S      **** 		CBI   KER_TSK2_PORT      , KER_TSK2_PIN           ;clear port bit,          (2 clocks)
- 453               			 
- 454               	    LOOP2:
- 455               		    ;pin toggle, total 5 clocks
- 456:kernel.S      **** 		IN    R16                , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
- 457:kernel.S      **** 		LDI   R17                , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
- 458:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
- 459:kernel.S      **** 		OUT   KER_TSK2_PORT      , R16                    ;set new PORT val,        (1 clock )
- 460               			
- 461               			;assign delay loop count val, for 30ms 
- 462:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
- 463               			
- 464               	    DLY20:
- 465:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
- 466               			
- 467               		DLY21:                                                ;inner loop, 127.5uS@8Mhz (4 clocks)
- 468:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
- 469:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
- 470:kernel.S      **** 		BRNE  DLY21                                       ;if R17 not equal to 0,   (2 clock ) 
- 471:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
- 472:kernel.S      **** 		BRNE  DLY20                                       ;if R16 not equal to 0,   (2 clock ) 
- 473:kernel.S      **** 		RJMP  LOOP2                                       ;if R16 is 0->jump,       (2 clock ) 
- 474               	    
- 475               	
- 476               	;;====================================Kernel Task0 Init=====================================;;
- 477               	Kernel_Task0_Init:
- 478               	        ;init stack for task0
- 479:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 480:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 481               			
- 482               			
- 483               			;debug
- 484:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 446               	;;===================================Kernel Test Task2======================================;;
+ 447               	Kernel_Test_Task2:
+ 448               	        ;initialize DDR and Port register, total 4 clocks
+ 449:kernel.S      ****         SBI   KER_TSK2_DDR       , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
+ 450:kernel.S      **** 		CBI   KER_TSK2_PORT      , KER_TSK2_PIN           ;clear port bit,          (2 clocks)
+ 451               			 
+ 452               	    LOOP2:
+ 453               		    ;pin toggle, total 5 clocks
+ 454:kernel.S      **** 		IN    R16                , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
+ 455:kernel.S      **** 		LDI   R17                , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
+ 456:kernel.S      **** 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
+ 457:kernel.S      **** 		OUT   KER_TSK2_PORT      , R16                    ;set new PORT val,        (1 clock )
+ 458               			
+ 459               			;assign delay loop count val, for 30ms 
+ 460:kernel.S      **** 		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
+ 461               			
+ 462               	    DLY20:
+ 463:kernel.S      **** 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
+ 464               			
+ 465               		DLY21:                                                ;inner loop, 127.5uS@8Mhz (4 clocks)
+ 466:kernel.S      **** 		NOP                                               ;no operation,            (1 clock )
+ 467:kernel.S      **** 		DEC   R17                                         ;decrement R17 val,       (1 clock )
+ 468:kernel.S      **** 		BRNE  DLY21                                       ;if R17 not equal to 0,   (2 clock ) 
+ 469:kernel.S      **** 		DEC   R16                                         ;decrement R16 val,       (1 clock )
+ 470:kernel.S      **** 		BRNE  DLY20                                       ;if R16 not equal to 0,   (2 clock ) 
+ 471:kernel.S      **** 		RJMP  LOOP2                                       ;if R16 is 0->jump,       (2 clock ) 
+ 472               	    
+ 473               	
+ 474               	;;====================================Kernel Task0 Init=====================================;;
+ 475               	Kernel_Task0_Init:
+ 476               	        ;init stack for task0
+ 477:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
+ 478:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
+ 479               			
+ 480               			
+ 481               			;debug
+ 482:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 483:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
+ 484:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
  485:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
- 486:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
- 487:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
- 488               			
- 489               			
- 490:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 491:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 492               			
- 493:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+ 486               			
+ 487               			
+ 488:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 489:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 490               			
+ 491:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
+ 492:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 493:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
  494:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
- 495:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
- 496:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 495               			
+ 496:kernel.S      ****         KER_CNTXT_SV
  497               			
- 498:kernel.S      ****         KER_CNTXT_SV
- 499               			
- 500:kernel.S      ****         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
- 501:kernel.S      ****         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
- 502:kernel.S      ****         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
- 503:kernel.S      ****         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
- 504               			
- 505:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 498:kernel.S      ****         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+ 499:kernel.S      ****         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+ 500:kernel.S      ****         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+ 501:kernel.S      ****         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+ 502               			
+ 503:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 504               	
+ 505               	
  506               	
- 507               	
- 508               	
- 509               	;;====================================Kernel Task1 Init=====================================;;
- 510               	Kernel_Task1_Init:
- 511               	        ;init stack for task1
- 512:kernel.S      **** 		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
- 513:kernel.S      **** 		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
- 514               			
- 515               			;debug
- 516:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 507               	;;====================================Kernel Task1 Init=====================================;;
+ 508               	Kernel_Task1_Init:
+ 509               	        ;init stack for task1
+ 510:kernel.S      **** 		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
+ 511:kernel.S      **** 		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
+ 512               			
+ 513               			;debug
+ 514:kernel.S      **** 		MOV   R24                , R16                    ;copy val to R24          (1 clock )
+ 515:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
+ 516:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
  517:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
- 518:kernel.S      **** 		MOV   R24                , R17                    ;copy val to R24          (1 clock )
- 519:kernel.S      **** 		CALL  Debug_Tx_Byte                               ;send via uart
- 520               			
- 521:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 522:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 523               			
- 524:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
+ 518               			
+ 519:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 520:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 521               			
+ 522:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
+ 523:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 524:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
  525:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
- 526:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
- 527:kernel.S      **** 		PUSH  R16                                         ;push,                    (2 clocks) 
+ 526               			
+ 527:kernel.S      ****         KER_CNTXT_SV
  528               			
- 529:kernel.S      ****         KER_CNTXT_SV
- 530               			
- 531:kernel.S      ****         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
- 532:kernel.S      ****         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
- 533:kernel.S      ****         STS   ker_stp + 2        , R16                    ;set stp of task0         (2 clocks) 
- 534:kernel.S      ****         STS   ker_stp + 3        , R17                    ;set stp of task0         (2 clocks) 
- 535               			
- 536:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
- 537               	
- 538               	
- 539               	;;====================================Kernel Task Debug=====================================;;
- 540               	Kernel_Task_Debug:
- 541               			
- 542:kernel.S      **** 		LDI   R16                , lo8(0x08FF)
- 543:kernel.S      **** 		OUT   IOSPL              , R16
- 544:kernel.S      **** 		LDI   R16                , hi8(0x08FF)
- 545:kernel.S      **** 		OUT   IOSPH              , R16
- 546               			
- 547:kernel.S      **** 		IN    R24                , IOSPL
- 548:kernel.S      **** 		IN    R25                , IOSPH
- 549:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
- 550:kernel.S      **** 		LDI   R24                , lo8(0x08FF)
- 551:kernel.S      **** 		LDI   R25                , hi8(0x08FF)
- 552:kernel.S      **** 		LDI   R22                , 0x02
- 553:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
- 554               			
- 555:kernel.S      **** 		LDI R16, lo8(Kernel_Test_Task1)
- 556:kernel.S      ****         MOV R24, R16
- 557:kernel.S      ****         CALL Debug_Tx_Byte_Conf
- 558               	     
- 559:kernel.S      ****         LDI R16, hi8(Kernel_Test_Task1)
- 560:kernel.S      ****         MOV R24, R16
- 561:kernel.S      ****         CALL Debug_Tx_Byte_Conf
- 562               			
- 563:kernel.S      **** 		LDI   R16                , lo8(Kernel_Test_Task1)
- 564:kernel.S      **** 		PUSH  R16                                         
- 565:kernel.S      **** 		LDI   R16                , hi8(Kernel_Test_Task1)
- 566:kernel.S      **** 		PUSH  R16                                        
+ 529:kernel.S      ****         IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
+ 530:kernel.S      ****         IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+ 531:kernel.S      ****         STS   ker_stp + 2        , R16                    ;set stp of task0         (2 clocks) 
+ 532:kernel.S      ****         STS   ker_stp + 3        , R17                    ;set stp of task0         (2 clocks) 
+ 533               			
+ 534:kernel.S      ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 535               	
+ 536               	
+ 537               	;;====================================Kernel Task Debug=====================================;;
+ 538               	Kernel_Task_Debug:
+ 539               			
+ 540               			;LDI   R16                , lo8(0x0805)
+ 541               			;OUT   IOSPL              , R16
+ 542               			;LDI   R16                , hi8(0x0805)
+ 543               			;OUT   IOSPH              , R16
+ 544               			
+ 545               			;IN    R24                , IOSPL
+ 546               			;IN    R25                , IOSPH
+ 547               			;CALL  Debug_Tx_Word_Conf 
+ 548               			
+ 549               			;LDI   R24                , lo8(0x0805)
+ 550               			;LDI   R25                , hi8(0x0805)
+ 551               			;LDI   R22                , 0x04
+ 552               			;CALL  Debug_Tx_RAM_Area
+ 553               			
+ 554               			;LDI   R16                , lo8(Kernel_Test_Task0)
+ 555               			;PUSH  R16                 
+ 556               			;LDI   R16                , hi8(Kernel_Test_Task0)
+ 557               			;PUSH  R16                
+ 558               			
+ 559:kernel.S      **** 		LDI   R20                , 0x00
+ 560:kernel.S      **** 		STS   0x0805             , R20
+ 561:kernel.S      **** 		LDI   R20                , 0x02
+ 562:kernel.S      **** 		STS   0x0804             , R20
+ 563:kernel.S      **** 		LDI   R20                , 0x08
+ 564:kernel.S      **** 		STS   0x0803             , R20
+ 565:kernel.S      **** 		LDI   R20                , 0x22
+ 566:kernel.S      **** 		STS   0x0802             , R20
  567               			
- 568:kernel.S      **** 		IN    R24                , IOSPL
- 569:kernel.S      **** 		IN    R25                , IOSPH
- 570:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
- 571               			
- 572:kernel.S      **** 		LDI   R24                , lo8(0x08FD)
- 573:kernel.S      **** 		LDI   R25                , hi8(0x08FD)
- 574:kernel.S      **** 		LDI   R22                , 0x02
- 575:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
- 576               			
- 577:kernel.S      **** 		RET                         
- 578               			
- 579               	
- 580               	
- 581               	
- 582               	;;====================================Kernel Task Debug1=====================================;;
- 583               	Kernel_Task_Debug1:
- 584               			
- 585               			;creating gap between data
- 586:kernel.S      **** 		LDI   R24                , 0xFF
- 587:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
- 588:kernel.S      **** 		LDI   R24                , 0xFF
- 589:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
- 590:kernel.S      **** 		LDI   R24                , 0xFF
- 591:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
- 592               			
- 593:kernel.S      **** 		IN    R24                , IOSPL
- 594:kernel.S      **** 		IN    R25                , IOSPH
- 595:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
- 596               			
- 597:kernel.S      **** 		LDI   R24                , lo8(RAMEND-0)
- 598:kernel.S      **** 		LDI   R25                , hi8(RAMEND-0)
- 599:kernel.S      **** 		LDI   R22                , 0x08
- 600:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 568               			
+ 569               			;IN    R24                , IOSPL
+ 570               			;IN    R25                , IOSPH
+ 571               			;CALL  Debug_Tx_Word_Conf 
+ 572               			
+ 573:kernel.S      **** 		LDI   R24                , lo8(0x0805)
+ 574:kernel.S      **** 		LDI   R25                , hi8(0x0805)
+ 575:kernel.S      **** 		LDI   R22                , 0x04
+ 576:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 577               			
+ 578:kernel.S      **** 		LDI   R16                , lo8(0x0803)
+ 579:kernel.S      **** 		OUT   IOSPL              , R16
+ 580:kernel.S      **** 		LDI   R16                , hi8(0x0803)
+ 581:kernel.S      **** 		OUT   IOSPH              , R16
+ 582               			
+ 583:kernel.S      **** 		IN    R24                , IOSPL
+ 584:kernel.S      **** 		IN    R25                , IOSPH
+ 585:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
+ 586               			
+ 587:kernel.S      **** 		LDI   R24                , lo8(0x0805)
+ 588:kernel.S      **** 		LDI   R25                , hi8(0x0805)
+ 589:kernel.S      **** 		LDI   R22                , 0x04
+ 590:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 591               		    
+ 592               			;RET                         
+ 593               			
+ 594               		BLOCKED:
+ 595:kernel.S      **** 	    JMP   BLOCKED
+ 596               	
+ 597               	
+ 598               	
+ 599               	;;====================================Kernel Task Debug1=====================================;;
+ 600               	Kernel_Task_Debug1:
  601               			
- 602               			;RET                                     
+ 602               			;creating gap between data
+ 603:kernel.S      **** 		LDI   R24                , 0xFF
+ 604:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 605:kernel.S      **** 		LDI   R24                , 0xFF
+ 606:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 607:kernel.S      **** 		LDI   R24                , 0xFF
+ 608:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 609               			
+ 610:kernel.S      **** 		IN    R24                , IOSPL
+ 611:kernel.S      **** 		IN    R25                , IOSPH
+ 612:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
+ 613               			
+ 614:kernel.S      **** 		LDI   R24                , lo8(RAMEND-0)
+ 615:kernel.S      **** 		LDI   R25                , hi8(RAMEND-0)
+ 616:kernel.S      **** 		LDI   R22                , 0x08
+ 617:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 618               			
+ 619               			;RET                                     
 DEFINED SYMBOLS
             kernel.S:13     *ABS*:000003e8 KER_TR
             kernel.S:14     *ABS*:00000003 KER_PRS
@@ -1179,26 +1196,27 @@ DEFINED SYMBOLS
             kernel.S:352    .text:00000130 Kernel_SysTick_Val_Get
             kernel.S:370    .text:00000152 Kernel_Interrupt_Sts_Get
             kernel.S:390    .text:0000015c Kernel_Test_Task0
-            kernel.S:420    .text:0000017a Kernel_Test_Task1
-            kernel.S:449    .text:00000196 Kernel_Test_Task2
-            kernel.S:477    .text:000001b2 Kernel_Task0_Init
-            kernel.S:510    .text:00000222 Kernel_Task1_Init
-            kernel.S:540    .text:00000292 Kernel_Task_Debug
-            kernel.S:583    .text:000002d8 Kernel_Task_Debug1
+            kernel.S:419    .text:00000178 Kernel_Test_Task1
+            kernel.S:447    .text:00000192 Kernel_Test_Task2
+            kernel.S:475    .text:000001ae Kernel_Task0_Init
+            kernel.S:508    .text:0000021e Kernel_Task1_Init
+            kernel.S:538    .text:0000028e Kernel_Task_Debug
+            kernel.S:600    .text:000002ce Kernel_Task_Debug1
             kernel.S:291    .text:00000086 RS_CNTXT
             kernel.S:395    .text:00000160 LOOP0
             kernel.S:405    .text:0000016a DLY00
             kernel.S:408    .text:0000016c DLY01
-            kernel.S:425    .text:0000017e LOOP1
-            kernel.S:435    .text:00000188 DLY10
-            kernel.S:438    .text:0000018a DLY11
-            kernel.S:454    .text:0000019a LOOP2
-            kernel.S:464    .text:000001a4 DLY20
-            kernel.S:467    .text:000001a6 DLY21
+            kernel.S:424    .text:0000017c LOOP1
+            kernel.S:434    .text:00000186 DLY10
+            kernel.S:437    .text:00000188 DLY11
+            kernel.S:452    .text:00000196 LOOP2
+            kernel.S:462    .text:000001a0 DLY20
+            kernel.S:465    .text:000001a2 DLY21
+            kernel.S:594    .text:000002ca BLOCKED
 
 UNDEFINED SYMBOLS
 Kernel_Task2_Init
 Debug_Tx_Byte
-Debug_Tx_Word_Conf
 Debug_Tx_RAM_Area
+Debug_Tx_Word_Conf
 Debug_Tx_Byte_Conf
