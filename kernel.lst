@@ -1074,8 +1074,8 @@
  539               	;;====================================Kernel Task Debug=====================================;;
  540               	Kernel_Task_Debug:
  541               			
- 542:kernel.S      **** 		LDI   R16                , lo8(0x06FF)
- 543:kernel.S      **** 		LDI   R17                , hi8(0x06FF)
+ 542:kernel.S      **** 		LDI   R16                , lo8(RAMEND-0)
+ 543:kernel.S      **** 		LDI   R17                , hi8(RAMEND-0)
  544:kernel.S      **** 		OUT   IOSPL              , R16
  545:kernel.S      **** 		OUT   IOSPH              , R17
  546               			
@@ -1083,40 +1083,55 @@
  548:kernel.S      **** 		IN    R25                , IOSPH
  549:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
  550               			
- 551:kernel.S      **** 		LDI   R24                , lo8(0x06FF)
- 552:kernel.S      **** 		LDI   R25                , hi8(0x06FF)
- 553:kernel.S      **** 		LDI   R22                , 0x08
- 554               			
- 555:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
- 556               			
- 557:kernel.S      **** 	    CALL  Kernel_Task_Debug1
- 558:kernel.S      **** 		RET                         
- 559               			
- 560               	
- 561               	
- 562               	
- 563               	;;====================================Kernel Task Debug1=====================================;;
- 564               	Kernel_Task_Debug1:
- 565               			
- 566               			;creating gap between data
- 567:kernel.S      **** 		LDI   R24                , 0xFF
- 568:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
- 569:kernel.S      **** 		LDI   R24                , 0xFF
- 570:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
- 571:kernel.S      **** 		LDI   R24                , 0xFF
- 572:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
- 573               			
- 574:kernel.S      **** 		IN    R24                , IOSPL
- 575:kernel.S      **** 		IN    R25                , IOSPH
- 576:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
- 577               			
- 578:kernel.S      **** 		LDI   R24                , lo8(0x06FF)
- 579:kernel.S      **** 		LDI   R25                , hi8(0x06FF)
- 580:kernel.S      **** 		LDI   R22                , 0x08
- 581               			
- 582:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
- 583               			
- 584               			;RET                                     
+ 551               			;LDI   R24                , lo8(RAMEND-0)
+ 552               			;LDI   R25                , hi8(RAMEND-0)
+ 553               			;LDI   R22                , 0x08
+ 554               			;CALL  Debug_Tx_RAM_Area
+ 555               			
+ 556:kernel.S      **** 		LDI   R18                , 0x12
+ 557:kernel.S      **** 		PUSH  R18	
+ 558:kernel.S      **** 		LDI   R18                , 0x34
+ 559:kernel.S      **** 		PUSH  R18
+ 560:kernel.S      **** 		LDI   R18                , 0x56
+ 561:kernel.S      **** 		PUSH  R18
+ 562:kernel.S      **** 		LDI   R18                , 0x78
+ 563:kernel.S      **** 		PUSH  R18
+ 564               			
+ 565               	        
+ 566               			
+ 567:kernel.S      **** 		LDI   R24                , lo8(0x08FF)
+ 568:kernel.S      **** 		LDI   R25                , hi8(0x08FF)
+ 569:kernel.S      **** 		LDI   R22                , 0x08
+ 570:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 571               			
+ 572               		    ;CALL  Kernel_Task_Debug1
+ 573:kernel.S      **** 		RET                         
+ 574               			
+ 575               	
+ 576               	
+ 577               	
+ 578               	;;====================================Kernel Task Debug1=====================================;;
+ 579               	Kernel_Task_Debug1:
+ 580               			
+ 581               			;creating gap between data
+ 582:kernel.S      **** 		LDI   R24                , 0xFF
+ 583:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 584:kernel.S      **** 		LDI   R24                , 0xFF
+ 585:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 586:kernel.S      **** 		LDI   R24                , 0xFF
+ 587:kernel.S      **** 		CALL  Debug_Tx_Byte_Conf
+ 588               			
+ 589:kernel.S      **** 		IN    R24                , IOSPL
+ 590:kernel.S      **** 		IN    R25                , IOSPH
+ 591:kernel.S      **** 		CALL  Debug_Tx_Word_Conf 
+ 592               			
+ 593:kernel.S      **** 		LDI   R24                , lo8(RAMEND-0)
+ 594:kernel.S      **** 		LDI   R25                , hi8(RAMEND-0)
+ 595:kernel.S      **** 		LDI   R22                , 0x08
+ 596               			
+ 597:kernel.S      **** 		CALL  Debug_Tx_RAM_Area
+ 598               			
+ 599               			;RET                                     
 DEFINED SYMBOLS
             kernel.S:13     *ABS*:000003e8 KER_TR
             kernel.S:14     *ABS*:00000003 KER_PRS
@@ -1166,7 +1181,7 @@ DEFINED SYMBOLS
             kernel.S:477    .text:000001b2 Kernel_Task0_Init
             kernel.S:510    .text:00000222 Kernel_Task1_Init
             kernel.S:540    .text:00000292 Kernel_Task_Debug
-            kernel.S:564    .text:000002b2 Kernel_Task_Debug1
+            kernel.S:579    .text:000002be Kernel_Task_Debug1
             kernel.S:291    .text:00000086 RS_CNTXT
             kernel.S:395    .text:00000160 LOOP0
             kernel.S:405    .text:0000016a DLY00

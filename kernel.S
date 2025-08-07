@@ -539,8 +539,8 @@ Kernel_Task1_Init:
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
 		
-		LDI   R16                , lo8(0x06FF)
-		LDI   R17                , hi8(0x06FF)
+		LDI   R16                , lo8(RAMEND-0)
+		LDI   R17                , hi8(RAMEND-0)
 		OUT   IOSPL              , R16
 		OUT   IOSPH              , R17
 		
@@ -548,13 +548,28 @@ Kernel_Task_Debug:
 		IN    R25                , IOSPH
 		CALL  Debug_Tx_Word_Conf 
 		
-		LDI   R24                , lo8(0x06FF)
-		LDI   R25                , hi8(0x06FF)
-		LDI   R22                , 0x08
+		;LDI   R24                , lo8(RAMEND-0)
+		;LDI   R25                , hi8(RAMEND-0)
+		;LDI   R22                , 0x08
+		;CALL  Debug_Tx_RAM_Area
 		
+		LDI   R18                , 0x12
+		PUSH  R18	
+		LDI   R18                , 0x34
+		PUSH  R18
+		LDI   R18                , 0x56
+		PUSH  R18
+		LDI   R18                , 0x78
+		PUSH  R18
+		
+        
+		
+		LDI   R24                , lo8(0x08FF)
+		LDI   R25                , hi8(0x08FF)
+		LDI   R22                , 0x08
 		CALL  Debug_Tx_RAM_Area
 		
-	    CALL  Kernel_Task_Debug1
+	    ;CALL  Kernel_Task_Debug1
 		RET                         
 		
 
@@ -575,8 +590,8 @@ Kernel_Task_Debug1:
 		IN    R25                , IOSPH
 		CALL  Debug_Tx_Word_Conf 
 		
-		LDI   R24                , lo8(0x06FF)
-		LDI   R25                , hi8(0x06FF)
+		LDI   R24                , lo8(RAMEND-0)
+		LDI   R25                , hi8(RAMEND-0)
 		LDI   R22                , 0x08
 		
 		CALL  Debug_Tx_RAM_Area

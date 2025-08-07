@@ -104,10 +104,16 @@ Debug_Tx_DWord_Conf:
 ;;===================================Debug Tx RAM Area======================================;;
 Debug_Tx_From_RAM:
         ;print data from RAM address (Arg R24-R25)
+		MOV   R16                , R30                    ;copy R30 to R16          (1 clock )
+		MOV   R17                , R31                    ;copy R31 to R17          (1 clock )
+		MOV   R18                , R24                    ;copy R24 to R18          (1 clock )
 		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
 		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
 		LD    R24                , Z                      ;load val to R24          (2 clocks)
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		MOV   R30                , R16                    ;copy R16 to R30          (1 clock )
+		MOV   R31                , R17                    ;copy R17 to R31          (1 clock )
+		MOV   R24                , R18                    ;copy R18 to R24          (1 clock )
         RET                                               ;return from subroutine,  (4 clocks) 
 
 

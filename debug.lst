@@ -535,23 +535,29 @@
  104               	;;===================================Debug Tx RAM Area======================================;;
  105               	Debug_Tx_From_RAM:
  106               	        ;print data from RAM address (Arg R24-R25)
- 107:debug.S       **** 		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
- 108:debug.S       **** 		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
- 109:debug.S       **** 		LD    R24                , Z                      ;load val to R24          (2 clocks)
- 110:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 111:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
- 112               	
- 113               	
- 114               	;;===================================Debug Tx RAM Area======================================;;
- 115               	Debug_Tx_RAM_Area:
- 116               	        ;print data from RAM address (arguments R24:R25, R22)
- 117               		__DUMP_BYTES:
- 118:debug.S       **** 	    CALL  Debug_Tx_From_RAM                           ;send via uart from ram
- 119:debug.S       **** 		SUBI  R24                , 0x01                   ;decrement from LSByte
- 120:debug.S       ****         SBCI  R25                , 0x00                   ;decrement if carry
- 121:debug.S       **** 		SUBI  R22                , 0x01                   ;decrement
- 122:debug.S       **** 		BRNE  __DUMP_BYTES
- 123:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 107:debug.S       **** 		MOV   R16                , R30                    ;copy R30 to R16          (1 clock )
+ 108:debug.S       **** 		MOV   R17                , R31                    ;copy R31 to R17          (1 clock )
+ 109:debug.S       **** 		MOV   R18                , R24                    ;copy R24 to R18          (1 clock )
+ 110:debug.S       **** 		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
+ 111:debug.S       **** 		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
+ 112:debug.S       **** 		LD    R24                , Z                      ;load val to R24          (2 clocks)
+ 113:debug.S       **** 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+ 114:debug.S       **** 		MOV   R30                , R16                    ;copy R16 to R30          (1 clock )
+ 115:debug.S       **** 		MOV   R31                , R17                    ;copy R17 to R31          (1 clock )
+ 116:debug.S       **** 		MOV   R24                , R18                    ;copy R18 to R24          (1 clock )
+ 117:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 118               	
+ 119               	
+ 120               	;;===================================Debug Tx RAM Area======================================;;
+ 121               	Debug_Tx_RAM_Area:
+ 122               	        ;print data from RAM address (arguments R24:R25, R22)
+ 123               		__DUMP_BYTES:
+ 124:debug.S       **** 	    CALL  Debug_Tx_From_RAM                           ;send via uart from ram
+ 125:debug.S       **** 		SUBI  R24                , 0x01                   ;decrement from LSByte
+ 126:debug.S       ****         SBCI  R25                , 0x00                   ;decrement if carry
+ 127:debug.S       **** 		SUBI  R22                , 0x01                   ;decrement
+ 128:debug.S       **** 		BRNE  __DUMP_BYTES
+ 129:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
 DEFINED SYMBOLS
              debug.S:10     *ABS*:0000003e SRGPIOR0
              debug.S:11     *ABS*:0000004a SRGPIOR1
@@ -568,9 +574,9 @@ DEFINED SYMBOLS
              debug.S:81     .text:00000056 Debug_Tx_Word_Conf
              debug.S:89     .text:00000062 Debug_Tx_DWord_Conf
              debug.S:105    .text:00000082 Debug_Tx_From_RAM
-             debug.S:115    .text:0000008e Debug_Tx_RAM_Area
+             debug.S:121    .text:0000009a Debug_Tx_RAM_Area
              debug.S:56     .text:00000028 __WAIT0
              debug.S:70     .text:0000003e __WAIT1
-             debug.S:117    .text:0000008e __DUMP_BYTES
+             debug.S:123    .text:0000009a __DUMP_BYTES
 
 NO UNDEFINED SYMBOLS
