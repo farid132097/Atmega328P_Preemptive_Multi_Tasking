@@ -3,9 +3,10 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 #include "debug.h"
+#include "tasks.h"
 
 #define  KER_CNTXT_SV_ISR
-;#define  KER_TSK_SW_ISR
+#define  KER_TSK_SW_ISR
 #define  KER_CNTXT_RS_ISR
 
 
@@ -113,6 +114,9 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 .global  Kernel_Task_Debug
 .global  Kernel_Task_Debug1
 
+;.extern  Tasks_Task0
+;.extern  Tasks_Task1
+;.extern  Tasks_Task2
 
 .macro  KER_CNTXT_SV
         ;;==============================context save========================================;; 
@@ -428,8 +432,8 @@ Kernel_Test_Task1:
 		EOR   R16                , R17                    ;XOR with current val     (1 clock )
 		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
 		
-		;assign delay loop count val, for 30ms 
-		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
+		;assign delay loop count val, for 20ms 
+		LDI   R16                , 0x9D                   ;set loop cnt val,        (1 clock )
 		
     DLY10:
 	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
@@ -474,154 +478,79 @@ Kernel_Test_Task2:
 ;;====================================Kernel Task0 Init=====================================;;
 Kernel_Task0_Init:
         ;init stack for task0
-		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL1,          (1 clock )
-		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH1,          (1 clock )
 		
+		;save MSP
+		IN    R2                 , IOSPL
+		IN    R3                 , IOSPH
 		
-		;debug
-		MOV   R24                , R16                    ;copy val to R24          (1 clock )
-		CALL  Debug_Tx_Byte                               ;send via uart
-		MOV   R24                , R17                    ;copy val to R24          (1 clock )
-		CALL  Debug_Tx_Byte                               ;send via uart
-		
-		
+		;set stack for task0
+		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL0,          (1 clock )
+		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH0,          (1 clock )
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
 		
-		LDI   R16                , lo8(Kernel_Test_Task0) ;fetch task address low,  (1 clock )
-		PUSH  R16                                         ;push,                    (2 clocks) 
-		LDI   R16                , hi8(Kernel_Test_Task0) ;fetch task address high, (1 clock )
-		PUSH  R16                                         ;push,                    (2 clocks) 
+		;psuh return address of task0
+		LDI   R16                , lo8(Tasks_Task0)       ;fetch task address low   (1 clock )
+		LDI   R17                , hi8(Tasks_Task0)       ;fetch task address high  (1 clock )
+		LSR   R17                                         ;right shift high byte    (1 clock )
+		ROR   R16                                         ;rotate right th carry    (1 clock )
+		PUSH  R16                                         ;push word addr low       (2 clocks)
+		PUSH  R17                                         ;push word addr high      (2 clocks) 
 		
         KER_CNTXT_SV
 		
-        IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
-        IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
+		;save PSP of task0
+        IN    R16                , IOSPL                  ;read SPL                 (1 clock )
+        IN    R17                , IOSPH                  ;read SPH                 (1 clock )
         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
 		
-        RET                                               ;return from subroutine,  (4 clocks) 
+		;set task index -> 0
+		LDI   R16                , 0x00                   ;set R16 to 0x00          (1 clock )
+		STS   ker_tski           , R16                    ;set ker_tski = 0         (2 clocks) 
+		
+		;restore MSP
+		OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
+        OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+        RET                                               ;return from subroutine   (4 clocks) 
 
 
 
 ;;====================================Kernel Task1 Init=====================================;;
 Kernel_Task1_Init:
         ;init stack for task1
-		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
-		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
-		
-		;debug
-		MOV   R24                , R16                    ;copy val to R24          (1 clock )
-		CALL  Debug_Tx_Byte                               ;send via uart
-		MOV   R24                , R17                    ;copy val to R24          (1 clock )
-		CALL  Debug_Tx_Byte                               ;send via uart
-		
-		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
-        OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
-		
-		LDI   R16                , lo8(Kernel_Test_Task1) ;fetch task address low,  (1 clock )
-		PUSH  R16                                         ;push,                    (2 clocks) 
-		LDI   R16                , hi8(Kernel_Test_Task1) ;fetch task address high, (1 clock )
-		PUSH  R16                                         ;push,                    (2 clocks) 
-		
-        KER_CNTXT_SV
-		
-        IN    R16, IOSPL                                  ;fetch SPL                (1 clock )
-        IN    R17, IOSPH                                  ;fetch SPH                (1 clock )
-        STS   ker_stp + 2        , R16                    ;set stp of task0         (2 clocks) 
-        STS   ker_stp + 3        , R17                    ;set stp of task0         (2 clocks) 
-		
-        RET                                               ;return from subroutine,  (4 clocks) 
-
-
-;;====================================Kernel Task Debug=====================================;;
-Kernel_Task_Debug:
-		
-		;save OLD SP
-		IN    R2                 , IOSPL
-		IN    R3                 , IOSPH
-		
-		;set new SP
-		LDI   R16                , lo8(0x0800)
-		OUT   IOSPL              , R16
-		LDI   R16                , hi8(0x0800)
-		OUT   IOSPH              , R16
-		
-		;push
-		LDI   R16                , lo8(0x0104)
-		PUSH  R16                 
-		LDI   R16                , hi8(0x0104)
-		PUSH  R16                
-		
-		;save new SP
-		IN    R4                 , IOSPL
-		IN    R5                 , IOSPH
-		
-		;restore OLD SP
-		MOV   R16                , R2
-		OUT   IOSPL              , R16
-		MOV   R16                , R3
-		OUT   IOSPH              , R16
-		
-		;print from OLD SP
-		LDI   R24                , lo8(0x0800)
-		LDI   R25                , hi8(0x0800)
-		LDI   R22                , 10
-		CALL  Debug_Tx_RAM_Area
-		MOV   R24                , R4
-		CALL  Debug_Tx_Byte_Conf
-		MOV   R24                , R5
-		CALL  Debug_Tx_Byte_Conf
-		LDI   R24                , lo8(Kernel_Task_Debug1)
-		CALL  Debug_Tx_Byte_Conf
-		LDI   R24                , hi8(Kernel_Task_Debug1)
-		CALL  Debug_Tx_Byte_Conf
-		
-		
-		;save OLD SP
+		;save MSP
 		;IN    R2                 , IOSPL
 		;IN    R3                 , IOSPH
 		
+		;set stack for task1
+		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
+		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
 		
-		;restore new SP
-		;MOV   R16                , R4
-		;OUT   IOSPL              , R16
-		;MOV   R16                , R5
-		;OUT   IOSPH              , R16
-	    ;CALL  Kernel_Task_Debug1          
+		;psuh return address of task1
+		LDI   R16                , lo8(Tasks_Task1)       ;fetch task address low   (1 clock )
+		LDI   R17                , hi8(Tasks_Task1)       ;fetch task address high  (1 clock )
+		LSR   R17                                         ;right shift high byte    (1 clock )
+		ROR   R16                                         ;rotate right th carry    (1 clock )
+		PUSH  R16                                         ;push word addr low       (2 clocks)
+		PUSH  R17                                         ;push word addr high      (2 clocks) 
 		
+        ;KER_CNTXT_SV
 		
-		;set new SP
-		LDI   R16                , lo8(0x07FE)
-		OUT   IOSPL              , R16
-		LDI   R16                , hi8(0x07FE)
-		OUT   IOSPH              , R16
+		;save PSP of task1
+        IN    R16                , IOSPL                  ;read SPL                 (1 clock )
+        IN    R17                , IOSPH                  ;read SPH                 (1 clock )
+        STS   ker_stp + 2        , R16                    ;set stp of task1         (2 clocks) 
+        STS   ker_stp + 3        , R17                    ;set stp of task1         (2 clocks) 
 		
-        RET
-
-
-
-;;====================================Kernel Task Debug1=====================================;;
-Kernel_Task_Debug1:
-        ;save new SP
-		IN    R4                 , IOSPL
-		IN    R5                 , IOSPH
+		;set task index -> 1
+		LDI   R16                , 0x01                   ;set R16 to 0x01          (1 clock )
+		STS   ker_tski           , R16                    ;set ker_tski = 1         (2 clocks) 
 		
-		;restore OLD SP
-		MOV   R16                , R2
-		OUT   IOSPL              , R16
-		MOV   R16                , R3
-		OUT   IOSPH              , R16
-		
-		;print from OLD SP
-		LDI   R24                , lo8(0x0800)
-		LDI   R25                , hi8(0x0800)
-		LDI   R22                , 10
-		CALL  Debug_Tx_RAM_Area
-		MOV   R24                , R4
-		CALL  Debug_Tx_Byte_Conf
-		MOV   R24                , R5
-		CALL  Debug_Tx_Byte_Conf
-		
-    __LF:
-	    JMP   __LF
+		;restore MSP
+		;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
+        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+		SEI
+        RET                                               ;return from subroutine   (4 clocks)  
