@@ -29,6 +29,8 @@
 
 .global  Debug_Tx_From_RAM
 .global  Debug_Tx_RAM_Area
+.global  Debug_Tx_From_RAM_No_Stack
+.global  Debug_Tx_RAM_Area_No_Stack
 
 
 ;;========================================Debug Init========================================;;
@@ -53,10 +55,10 @@ Debug_Tx_Byte:
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
-    __WAIT0:
+    __UDRE0_CLEARED:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
-		RJMP  __WAIT0                                     ;wait until UDRE0 is set, (2 clocks)
+		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set, (2 clocks)
 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 
@@ -67,10 +69,10 @@ Debug_Tx_Byte_Conf:
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
-    __WAIT1:
+    __TXC0_CLEARED:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
-		RJMP  __WAIT1                                     ;wait until TXC0 is set,  (2 clocks)
+		RJMP  __TXC0_CLEARED                              ;wait until TXC0 is set,  (2 clocks)
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
@@ -101,7 +103,7 @@ Debug_Tx_DWord_Conf:
 
 
 
-;;===================================Debug Tx RAM Area======================================;;
+;;===================================Debug Tx From RAM======================================;;
 Debug_Tx_From_RAM:
         ;print data from RAM address (Arg R24-R25)
 		MOV   R16                , R30                    ;copy R30 to R16          (1 clock )
@@ -127,3 +129,4 @@ Debug_Tx_RAM_Area:
 		SUBI  R22                , 0x01                   ;decrement
 		BRNE  __DUMP_BYTES
         RET                                               ;return from subroutine,  (4 clocks) 
+

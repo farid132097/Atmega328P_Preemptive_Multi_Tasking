@@ -440,7 +440,7 @@ Kernel_Test_Task1:
 		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
 		DEC   R16                                         ;decrement R16 val,       (1 clock )
 		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
-
+		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock )  
 
 
 ;;===================================Kernel Test Task2======================================;;
@@ -537,83 +537,91 @@ Kernel_Task1_Init:
 ;;====================================Kernel Task Debug=====================================;;
 Kernel_Task_Debug:
 		
-		;LDI   R16                , lo8(0x0805)
-		;OUT   IOSPL              , R16
-		;LDI   R16                , hi8(0x0805)
-		;OUT   IOSPH              , R16
+		;save OLD SP
+		IN    R2                 , IOSPL
+		IN    R3                 , IOSPH
 		
-		;IN    R24                , IOSPL
-		;IN    R25                , IOSPH
-		;CALL  Debug_Tx_Word_Conf 
-		
-		;LDI   R24                , lo8(0x0805)
-		;LDI   R25                , hi8(0x0805)
-		;LDI   R22                , 0x04
-		;CALL  Debug_Tx_RAM_Area
-		
-		;LDI   R16                , lo8(Kernel_Test_Task0)
-		;PUSH  R16                 
-		;LDI   R16                , hi8(Kernel_Test_Task0)
-		;PUSH  R16                
-		
-		LDI   R20                , 0x00
-		STS   0x0805             , R20
-		LDI   R20                , 0x02
-		STS   0x0804             , R20
-		LDI   R20                , 0x08
-		STS   0x0803             , R20
-		LDI   R20                , 0x22
-		STS   0x0802             , R20
-		
-		
-		;IN    R24                , IOSPL
-		;IN    R25                , IOSPH
-		;CALL  Debug_Tx_Word_Conf 
-		
-		LDI   R24                , lo8(0x0805)
-		LDI   R25                , hi8(0x0805)
-		LDI   R22                , 0x04
-		CALL  Debug_Tx_RAM_Area
-		
-		LDI   R16                , lo8(0x0803)
+		;set new SP
+		LDI   R16                , lo8(0x0800)
 		OUT   IOSPL              , R16
-		LDI   R16                , hi8(0x0803)
+		LDI   R16                , hi8(0x0800)
 		OUT   IOSPH              , R16
 		
-		IN    R24                , IOSPL
-		IN    R25                , IOSPH
-		CALL  Debug_Tx_Word_Conf 
+		;push
+		LDI   R16                , lo8(0x0104)
+		PUSH  R16                 
+		LDI   R16                , hi8(0x0104)
+		PUSH  R16                
 		
-		LDI   R24                , lo8(0x0805)
-		LDI   R25                , hi8(0x0805)
-		LDI   R22                , 0x04
+		;save new SP
+		IN    R4                 , IOSPL
+		IN    R5                 , IOSPH
+		
+		;restore OLD SP
+		MOV   R16                , R2
+		OUT   IOSPL              , R16
+		MOV   R16                , R3
+		OUT   IOSPH              , R16
+		
+		;print from OLD SP
+		LDI   R24                , lo8(0x0800)
+		LDI   R25                , hi8(0x0800)
+		LDI   R22                , 10
 		CALL  Debug_Tx_RAM_Area
-	    
-		;RET                         
+		MOV   R24                , R4
+		CALL  Debug_Tx_Byte_Conf
+		MOV   R24                , R5
+		CALL  Debug_Tx_Byte_Conf
+		LDI   R24                , lo8(Kernel_Task_Debug1)
+		CALL  Debug_Tx_Byte_Conf
+		LDI   R24                , hi8(Kernel_Task_Debug1)
+		CALL  Debug_Tx_Byte_Conf
 		
-	BLOCKED:
-	    JMP   BLOCKED
+		
+		;save OLD SP
+		;IN    R2                 , IOSPL
+		;IN    R3                 , IOSPH
+		
+		
+		;restore new SP
+		;MOV   R16                , R4
+		;OUT   IOSPL              , R16
+		;MOV   R16                , R5
+		;OUT   IOSPH              , R16
+	    ;CALL  Kernel_Task_Debug1          
+		
+		
+		;set new SP
+		LDI   R16                , lo8(0x07FE)
+		OUT   IOSPL              , R16
+		LDI   R16                , hi8(0x07FE)
+		OUT   IOSPH              , R16
+		
+        RET
 
 
 
 ;;====================================Kernel Task Debug1=====================================;;
 Kernel_Task_Debug1:
+        ;save new SP
+		IN    R4                 , IOSPL
+		IN    R5                 , IOSPH
 		
-		;creating gap between data
-		LDI   R24                , 0xFF
-		CALL  Debug_Tx_Byte_Conf
-		LDI   R24                , 0xFF
-		CALL  Debug_Tx_Byte_Conf
-		LDI   R24                , 0xFF
-		CALL  Debug_Tx_Byte_Conf
+		;restore OLD SP
+		MOV   R16                , R2
+		OUT   IOSPL              , R16
+		MOV   R16                , R3
+		OUT   IOSPH              , R16
 		
-		IN    R24                , IOSPL
-		IN    R25                , IOSPH
-		CALL  Debug_Tx_Word_Conf 
-		
-		LDI   R24                , lo8(RAMEND-0)
-		LDI   R25                , hi8(RAMEND-0)
-		LDI   R22                , 0x08
+		;print from OLD SP
+		LDI   R24                , lo8(0x0800)
+		LDI   R25                , hi8(0x0800)
+		LDI   R22                , 10
 		CALL  Debug_Tx_RAM_Area
+		MOV   R24                , R4
+		CALL  Debug_Tx_Byte_Conf
+		MOV   R24                , R5
+		CALL  Debug_Tx_Byte_Conf
 		
-		;RET                                     
+    __LF:
+	    JMP   __LF
