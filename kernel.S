@@ -28,7 +28,7 @@
 .equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
 
 .equ     KER_STZ,         128    ;stack size for each task
-
+.equ     KER_NTSK,        3      ;total tasks
 
 
 ;define hardware register addresses macros 
@@ -114,9 +114,6 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 .global  Kernel_Task_Debug
 .global  Kernel_Task_Debug1
 
-;.extern  Tasks_Task0
-;.extern  Tasks_Task1
-;.extern  Tasks_Task2
 
 .macro  KER_CNTXT_SV
         ;;==============================context save========================================;; 
@@ -219,7 +216,46 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		STS   Kernel+0x04        , R17                    ;set Byte4,               (2 clocks)
 .endm
 
-
+.macro  KER_TASK_SW
+        ;;=============================task switch & save sp================================;;
+		;; total 27 clocks for reloading, 40 bit counter
+		IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
+		IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
+		LDS   R16                , ker_tski               ;fetch task index         (2 clocks)
+		LSL   R16                                         ;left shift to multiply   (1 clock )
+		LDI   R30                , lo8(ker_stp)           ;fetch base pos low       (1 clock )
+		LDI   R31                , hi8(ker_stp)           ;fetch base pos high      (1 clock )
+		ADD   R30                , R16                    ;add offset at array index(1 clock )
+		LDI   R16                , 0x00                   ;set 0 to R16             (1 clock )
+		ADC   R31                , R16                    ;add carry if any         (1 clock )
+		ST    Z+                 , R24                    ;store SPL at ZP          (2 clocks)
+		ST    z                  , R25                    ;store SPH ZP+1           (2 clocks)
+		LDS   R16                , ker_tski               ;fetch value from RAM     (2 clocks)
+		INC   R16                                         ;increment ker_tski       (1 clock )
+		LDI   R17                , KER_NTSK               ;load number of tasks     (1 clock )
+	_MOD:
+	    CP    R16                , R17                    ;compare R17 with R16     (1 clock )
+		BRLO  _MOD_DONE                                   ;if R16<R17, done         (2 clocks)
+		SUB   R16                , R17                    ;subtract R17 from R16    (1 clock )
+		RJMP  _MOD                                        ;go to loop start         (2 clocks)
+	_MOD_DONE:
+	    
+	    STS   ker_tski           , R16                    ;store ker_tski%KER_NTSK  (2 clocks)
+		LSL   R16                                         ;left shift to multiply   (1 clock )
+		LDI   R30                , lo8(ker_stp)           ;fetch base pos low       (1 clock )
+		LDI   R31                , hi8(ker_stp)           ;fetch base pos high      (1 clock )
+		ADD   R30                , R16                    ;add offset at array index(1 clock )
+		LDI   R16                , 0x00                   ;set 0 to R16             (1 clock )
+		ADC   R31                , R16                    ;add carry if any         (1 clock )
+		
+		
+		
+		LDS   R24                , ker_stp+0x02           ;fetch SPL0,              (2 clocks)
+		LDS   R25                , ker_stp+0x03           ;fetch SPH0,              (2 clocks)
+		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
+		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
+		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
+.endm
 
 
 
@@ -246,7 +282,7 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		
 		
 		;;=============================increment tick counter===============================;;
-		;; total 27 clocks for reloading, 40 bit counter
+		;; total 27 clocks for increment, 40 bit counter
 		KER_TICK_INC
 		
 		

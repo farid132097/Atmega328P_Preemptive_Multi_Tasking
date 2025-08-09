@@ -5,6 +5,14 @@
 #include "kernel.h"
 #include "tasks.h"
 
+volatile uint8_t  task_stack[600];
+volatile uint8_t  task_index  = 0;
+volatile uint16_t task_psp[20];
+
+void Tasks_Switch(void){
+  uint16_t sp = 0;
+}
+
 void Tasks_Task0(void){
   DDRD |= (1<<5);
   
