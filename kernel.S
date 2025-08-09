@@ -28,7 +28,7 @@
 .equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
 
 .equ     KER_STZ,         128    ;stack size for each task
-.equ     KER_NTSK,        3      ;total tasks
+.equ     KER_NTSK,        2      ;total tasks
 
 
 ;define hardware register addresses macros 
@@ -247,14 +247,10 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		ADD   R30                , R16                    ;add offset at array index(1 clock )
 		LDI   R16                , 0x00                   ;set 0 to R16             (1 clock )
 		ADC   R31                , R16                    ;add carry if any         (1 clock )
-		
-		
-		
-		LDS   R24                , ker_stp+0x02           ;fetch SPL0,              (2 clocks)
-		LDS   R25                , ker_stp+0x03           ;fetch SPH0,              (2 clocks)
+		LD    R24                , Z+                     ;load SPL at ZP           (2 clocks)
+		LD    R25                , Z                      ;load SPH at ZP           (2 clocks)
 		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
 		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
-		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
 .endm
 
 
@@ -285,50 +281,8 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		;; total 27 clocks for increment, 40 bit counter
 		KER_TICK_INC
 		
+		KER_TASK_SW
 		
-		;;========================check current task index, save SP=========================;;
-		;;
-		#ifdef KER_TSK_SW_ISR
-	    LDS   R16                , ker_tski               ;fetch task index,        (2 clocks)
-		CPI   R16                , 0                      ;check if val!=0          (1 clock )
-		BRNE  TSK1                                        ;goto saving task1 SP     (2 clocks)
-		
-		
-		
-		;;======================save stack pointer0, set task index 1=======================;;
-		;;
-	TSK0:
-	    IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
-		IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
-		STS   ker_stp+0x00       , R24                    ;load  SPL0,              (2 clocks)
-		STS   ker_stp+0x01       , R25                    ;load  SPH0,              (2 clocks)
-		LDI   R16                , 0x01                   ;set ker_tski to 1,       (1 clock )
-		STS   ker_tski           , R16                    ;load  ker_tski=1,        (2 clocks)
-		LDS   R24                , ker_stp+0x02           ;fetch SPL0,              (2 clocks)
-		LDS   R25                , ker_stp+0x03           ;fetch SPH0,              (2 clocks)
-		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
-		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
-		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
-		
-		
-	    ;;======================save stack pointer1, set task index 0=======================;;
-		;;
-	TSK1:
-	    IN    R24                , IOSPL                  ;fetch SPL0,              (1 clock )
-		IN    R25                , IOSPH                  ;fetch SPH0,              (1 clock )
-		STS   ker_stp+0x02       , R24                    ;load  SPL0,              (2 clocks)
-		STS   ker_stp+0x03       , R25                    ;load  SPH0,              (2 clocks)
-		LDI   R16                , 0x00                   ;set ker_tski to 0,       (1 clock )
-		STS   ker_tski           , R16                    ;load  ker_tski=0,        (2 clocks)
-		LDS   R24                , ker_stp+0x00           ;fetch SPL0,              (2 clocks)
-		LDS   R25                , ker_stp+0x01           ;fetch SPH0,              (2 clocks)
-		OUT   IOSPL              , R24                    ;load SPL0,               (1 clock )
-		OUT   IOSPH              , R25                    ;load SPH0,               (1 clock )
-		RJMP  RS_CNTXT                                    ;jump to restore context, (2 clocks)
-		#endif
-		
-		
-	RS_CNTXT:
 		;;===============================context restore====================================;;
 		;; total 68 clocks for context restore
 		#ifdef KER_CNTXT_RS_ISR
