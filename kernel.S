@@ -67,7 +67,7 @@
 ;;===============================define global variables start==============================;;
 .section  .bss
 .global   Kernel                  ;declare global space for kernel
-Kernel:   .skip 10                ;5B->TickCounter, 1B->ovf, 4B->Reserved
+Kernel:   .skip 10                ;5 bytes TickCounter, 1 byte reload val, 4 bytes reserved
 
 .global   ker_tski                ;declare global space for task index
 ker_tski: .skip 2                 ;1B->TaskIndex, 1B->Reserved
@@ -112,16 +112,8 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_Interrupt_Sts_Get
 
-.global  Kernel_Test_Task0
-.global  Kernel_Test_Task1
-.global  Kernel_Test_Task2
-
 .global  Kernel_Task0_Init
 .global  Kernel_Task1_Init
-.global  Kernel_Task2_Init
-
-.global  Kernel_Task_Debug
-.global  Kernel_Task_Debug1
 ;;================================define global functions end===============================;;
 
 
@@ -413,98 +405,6 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-
-
-
-
-
-
-
-
-
-;;===================================Kernel Test Task0======================================;;
-Kernel_Test_Task0:
-        ;initialize DDR and Port register, total 4 clocks
-        SBI   KER_TSK0_DDR       , KER_TSK0_PIN           ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK0_PORT      , KER_TSK0_PIN           ;clear port bit,          (2 clocks)
-		 
-    LOOP0:
-	    ;pin toggle, total 5 clocks
-		IN    R16                , KER_TSK0_PORT          ;load PORT val,           (2 clocks)
-		LDI   R17                , (1<<KER_TSK0_PIN)      ;bit mask for port pin    (1 clock )
-		EOR   R16                , R17                    ;XOR with current val     (1 clock )
-		OUT   KER_TSK0_PORT      , R16                    ;set new PORT val,        (1 clock )
-		
-		;assign delay loop count val, for 30ms 
-		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
-		
-    DLY00:
-	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
-		
-	DLY01:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
-		NOP                                               ;no operation,            (1 clock )
-		DEC   R17                                         ;decrement R17 val,       (1 clock )
-		BRNE  DLY01                                       ;if R17 not equal to 0,   (2 clock ) 
-		DEC   R16                                         ;decrement R16 val,       (1 clock )
-		BRNE  DLY00                                       ;if R16 not equal to 0,   (2 clock ) 
-		RJMP  LOOP0                                       ;if R16 is 0->jump,       (2 clock )  
-
-
-
-;;===================================Kernel Test Task1======================================;;
-Kernel_Test_Task1:
-        ;initialize DDR and Port register, total 4 clocks
-        SBI   KER_TSK1_DDR       , KER_TSK1_PIN           ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK1_PORT      , KER_TSK1_PIN           ;clear port bit,          (2 clocks)
-		 
-    LOOP1:
-	    ;pin toggle, total 5 clocks
-		IN    R16                , KER_TSK1_PORT          ;load PORT val,           (2 clocks)
-		LDI   R17                , (1<<KER_TSK1_PIN)      ;bit mask for port pin    (1 clock )
-		EOR   R16                , R17                    ;XOR with current val     (1 clock )
-		OUT   KER_TSK1_PORT      , R16                    ;set new PORT val,        (1 clock )
-		
-		;assign delay loop count val, for 20ms 
-		LDI   R16                , 0x9D                   ;set loop cnt val,        (1 clock )
-		
-    DLY10:
-	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
-		
-	DLY11:                                                ;inner loop,127.5uS@8Mhz  (4 clocks)
-		NOP                                               ;no operation,            (1 clock )
-		DEC   R17                                         ;decrement R17 val,       (1 clock )
-		BRNE  DLY11                                       ;if R17 not equal to 0,   (2 clock ) 
-		DEC   R16                                         ;decrement R16 val,       (1 clock )
-		BRNE  DLY10                                       ;if R16 not equal to 0,   (2 clock ) 
-		RJMP  LOOP1                                       ;if R16 is 0->jump,       (2 clock )  
-
-
-;;===================================Kernel Test Task2======================================;;
-Kernel_Test_Task2:
-        ;initialize DDR and Port register, total 4 clocks
-        SBI   KER_TSK2_DDR       , KER_TSK2_PIN           ;set bit in DDR,          (2 clocks) 
-		CBI   KER_TSK2_PORT      , KER_TSK2_PIN           ;clear port bit,          (2 clocks)
-		 
-    LOOP2:
-	    ;pin toggle, total 5 clocks
-		IN    R16                , KER_TSK2_PORT          ;load PORT val,           (2 clocks)
-		LDI   R17                , (1<<KER_TSK2_PIN)      ;bit mask for port pin    (1 clock )
-		EOR   R16                , R17                    ;XOR with current val     (1 clock )
-		OUT   KER_TSK2_PORT      , R16                    ;set new PORT val,        (1 clock )
-		
-		;assign delay loop count val, for 30ms 
-		LDI   R16                , 0xEB                   ;set loop cnt val,        (1 clock )
-		
-    DLY20:
-	    LDI   R17                , 0xFF                   ;set loop cnt val,        (1 clock )
-		
-	DLY21:                                                ;inner loop, 127.5uS@8Mhz (4 clocks)
-		NOP                                               ;no operation,            (1 clock )
-		DEC   R17                                         ;decrement R17 val,       (1 clock )
-		BRNE  DLY21                                       ;if R17 not equal to 0,   (2 clock ) 
-		DEC   R16                                         ;decrement R16 val,       (1 clock )
-		BRNE  DLY20                                       ;if R16 not equal to 0,   (2 clock ) 
-		RJMP  LOOP2                                       ;if R16 is 0->jump,       (2 clock ) 
     
 
 ;;====================================Kernel Task0 Init=====================================;;
