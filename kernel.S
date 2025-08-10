@@ -67,10 +67,7 @@
 ;;===============================define global variables start==============================;;
 .section  .bss
 .global   Kernel                  ;declare global space for kernel
-Kernel:   .skip 10                ;5 bytes TickCounter, 1 byte reload val, 4 bytes reserved
-
-.global   ker_tski                ;declare global space for task index
-ker_tski: .skip 2                 ;1B->TaskIndex, 1B->Reserved
+Kernel:   .skip 10                ;TickCounter(5), reload val(1), task index(1), reserved(1)
 
 .global   ker_stp                 ;declare global space for stack pointers
 ker_stp:  .skip 6                 ;2B->STP0, 2B->STP1, 2B->STP2
@@ -285,7 +282,7 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 .macro  KER_TASK_SWITCH                                   ;total operation        ( 38 clocks) 
 		IN    R24                , IOSPL                  ;fetch SPL0             (  1 clock )
 		IN    R25                , IOSPH                  ;fetch SPH0             (  1 clock )
-		LDS   R16                , ker_tski               ;fetch task index       (  2 clocks)
+		LDS   R16                , Kernel+0x06            ;fetch task index       (  2 clocks)
 		LSL   R16                                         ;left shift to multiply (  1 clock )
 		LDI   R30                , lo8(ker_stp)           ;fetch base pos low     (  1 clock )
 		LDI   R31                , hi8(ker_stp)           ;fetch base pos high    (  1 clock )
@@ -294,8 +291,8 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		ADC   R31                , R16                    ;add carry if any       (  1 clock )
 		ST    Z+                 , R24                    ;store SPL at ZP        (  2 clocks)
 		ST    z                  , R25                    ;store SPH ZP+1         (  2 clocks)
-		LDS   R16                , ker_tski               ;fetch value from RAM   (  2 clocks)
-		INC   R16                                         ;increment ker_tski     (  1 clock )
+		LDS   R16                , Kernel+0x06            ;fetch value from RAM   (  2 clocks)
+		INC   R16                                         ;increment task index   (  1 clock )
 		LDI   R17                , KER_NTSK               ;load number of tasks   (  1 clock )
 	_MOD_CONT:
 	    CP    R16                , R17                    ;compare R17 with R16   (  1 clock )
@@ -303,7 +300,7 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock )
 		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks)
 	_MOD_DONE:
-	    STS   ker_tski           , R16                    ;ker_tski%KER_NTSK      (  2 clocks)
+	    STS   Kernel+0x06        , R16                    ;task index%KER_NTSK    (  2 clocks)
 		LSL   R16                                         ;left shift to multiply (  1 clock )
 		LDI   R30                , lo8(ker_stp)           ;fetch base pos low     (  1 clock )
 		LDI   R31                , hi8(ker_stp)           ;fetch base pos high    (  1 clock )
@@ -439,7 +436,7 @@ Kernel_Task0_Init:
 		
 		;set task index -> 0
 		LDI   R16                , 0x00                   ;set R16 to 0x00          (1 clock )
-		STS   ker_tski           , R16                    ;set ker_tski = 0         (2 clocks) 
+		STS   Kernel+0x06        , R16                    ;set task index = 0       (2 clocks) 
 		
 		;restore MSP
 		OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
@@ -479,7 +476,7 @@ Kernel_Task1_Init:
 		
 		;set task index -> 1
 		LDI   R16                , 0x01                   ;set R16 to 0x01          (1 clock )
-		STS   ker_tski           , R16                    ;set ker_tski = 1         (2 clocks) 
+		STS   Kernel+0x06        , R16                    ;set task index = 1       (2 clocks) 
 		
 		;restore MSP
 		;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )

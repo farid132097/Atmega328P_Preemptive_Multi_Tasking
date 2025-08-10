@@ -6,10 +6,6 @@
 #include "tasks.h"
 
 
-void Tasks_Switch(void){
-  
-}
-
 void Tasks_Task0(void){
   DDRD |= (1<<5);
   
