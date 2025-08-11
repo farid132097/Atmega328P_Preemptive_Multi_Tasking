@@ -6,177 +6,120 @@
    6               	__tmp_reg__ = 0
    7               	__zero_reg__ = 1
   15               	.Ltext0:
-  16               	.global	Tasks_Task0
-  18               	Tasks_Task0:
+  16               	.global	Tasks_Delay
+  18               	Tasks_Delay:
   19               	.LFB6:
   20               	.LM1:
-  21               	/* prologue: function */
-  22               	/* frame size = 0 */
-  23               	.LM2:
-  24 0000 559A      		sbi 42-32,5
-  25               	.LM3:
-  26 0002 40E2      		ldi r20,lo8(32)
-  27               	.LBB24:
-  28               	.LBB25:
-  29               	.LBB26:
-  30               	.LBB27:
-  31               	.LM4:
-  32 0004 28EC      		ldi r18,lo8(200)
-  33 0006 30E0      		ldi r19,hi8(200)
-  34               	.LVL0:
-  35               	.L3:
-  36               	.LBE27:
-  37               	.LBE26:
-  38               	.LBE25:
-  39               	.LBE24:
-  40               	.LM5:
-  41 0008 8BB1      		in r24,43-32
-  42               	.LVL1:
-  43 000a 8427      		eor r24,r20
-  44 000c 8BB9      		out 43-32,r24
-  45 000e 84EF      		ldi r24,lo8(500)
-  46 0010 91E0      		ldi r25,hi8(500)
-  47               	.LVL2:
-  48               	.L2:
-  49               	.LBB31:
-  50               	.LBB30:
-  51               	.LBB29:
-  52               	.LBB28:
-  53               	.LM6:
-  54 0012 F901      		movw r30,r18
-  55               	/* #APP */
-  56               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
-  57 0014 3197      		1: sbiw r30,1
-  58 0016 01F4      		brne 1b
-  59               	 ;  0 "" 2
-  60               	/* #NOAPP */
-  61               	.LBE28:
-  62               	.LBE29:
-  63               	.LM7:
-  64 0018 0197      		sbiw r24,1
+  21               	.LVL0:
+  22 0000 CF93      		push r28
+  23 0002 DF93      		push r29
+  24               	/* prologue: function */
+  25               	/* frame size = 0 */
+  26 0004 EC01      		movw r28,r24
+  27               	.LVL1:
+  28               	.LM2:
+  29 0006 0E94 0000 		call Kernel_SysTick_Val_Get
+  30               	.LVL2:
+  31 000a C901      		movw r24,r18
+  32               	.LM3:
+  33 000c C20F      		add r28,r18
+  34 000e D31F      		adc r29,r19
+  35               	.LVL3:
+  36 0010 00C0      		rjmp .L2
+  37               	.LVL4:
+  38               	.L3:
+  39               	.LM4:
+  40 0012 0E94 0000 		call Kernel_SysTick_Val_Get
+  41               	.LVL5:
+  42 0016 C901      		movw r24,r18
+  43               	.LVL6:
+  44               	.L2:
+  45               	.LM5:
+  46 0018 8C17      		cp r24,r28
+  47 001a 9D07      		cpc r25,r29
+  48 001c 00F0      		brlo .L3
+  49               	.LVL7:
+  50               	/* epilogue start */
+  51               	.LM6:
+  52 001e DF91      		pop r29
+  53 0020 CF91      		pop r28
+  54               	.LVL8:
+  55 0022 0895      		ret
+  56               	.LFE6:
+  58               	.global	Tasks_Task2
+  60               	Tasks_Task2:
+  61               	.LFB9:
+  62               	.LM7:
+  63               	/* prologue: function */
+  64               	/* frame size = 0 */
   65               	.LM8:
-  66 001a 01F4      		brne .L2
-  67 001c 00C0      		rjmp .L3
-  68               	.LBE30:
-  69               	.LBE31:
-  70               	.LFE6:
-  72               	.global	Tasks_Task1
-  74               	Tasks_Task1:
-  75               	.LFB7:
-  76               	.LM9:
-  77               	/* prologue: function */
-  78               	/* frame size = 0 */
-  79               	.LM10:
-  80 001e 569A      		sbi 42-32,6
-  81               	.LM11:
-  82 0020 40E4      		ldi r20,lo8(64)
-  83               	.LBB32:
-  84               	.LBB33:
-  85               	.LBB34:
-  86               	.LBB35:
+  66 0024 579A      		sbi 42-32,7
+  67               	.L6:
+  68               	.LM9:
+  69 0026 8BB1      		in r24,43-32
+  70 0028 8058      		subi r24,lo8(-(-128))
+  71 002a 8BB9      		out 43-32,r24
+  72               	.LM10:
+  73 002c 86E4      		ldi r24,lo8(70)
+  74 002e 90E0      		ldi r25,hi8(70)
+  75 0030 0E94 0000 		call Tasks_Delay
+  76 0034 00C0      		rjmp .L6
+  77               	.LFE9:
+  79               	.global	Tasks_Task1
+  81               	Tasks_Task1:
+  82               	.LFB8:
+  83               	.LM11:
+  84 0036 1F93      		push r17
+  85               	/* prologue: function */
+  86               	/* frame size = 0 */
   87               	.LM12:
-  88 0022 28EC      		ldi r18,lo8(200)
-  89 0024 30E0      		ldi r19,hi8(200)
-  90               	.LVL3:
-  91               	.L8:
-  92               	.LBE35:
-  93               	.LBE34:
-  94               	.LBE33:
-  95               	.LBE32:
-  96               	.LM13:
-  97 0026 8BB1      		in r24,43-32
-  98               	.LVL4:
-  99 0028 8427      		eor r24,r20
- 100 002a 8BB9      		out 43-32,r24
- 101 002c 88E5      		ldi r24,lo8(600)
- 102 002e 92E0      		ldi r25,hi8(600)
- 103               	.LVL5:
- 104               	.L7:
- 105               	.LBB39:
- 106               	.LBB38:
- 107               	.LBB37:
- 108               	.LBB36:
- 109               	.LM14:
- 110 0030 F901      		movw r30,r18
- 111               	/* #APP */
- 112               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 113 0032 3197      		1: sbiw r30,1
- 114 0034 01F4      		brne 1b
- 115               	 ;  0 "" 2
- 116               	/* #NOAPP */
- 117               	.LBE36:
- 118               	.LBE37:
- 119               	.LM15:
- 120 0036 0197      		sbiw r24,1
- 121               	.LM16:
- 122 0038 01F4      		brne .L7
- 123 003a 00C0      		rjmp .L8
- 124               	.LBE38:
- 125               	.LBE39:
- 126               	.LFE7:
- 128               	.global	Tasks_Task2
- 130               	Tasks_Task2:
- 131               	.LFB8:
- 132               	.LM17:
- 133               	/* prologue: function */
- 134               	/* frame size = 0 */
- 135               	.LM18:
- 136 003c 579A      		sbi 42-32,7
- 137               	.LBB40:
- 138               	.LBB41:
- 139               	.LBB42:
- 140               	.LBB43:
- 141               	.LM19:
- 142 003e 28EC      		ldi r18,lo8(200)
- 143 0040 30E0      		ldi r19,hi8(200)
- 144               	.LVL6:
- 145               	.L13:
- 146               	.LBE43:
- 147               	.LBE42:
- 148               	.LBE41:
- 149               	.LBE40:
- 150               	.LM20:
- 151 0042 8BB1      		in r24,43-32
- 152               	.LVL7:
- 153 0044 8058      		subi r24,lo8(-(-128))
- 154 0046 8BB9      		out 43-32,r24
- 155 0048 8CEB      		ldi r24,lo8(700)
- 156 004a 92E0      		ldi r25,hi8(700)
- 157               	.LVL8:
- 158               	.L12:
- 159               	.LBB47:
- 160               	.LBB46:
- 161               	.LBB45:
- 162               	.LBB44:
- 163               	.LM21:
- 164 004c F901      		movw r30,r18
- 165               	/* #APP */
- 166               	 ;  105 "c:/winavr-20100110/lib/gcc/../../avr/include/util/delay_basic.h" 1
- 167 004e 3197      		1: sbiw r30,1
- 168 0050 01F4      		brne 1b
- 169               	 ;  0 "" 2
- 170               	/* #NOAPP */
- 171               	.LBE44:
- 172               	.LBE45:
- 173               	.LM22:
- 174 0052 0197      		sbiw r24,1
- 175               	.LM23:
- 176 0054 01F4      		brne .L12
- 177 0056 00C0      		rjmp .L13
- 178               	.LBE46:
- 179               	.LBE47:
- 180               	.LFE8:
- 222               	.Letext0:
+  88 0038 569A      		sbi 42-32,6
+  89               	.LM13:
+  90 003a 10E4      		ldi r17,lo8(64)
+  91               	.L9:
+  92 003c 8BB1      		in r24,43-32
+  93 003e 8127      		eor r24,r17
+  94 0040 8BB9      		out 43-32,r24
+  95               	.LM14:
+  96 0042 84E1      		ldi r24,lo8(20)
+  97 0044 90E0      		ldi r25,hi8(20)
+  98 0046 0E94 0000 		call Tasks_Delay
+  99 004a 00C0      		rjmp .L9
+ 100               	.LFE8:
+ 102               	.global	Tasks_Task0
+ 104               	Tasks_Task0:
+ 105               	.LFB7:
+ 106               	.LM15:
+ 107 004c 1F93      		push r17
+ 108               	/* prologue: function */
+ 109               	/* frame size = 0 */
+ 110               	.LM16:
+ 111 004e 559A      		sbi 42-32,5
+ 112               	.LM17:
+ 113 0050 10E2      		ldi r17,lo8(32)
+ 114               	.L12:
+ 115 0052 8BB1      		in r24,43-32
+ 116 0054 8127      		eor r24,r17
+ 117 0056 8BB9      		out 43-32,r24
+ 118               	.LM18:
+ 119 0058 8AE0      		ldi r24,lo8(10)
+ 120 005a 90E0      		ldi r25,hi8(10)
+ 121 005c 0E94 0000 		call Tasks_Delay
+ 122 0060 00C0      		rjmp .L12
+ 123               	.LFE7:
+ 173               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:2      *ABS*:0000003f __SREG__
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:3      *ABS*:0000003e __SP_H__
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:4      *ABS*:0000003d __SP_L__
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:5      *ABS*:00000034 __CCP__
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:18     .text:00000000 Tasks_Task0
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:74     .text:0000001e Tasks_Task1
-C:\Users\WALTON\AppData\Local\Temp/ccri7Mcf.s:130    .text:0000003c Tasks_Task2
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:2      *ABS*:0000003f __SREG__
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:3      *ABS*:0000003e __SP_H__
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:4      *ABS*:0000003d __SP_L__
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:5      *ABS*:00000034 __CCP__
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:18     .text:00000000 Tasks_Delay
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:60     .text:00000024 Tasks_Task2
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:81     .text:00000036 Tasks_Task1
+C:\Users\WALTON\AppData\Local\Temp/ccc8Q6BH.s:104    .text:0000004c Tasks_Task0
 
-NO UNDEFINED SYMBOLS
+UNDEFINED SYMBOLS
+Kernel_SysTick_Val_Get

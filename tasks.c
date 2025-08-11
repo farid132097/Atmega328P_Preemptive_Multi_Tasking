@@ -6,29 +6,47 @@
 #include "tasks.h"
 
 
+void Tasks_Delay(uint16_t val){
+  uint16_t curr = 0, next = 0;
+  curr = Kernel_SysTick_Val_Get();
+  next = curr + val;
+  while( curr < next ){
+    curr = Kernel_SysTick_Val_Get();
+  }
+}
+
 void Tasks_Task0(void){
+  
   DDRD |= (1<<5);
   
   while(1){
+    
     PORTD ^= (1<<5);
-	_delay_ms(50);
+	Tasks_Delay(10);
+	
   }
 }
 
 void Tasks_Task1(void){
+
   DDRD |= (1<<6);
   
   while(1){
+    
     PORTD ^= (1<<6);
-	_delay_ms(60);
+	Tasks_Delay(20);
+	
   }
 }
 
 void Tasks_Task2(void){
+  
   DDRD |= (1<<7);
   
   while(1){
+    
     PORTD ^= (1<<7);
-	_delay_ms(70);
+	Tasks_Delay(70);
+	
   }
 }

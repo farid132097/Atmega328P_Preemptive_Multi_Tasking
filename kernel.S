@@ -11,24 +11,12 @@
 
 
 ;;=============================define user address or macro start===========================;;
-.equ     KER_TR ,         1000   ;TickRate in Hz, only defined, not calculated
-.equ     KER_PRS,         0x03   ;For prescaler 64, manually select
-.equ     KER_RLD,         0x82   ;ReloadVal = 0xFF-(F_CPU/prescaler/KER_TR)
+.equ     KER_TR ,         1000    ;TickRate in Hz, only defined, not calculated
+.equ     KER_PRS,         0x03    ;For prescaler 64, manually select
+.equ     KER_RLD,         0x82    ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
 
-.equ     KER_TSK0_DDR,    0x0A   ;DDRD IO address
-.equ     KER_TSK0_PORT,   0x0B   ;PORTD IO address
-.equ     KER_TSK0_PIN,    0x05   ;PORTD5 pin
-
-.equ     KER_TSK1_DDR,    0x0A   ;DDRD IO address
-.equ     KER_TSK1_PORT,   0x0B   ;PORTD IO address
-.equ     KER_TSK1_PIN,    0x06   ;PORTD6 pin
-
-.equ     KER_TSK2_DDR,    0x0A   ;DDRD IO address
-.equ     KER_TSK2_PORT,   0x0B   ;PORTD IO address
-.equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
-
-.equ     KER_STZ,         128    ;stack size for each task
-.equ     KER_NTASK,       2      ;total tasks
+.equ     KER_STZ,         256     ;stack size for each task
+.equ     KER_NTASK,       2       ;total tasks
 ;;==============================define user address or macro end============================;;
 
 
@@ -36,28 +24,28 @@
 
 
 ;;=============================define hardware reg address start============================;;
-.equ     SRSREG,          0x5F   ;manually defined SREG in SRAM
-.equ     SRSPH,           0x5E   ;manually defined SPH in SRAM
-.equ     SRSPL,           0x5D   ;manually defined SPL in SRAM
+.equ     SRSREG,          0x5F    ;manually defined SREG in SRAM
+.equ     SRSPH,           0x5E    ;manually defined SPH in SRAM
+.equ     SRSPL,           0x5D    ;manually defined SPL in SRAM
 
-.equ     SRTIMSK0,        0x6E   ;manually defined TIMSK0 in SRAM
-.equ     SROCR0B,         0x48   ;manually defined OCR0B in SRAM
-.equ     SROCR0A,         0x47   ;manually defined OCR0A in SRAM
-.equ     SRTCNT0,         0x46   ;manually defined TCNT0 in SRAM
-.equ     SRTCCR0B,        0x45   ;manually defined TCCR0B in SRAM
-.equ     SRTCCR0A,        0x44   ;manually defined TCCR0A in SRAM
-.equ     SRTIFR0,         0x35   ;manually defined TIFR0 in SRAM
+.equ     SRTIMSK0,        0x6E    ;manually defined TIMSK0 in SRAM
+.equ     SROCR0B,         0x48    ;manually defined OCR0B in SRAM
+.equ     SROCR0A,         0x47    ;manually defined OCR0A in SRAM
+.equ     SRTCNT0,         0x46    ;manually defined TCNT0 in SRAM
+.equ     SRTCCR0B,        0x45    ;manually defined TCCR0B in SRAM
+.equ     SRTCCR0A,        0x44    ;manually defined TCCR0A in SRAM
+.equ     SRTIFR0,         0x35    ;manually defined TIFR0 in SRAM
 
-.equ     IOOCR0B,         0x28   ;manually defined OCR0B in IO
-.equ     IOOCR0A,         0x27   ;manually defined OCR0A in IO
-.equ     IOTCNT0,         0x26   ;manually defined TCNT0 in IO
-.equ     IOTCCR0B,        0x25   ;manually defined TCCR0B in IO
-.equ     IOTCCR0A,        0x24   ;manually defined TCCR0A in IO
-.equ     IOTIFR0,         0x15   ;manually defined TIFR0 in IO
+.equ     IOOCR0B,         0x28    ;manually defined OCR0B in IO
+.equ     IOOCR0A,         0x27    ;manually defined OCR0A in IO
+.equ     IOTCNT0,         0x26    ;manually defined TCNT0 in IO
+.equ     IOTCCR0B,        0x25    ;manually defined TCCR0B in IO
+.equ     IOTCCR0A,        0x24    ;manually defined TCCR0A in IO
+.equ     IOTIFR0,         0x15    ;manually defined TIFR0 in IO
 
-.equ     IOSREG,          0x3F   ;manually defined SREG in IO
-.equ     IOSPH,           0x3E   ;manually defined SPH in IO
-.equ     IOSPL,           0x3D   ;manually defined SPL in IO
+.equ     IOSREG,          0x3F    ;manually defined SREG in IO
+.equ     IOSPH,           0x3E    ;manually defined SPH in IO
+.equ     IOSPL,           0x3D    ;manually defined SPL in IO
 ;;==============================define hardware reg address end=============================;;
 
 
@@ -416,8 +404,8 @@ Kernel_Task0_Init:
 		IN    R3                 , IOSPH
 		
 		;set stack for task0
-		LDI   R16                , lo8(ker_stk0+KER_STZ)  ;fetch top SPL0,          (1 clock )
-		LDI   R17                , hi8(ker_stk0+KER_STZ)  ;fetch top SPH0,          (1 clock )
+		LDI   R16                , lo8(ker_stk0+KER_STZ-1);fetch top SPL0,          (1 clock )
+		LDI   R17                , hi8(ker_stk0+KER_STZ-1);fetch top SPH0,          (1 clock )
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
 		
@@ -456,8 +444,8 @@ Kernel_Task1_Init:
 		;IN    R3                 , IOSPH
 		
 		;set stack for task1
-		LDI   R16                , lo8(ker_stk1+KER_STZ)  ;fetch top SPL1,          (1 clock )
-		LDI   R17                , hi8(ker_stk1+KER_STZ)  ;fetch top SPH1,          (1 clock )
+		LDI   R16                , lo8(ker_stk1+KER_STZ-1);fetch top SPL1,          (1 clock )
+		LDI   R17                , hi8(ker_stk1+KER_STZ-1);fetch top SPH1,          (1 clock )
 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
 		
