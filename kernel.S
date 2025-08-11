@@ -96,7 +96,7 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 .global  Kernel_SysTick_Reg_Init
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_Interrupt_Sts_Get
-
+.global  Kernel_Task_Init
 .global  Kernel_Task0_Init
 .global  Kernel_Task1_Init
 ;;================================define global functions end===============================;;
@@ -393,7 +393,38 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-    
+
+;;====================================Kernel Task0 Init=====================================;;
+Kernel_Task_Init:
+;   func_ptr->R25:R24, stack_base->R23:R22, task_id->R18, task_priority->R19
+        ;save MSP
+		IN    R2                 , IOSPL
+		IN    R3                 , IOSPH
+	    LDI   R16                , lo8(KER_STZ-1)
+        LDI   R17                , hi8(KER_STZ-1)
+        ADD   R22                , R16
+        ADC   R23                , R17
+		OUT   IOSPL              , R22
+        OUT   IOSPH              , R23
+		MOV   R16                , R24        ; low byte func_ptr
+        MOV   R17                , R25        ; high byte func_ptr
+        LSR   R17                             ; shift right high byte
+        ROR   R16                             ; rotate carry into low byte
+	    PUSH  R16
+        PUSH  R17
+		KER_CONTEXT_SAVE
+		IN    R16                , IOSPL
+        IN    R17                , IOSPH
+        MOV   R20                , R18        ; task_id copy
+        LSL   R20                             ; multiply by 2 (word index)
+        LDI   R30                , lo8(ker_stp)
+        LDI   R31                , hi8(ker_stp)
+        ADD   R30                , R20        ; offset low byte
+        ADC   R31                , R1         ; offset high byte = 0
+        ST     Z+                , R16        ; store low byte of SP
+        ST     Z                 , R17        ; store high byte of SP
+		OUT   IOSPL, R2
+        OUT   IOSPH, R3
 
 ;;====================================Kernel Task0 Init=====================================;;
 Kernel_Task0_Init:

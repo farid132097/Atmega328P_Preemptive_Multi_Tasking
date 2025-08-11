@@ -728,7 +728,7 @@
   96               	.global  Kernel_SysTick_Reg_Init
   97               	.global  Kernel_SysTick_Val_Get
   98               	.global  Kernel_Interrupt_Sts_Get
-  99               	
+  99               	.global  Kernel_Task_Init
  100               	.global  Kernel_Task0_Init
  101               	.global  Kernel_Task1_Init
  102               	;;================================define global functions end===============================;;
@@ -1025,87 +1025,118 @@
  393               	
  394               	
  395               	
- 396               	    
- 397               	
- 398               	;;====================================Kernel Task0 Init=====================================;;
- 399               	Kernel_Task0_Init:
- 400               	        ;init stack for task0
- 401               			
- 402               			;save MSP
- 403:kernel.S      **** 		IN    R2                 , IOSPL
- 404:kernel.S      **** 		IN    R3                 , IOSPH
- 405               			
- 406               			;set stack for task0
- 407:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ-1);fetch top SPL0,          (1 clock )
- 408:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ-1);fetch top SPH0,          (1 clock )
- 409:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 410:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 411               			
- 412               			;psuh return address of task0
- 413:kernel.S      **** 		LDI   R16                , lo8(Tasks_Task0)       ;fetch task address low   (1 clock )
- 414:kernel.S      **** 		LDI   R17                , hi8(Tasks_Task0)       ;fetch task address high  (1 clock )
- 415:kernel.S      **** 		LSR   R17                                         ;right shift high byte    (1 clock )
- 416:kernel.S      **** 		ROR   R16                                         ;rotate right th carry    (1 clock )
- 417:kernel.S      **** 		PUSH  R16                                         ;push word addr low       (2 clocks)
- 418:kernel.S      **** 		PUSH  R17                                         ;push word addr high      (2 clocks) 
- 419               			
- 420:kernel.S      ****         KER_CONTEXT_SAVE
- 421               			
- 422               			;save PSP of task0
- 423:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
- 424:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock )
- 425:kernel.S      ****         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
- 426:kernel.S      ****         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
- 427               			
- 428               			;set task index -> 0
- 429:kernel.S      **** 		LDI   R16                , 0x00                   ;set R16 to 0x00          (1 clock )
- 430:kernel.S      **** 		STS   Kernel+0x06        , R16                    ;set task index = 0       (2 clocks) 
- 431               			
- 432               			;restore MSP
- 433:kernel.S      **** 		OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
- 434:kernel.S      ****         OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
- 435:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks) 
- 436               	
- 437               	
- 438               	
- 439               	;;====================================Kernel Task1 Init=====================================;;
- 440               	Kernel_Task1_Init:
- 441               	        ;init stack for task1
- 442               			;save MSP
- 443               			;IN    R2                 , IOSPL
- 444               			;IN    R3                 , IOSPH
- 445               			
- 446               			;set stack for task1
- 447:kernel.S      **** 		LDI   R16                , lo8(ker_stk1+KER_STZ-1);fetch top SPL1,          (1 clock )
- 448:kernel.S      **** 		LDI   R17                , hi8(ker_stk1+KER_STZ-1);fetch top SPH1,          (1 clock )
- 449:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 450:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 451               			
- 452               			;psuh return address of task1
- 453:kernel.S      **** 		LDI   R16                , lo8(Tasks_Task1)       ;fetch task address low   (1 clock )
- 454:kernel.S      **** 		LDI   R17                , hi8(Tasks_Task1)       ;fetch task address high  (1 clock )
- 455:kernel.S      **** 		LSR   R17                                         ;right shift high byte    (1 clock )
- 456:kernel.S      **** 		ROR   R16                                         ;rotate right th carry    (1 clock )
- 457:kernel.S      **** 		PUSH  R16                                         ;push word addr low       (2 clocks)
- 458:kernel.S      **** 		PUSH  R17                                         ;push word addr high      (2 clocks) 
- 459               			
- 460               	        ;KER_CNTXT_SV
- 461               			
- 462               			;save PSP of task1
- 463:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
- 464:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock )
- 465:kernel.S      ****         STS   ker_stp + 2        , R16                    ;set stp of task1         (2 clocks) 
- 466:kernel.S      ****         STS   ker_stp + 3        , R17                    ;set stp of task1         (2 clocks) 
- 467               			
- 468               			;set task index -> 1
- 469:kernel.S      **** 		LDI   R16                , 0x01                   ;set R16 to 0x01          (1 clock )
- 470:kernel.S      **** 		STS   Kernel+0x06        , R16                    ;set task index = 1       (2 clocks) 
- 471               			
- 472               			;restore MSP
- 473               			;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
- 474               	        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
- 475:kernel.S      **** 		SEI
- 476:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks)  
+ 396               	
+ 397               	;;====================================Kernel Task0 Init=====================================;;
+ 398               	Kernel_Task_Init:
+ 399               	;   func_ptr->R25:R24, stack_base->R23:R22, task_id->R18, task_priority->R19
+ 400               	        ;save MSP
+ 401:kernel.S      **** 		IN    R2                 , IOSPL
+ 402:kernel.S      **** 		IN    R3                 , IOSPH
+ 403:kernel.S      **** 	    LDI   R16                , lo8(KER_STZ-1)
+ 404:kernel.S      ****         LDI   R17                , hi8(KER_STZ-1)
+ 405:kernel.S      ****         ADD   R22                , R16
+ 406:kernel.S      ****         ADC   R23                , R17
+ 407:kernel.S      **** 		OUT   IOSPL              , R22
+ 408:kernel.S      ****         OUT   IOSPH              , R23
+ 409:kernel.S      **** 		MOV   R16                , R24        ; low byte func_ptr
+ 410:kernel.S      ****         MOV   R17                , R25        ; high byte func_ptr
+ 411:kernel.S      ****         LSR   R17                             ; shift right high byte
+ 412:kernel.S      ****         ROR   R16                             ; rotate carry into low byte
+ 413:kernel.S      **** 	    PUSH  R16
+ 414:kernel.S      ****         PUSH  R17
+ 415:kernel.S      **** 		KER_CONTEXT_SAVE
+ 416:kernel.S      **** 		IN    R16                , IOSPL
+ 417:kernel.S      ****         IN    R17                , IOSPH
+ 418:kernel.S      ****         MOV   R20                , R18        ; task_id copy
+ 419:kernel.S      ****         LSL   R20                             ; multiply by 2 (word index)
+ 420:kernel.S      ****         LDI   R30                , lo8(ker_stp)
+ 421:kernel.S      ****         LDI   R31                , hi8(ker_stp)
+ 422:kernel.S      ****         ADD   R30                , R20        ; offset low byte
+ 423:kernel.S      ****         ADC   R31                , R1         ; offset high byte = 0
+ 424:kernel.S      ****         ST     Z+                , R16        ; store low byte of SP
+ 425:kernel.S      ****         ST     Z                 , R17        ; store high byte of SP
+ 426:kernel.S      **** 		OUT   IOSPL, R2
+ 427:kernel.S      ****         OUT   IOSPH, R3
+ 428               	
+ 429               	;;====================================Kernel Task0 Init=====================================;;
+ 430               	Kernel_Task0_Init:
+ 431               	        ;init stack for task0
+ 432               			
+ 433               			;save MSP
+ 434:kernel.S      **** 		IN    R2                 , IOSPL
+ 435:kernel.S      **** 		IN    R3                 , IOSPH
+ 436               			
+ 437               			;set stack for task0
+ 438:kernel.S      **** 		LDI   R16                , lo8(ker_stk0+KER_STZ-1);fetch top SPL0,          (1 clock )
+ 439:kernel.S      **** 		LDI   R17                , hi8(ker_stk0+KER_STZ-1);fetch top SPH0,          (1 clock )
+ 440:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 441:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 442               			
+ 443               			;psuh return address of task0
+ 444:kernel.S      **** 		LDI   R16                , lo8(Tasks_Task0)       ;fetch task address low   (1 clock )
+ 445:kernel.S      **** 		LDI   R17                , hi8(Tasks_Task0)       ;fetch task address high  (1 clock )
+ 446:kernel.S      **** 		LSR   R17                                         ;right shift high byte    (1 clock )
+ 447:kernel.S      **** 		ROR   R16                                         ;rotate right th carry    (1 clock )
+ 448:kernel.S      **** 		PUSH  R16                                         ;push word addr low       (2 clocks)
+ 449:kernel.S      **** 		PUSH  R17                                         ;push word addr high      (2 clocks) 
+ 450               			
+ 451:kernel.S      ****         KER_CONTEXT_SAVE
+ 452               			
+ 453               			;save PSP of task0
+ 454:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
+ 455:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock )
+ 456:kernel.S      ****         STS   ker_stp + 0        , R16                    ;set stp of task0         (2 clocks) 
+ 457:kernel.S      ****         STS   ker_stp + 1        , R17                    ;set stp of task0         (2 clocks) 
+ 458               			
+ 459               			;set task index -> 0
+ 460:kernel.S      **** 		LDI   R16                , 0x00                   ;set R16 to 0x00          (1 clock )
+ 461:kernel.S      **** 		STS   Kernel+0x06        , R16                    ;set task index = 0       (2 clocks) 
+ 462               			
+ 463               			;restore MSP
+ 464:kernel.S      **** 		OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
+ 465:kernel.S      ****         OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+ 466:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks) 
+ 467               	
+ 468               	
+ 469               	
+ 470               	;;====================================Kernel Task1 Init=====================================;;
+ 471               	Kernel_Task1_Init:
+ 472               	        ;init stack for task1
+ 473               			;save MSP
+ 474               			;IN    R2                 , IOSPL
+ 475               			;IN    R3                 , IOSPH
+ 476               			
+ 477               			;set stack for task1
+ 478:kernel.S      **** 		LDI   R16                , lo8(ker_stk1+KER_STZ-1);fetch top SPL1,          (1 clock )
+ 479:kernel.S      **** 		LDI   R17                , hi8(ker_stk1+KER_STZ-1);fetch top SPH1,          (1 clock )
+ 480:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+ 481:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+ 482               			
+ 483               			;psuh return address of task1
+ 484:kernel.S      **** 		LDI   R16                , lo8(Tasks_Task1)       ;fetch task address low   (1 clock )
+ 485:kernel.S      **** 		LDI   R17                , hi8(Tasks_Task1)       ;fetch task address high  (1 clock )
+ 486:kernel.S      **** 		LSR   R17                                         ;right shift high byte    (1 clock )
+ 487:kernel.S      **** 		ROR   R16                                         ;rotate right th carry    (1 clock )
+ 488:kernel.S      **** 		PUSH  R16                                         ;push word addr low       (2 clocks)
+ 489:kernel.S      **** 		PUSH  R17                                         ;push word addr high      (2 clocks) 
+ 490               			
+ 491               	        ;KER_CNTXT_SV
+ 492               			
+ 493               			;save PSP of task1
+ 494:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
+ 495:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock )
+ 496:kernel.S      ****         STS   ker_stp + 2        , R16                    ;set stp of task1         (2 clocks) 
+ 497:kernel.S      ****         STS   ker_stp + 3        , R17                    ;set stp of task1         (2 clocks) 
+ 498               			
+ 499               			;set task index -> 1
+ 500:kernel.S      **** 		LDI   R16                , 0x01                   ;set R16 to 0x01          (1 clock )
+ 501:kernel.S      **** 		STS   Kernel+0x06        , R16                    ;set task index = 1       (2 clocks) 
+ 502               			
+ 503               			;restore MSP
+ 504               			;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
+ 505               	        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+ 506:kernel.S      **** 		SEI
+ 507:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks)  
 DEFINED SYMBOLS
             kernel.S:14     *ABS*:000003e8 KER_TR
             kernel.S:15     *ABS*:00000003 KER_PRS
@@ -1140,8 +1171,9 @@ DEFINED SYMBOLS
             kernel.S:327    .text:00000110 Kernel_SysTick_Reg_Init
             kernel.S:366    .text:0000017c Kernel_SysTick_Val_Get
             kernel.S:386    .text:0000019e Kernel_Interrupt_Sts_Get
-            kernel.S:399    .text:000001a8 Kernel_Task0_Init
-            kernel.S:440    .text:0000021e Kernel_Task1_Init
+            kernel.S:398    .text:000001a8 Kernel_Task_Init
+            kernel.S:430    .text:00000222 Kernel_Task0_Init
+            kernel.S:471    .text:00000298 Kernel_Task1_Init
             kernel.S:316    .text:000000a8 _MOD_CONT
             kernel.S:316    .text:000000b0 _MOD_DONE
 

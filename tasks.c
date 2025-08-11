@@ -22,7 +22,7 @@ void Tasks_Task0(void){
   while(1){
     
     PORTD ^= (1<<5);
-	Tasks_Delay(10);
+	Tasks_Delay(12);
 	
   }
 }
@@ -34,7 +34,7 @@ void Tasks_Task1(void){
   while(1){
     
     PORTD ^= (1<<6);
-	Tasks_Delay(20);
+	Tasks_Delay(41);
 	
   }
 }
