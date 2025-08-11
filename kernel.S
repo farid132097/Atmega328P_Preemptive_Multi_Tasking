@@ -28,7 +28,7 @@
 .equ     KER_TSK2_PIN,    0x07   ;PORTD7 pin
 
 .equ     KER_STZ,         128    ;stack size for each task
-.equ     KER_NTSK,        2      ;total tasks
+.equ     KER_NTASK,       2      ;total tasks
 ;;==============================define user address or macro end============================;;
 
 
@@ -67,7 +67,7 @@
 ;;===============================define global variables start==============================;;
 .section  .bss
 .global   Kernel                  ;declare global space for kernel
-Kernel:   .skip 10                ;TickCounter(5), reload val(1), task index(1), reserved(1)
+Kernel:   .skip 10                ;TickCnt(5), rld_val(1), task_ind(1), ntask(1), rsrvd(2)
 
 .global   ker_stp                 ;declare global space for stack pointers
 ker_stp:  .skip 6                 ;2B->STP0, 2B->STP1, 2B->STP2
@@ -279,7 +279,7 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 
 
 ;;======================================task switch start===================================;;
-.macro  KER_TASK_SWITCH                                   ;total operation        ( 38 clocks) 
+.macro  KER_TASK_SWITCH                                   ;total operation        ( 39 clocks) 
 		IN    R24                , IOSPL                  ;fetch SPL0             (  1 clock )
 		IN    R25                , IOSPH                  ;fetch SPH0             (  1 clock )
 		LDS   R16                , Kernel+0x06            ;fetch task index       (  2 clocks)
@@ -291,16 +291,16 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 		ADC   R31                , R16                    ;add carry if any       (  1 clock )
 		ST    Z+                 , R24                    ;store SPL at ZP        (  2 clocks)
 		ST    z                  , R25                    ;store SPH ZP+1         (  2 clocks)
-		LDS   R16                , Kernel+0x06            ;fetch value from RAM   (  2 clocks)
+		LDS   R16                , Kernel+0x06            ;fetch task index       (  2 clocks)
 		INC   R16                                         ;increment task index   (  1 clock )
-		LDI   R17                , KER_NTSK               ;load number of tasks   (  1 clock )
+		LDS   R17                , Kernel+0x07            ;load number of tasks   (  2 clocks)
 	_MOD_CONT:
 	    CP    R16                , R17                    ;compare R17 with R16   (  1 clock )
 		BRLO  _MOD_DONE                                   ;if R16<R17, done       (  2 clocks)
 		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock )
 		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks)
 	_MOD_DONE:
-	    STS   Kernel+0x06        , R16                    ;task index%KER_NTSK    (  2 clocks)
+	    STS   Kernel+0x06        , R16                    ;task_ind%ntask         (  2 clocks)
 		LSL   R16                                         ;left shift to multiply (  1 clock )
 		LDI   R30                , lo8(ker_stp)           ;fetch base pos low     (  1 clock )
 		LDI   R31                , hi8(ker_stp)           ;fetch base pos high    (  1 clock )
@@ -336,7 +336,7 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 
 
 ;;==================================SysTick reg init start==================================;;
-Kernel_SysTick_Reg_Init:                                  ;total operation        ( 50 clocks)
+Kernel_SysTick_Reg_Init:                                  ;total operation        ( 55 clocks)
         CLI                                               ;disable global int,    (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
 		LDI   R16                , 0x00                   ;set 0x00 to R16,       (  1 clock ) 
@@ -348,7 +348,10 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 		STS   Kernel+0x05        , R16                    ;clear  kernel[5]       (  2 clocks) 
 		STS   Kernel+0x06        , R16                    ;clear  kernel[6]       (  2 clocks) 
 		STS   Kernel+0x07        , R16                    ;clear  kernel[7]       (  2 clocks) 
-		STS   Kernel+0x08        , R16                    ;clear  kernel[8]       (  2 clocks) 
+		STS   Kernel+0x08        , R16                    ;clear  kernel[8]       (  2 clocks)
+        STS   Kernel+0x09        , R16                    ;clear  kernel[9]       (  2 clocks) 
+		LDI   R16                , KER_NTASK              ;load ntask to reg      (  1 clock ) 
+		STS   Kernel+0x07        , R16                    ;store ntask            (  2 clocks) 
 		LDI   R16                , 0x00                   ;store r16 with 0       (  1 clock ) 
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
