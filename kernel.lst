@@ -953,24 +953,24 @@
  407               			;store task index to RAM from argument
  408:kernel.S      **** 		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
  409               			
- 410               			;set stack pointer for current tas (KerBase + KER_STZ*ker_ind - 1)
+ 410               			;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
  411:kernel.S      **** 		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
- 412:kernel.S      **** 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
- 413:kernel.S      **** 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
- 414:kernel.S      **** 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
- 415:kernel.S      **** 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
- 416:kernel.S      **** 		SBIW  R30                , 0x01                   ;base+KER_STZ*ker_ind-1 (  2 clocks) 
- 417:kernel.S      **** 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
- 418:kernel.S      **** 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
- 419:kernel.S      ****         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
- 420               			
- 421               			;calculate word address of task function
- 422               			;MOV   R16                , R24                    ;low byte func_ptr      (  1 clock ) 
- 423               	        ;MOV   R17                , R25                    ;high byte func_ptr     (  1 clock ) 
- 424               	        ;LSR   R17                                         ;shift right high byte  (  1 clock ) 
- 425               	        ;ROR   R16                                         ;add carry to low byte  (  1 clock ) 
+ 412:kernel.S      **** 		INC   R16                                         ;increment ker_ind      (  1 clock )
+ 413:kernel.S      **** 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
+ 414:kernel.S      **** 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
+ 415:kernel.S      **** 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
+ 416:kernel.S      **** 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
+ 417:kernel.S      **** 		SBIW  R30                , 0x01                   ;base+KER_STZ*ker_ind-1 (  2 clocks) 
+ 418:kernel.S      **** 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
+ 419:kernel.S      **** 		LDI   R16                , lo8(KerStack)          ;load base addr Low     (  1 clock )
+ 420:kernel.S      **** 		LDI   R17                , hi8(KerStack)          ;load base addr Low     (  1 clock )
+ 421:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock )
+ 422:kernel.S      **** 		ADC   R31                , R17                    ;add high bytes+carry   (  1 clock )
+ 423:kernel.S      **** 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
+ 424:kernel.S      ****         OUT   IOSPH              , R31                    ;load SPH               (  1 clock )
+ 425               			
  426               			
- 427               			;push word address of task function to stack of this task
+ 427               			;function argument directly returns word address
  428:kernel.S      **** 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
  429:kernel.S      **** 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
  430               			
@@ -982,7 +982,7 @@
  436:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
  437               			
  438               			;calculate the address where current task's SP will be stored and store SP
- 439:kernel.S      **** 		LDS   R18                , KerBase+0x06           ;fetch task_ind         (  2 clocks) 
+ 439:kernel.S      **** 		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
  440:kernel.S      **** 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
  441:kernel.S      **** 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
  442:kernel.S      **** 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -1116,74 +1116,113 @@
  570:kernel.S      ****         MOV   R4                 , R30                    ;push ZPL               (  2 clocks) 
  571:kernel.S      **** 		MOV   R5                 , R31                    ;push ZPL               (  2 clocks) 
  572               			
- 573               			;set stack for task0
- 574:kernel.S      **** 		LDI   R16                , lo8(KerStack+KER_STZ-1);fetch top SPL0,          (1 clock )
- 575:kernel.S      **** 		LDI   R17                , hi8(KerStack+KER_STZ-1);fetch top SPH0,          (1 clock )
- 576:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 577:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 578               			
- 579               			
- 580               			;psuh return address of task0
- 581:kernel.S      **** 		PUSH  R24                                         ;push word addr low       (2 clocks)
- 582:kernel.S      **** 		PUSH  R25                                         ;push word addr high      (2 clocks) 
- 583               			
- 584               			
- 585:kernel.S      ****         KER_CONTEXT_SAVE
- 586               			
- 587               			;save PSP of task0
- 588:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock ) 
- 589:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock ) 
- 590:kernel.S      ****         STS   KerSP + 0          , R16                    ;set stp of task0         (2 clocks) 
- 591:kernel.S      ****         STS   KerSP + 1          , R17                    ;set stp of task0         (2 clocks) 
+ 573               			;store task index to RAM from argument
+ 574:kernel.S      **** 		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+ 575               			
+ 576               			;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
+ 577:kernel.S      **** 		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+ 578:kernel.S      **** 		INC   R16                                         ;increment ker_ind      (  1 clock )
+ 579:kernel.S      **** 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
+ 580:kernel.S      **** 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
+ 581:kernel.S      **** 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
+ 582:kernel.S      **** 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
+ 583:kernel.S      **** 		SBIW  R30                , 0x01                   ;base+KER_STZ*ker_ind-1 (  2 clocks) 
+ 584:kernel.S      **** 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
+ 585:kernel.S      **** 		LDI   R16                , lo8(KerStack)          ;load base addr Low     (  1 clock )
+ 586:kernel.S      **** 		LDI   R17                , hi8(KerStack)          ;load base addr Low     (  1 clock )
+ 587:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock )
+ 588:kernel.S      **** 		ADC   R31                , R17                    ;add high bytes+carry   (  1 clock )
+ 589:kernel.S      **** 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
+ 590:kernel.S      ****         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
+ 591               			
  592               			
- 593               			;set task index -> 0
- 594:kernel.S      **** 		LDI   R16                , 0x00                   ;set R16 to 0x00          (1 clock ) 
- 595:kernel.S      **** 		STS   KerBase+0x06       , R16                    ;set task index = 0       (2 clocks) 
+ 593               			;function argument directly returns word address
+ 594:kernel.S      **** 		PUSH  R24                                         ;push word addr low     (  2 clocks)
+ 595:kernel.S      **** 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
  596               			
- 597               			;restore MSP
- 598:kernel.S      **** 		OUT   IOSPL              , R2                     ;load SPL                 (1 clock ) 
- 599:kernel.S      ****         OUT   IOSPH              , R3                     ;load SPH                 (1 clock ) 
- 600:kernel.S      **** 		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
- 601:kernel.S      **** 		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
- 602:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks) 
+ 597               			
+ 598:kernel.S      ****         KER_CONTEXT_SAVE
+ 599               			
+ 600               			;save PSP of task0
+ 601:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL               (  1 clock ) 
+ 602:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
  603               			
- 604               	
- 605               	
- 606               	
- 607               	;;====================================Kernel Task1 Init=====================================;;
- 608               	Kernel_Task1_Init_Arg:
- 609               	        ;init stack for task1
- 610               			;save MSP
- 611               			;IN    R2                 , IOSPL
- 612               			;IN    R3                 , IOSPH
- 613               			
- 614               			;set stack for task1
- 615:kernel.S      **** 		LDI   R16                , lo8(KerStack+KER_STZ*2-1);fetch top SPL1,          (1 clock )
- 616:kernel.S      **** 		LDI   R17                , hi8(KerStack+KER_STZ*2-1);fetch top SPH1,          (1 clock )
- 617:kernel.S      **** 		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
- 618:kernel.S      ****         OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
- 619               			
- 620:kernel.S      **** 		PUSH  R24                                         ;push word addr low       (2 clocks)
- 621:kernel.S      **** 		PUSH  R25                                         ;push word addr high      (2 clocks) 
+ 604               			;calculate the address where current task's SP will be stored and store SP
+ 605:kernel.S      **** 		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+ 606:kernel.S      **** 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+ 607:kernel.S      **** 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
+ 608:kernel.S      **** 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
+ 609:kernel.S      **** 		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+ 610:kernel.S      **** 		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
+ 611:kernel.S      **** 		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+ 612:kernel.S      **** 		ST    Z+                 , R16                    ;SPL at KerSp+offset    (  2 clocks) 
+ 613:kernel.S      **** 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
+ 614               			
+ 615               			
+ 616               			;restore MSP
+ 617:kernel.S      **** 		OUT   IOSPL              , R2                     ;load SPL                 (1 clock ) 
+ 618:kernel.S      ****         OUT   IOSPH              , R3                     ;load SPH                 (1 clock ) 
+ 619:kernel.S      **** 		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
+ 620:kernel.S      **** 		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
+ 621:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks) 
  622               			
- 623:kernel.S      ****         KER_CONTEXT_SAVE
- 624:kernel.S      **** 		KER_CONTEXT_RESTORE
- 625               			
- 626               			;save PSP of task1
- 627:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
- 628:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock )
- 629:kernel.S      ****         STS   KerSP + 2          , R16                    ;set stp of task1         (2 clocks) 
- 630:kernel.S      ****         STS   KerSP + 3          , R17                    ;set stp of task1         (2 clocks) 
- 631               			
- 632               			;set task index -> 1
- 633:kernel.S      **** 		LDI   R16                , 0x01                   ;set R16 to 0x01          (1 clock )
- 634:kernel.S      **** 		STS   KerBase+0x06       , R16                    ;set task index = 1       (2 clocks) 
+ 623               	
+ 624               	
+ 625               	
+ 626               	;;====================================Kernel Task1 Init=====================================;;
+ 627               	Kernel_Task1_Init_Arg:
+ 628               	        ;init stack for task1
+ 629               			;save MSP
+ 630               			;IN    R2                 , IOSPL
+ 631               			;IN    R3                 , IOSPH
+ 632               			
+ 633               			;store task index to RAM from argument
+ 634:kernel.S      **** 		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
  635               			
- 636               			;restore MSP
- 637               			;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
- 638               	        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
- 639:kernel.S      **** 		SEI
- 640:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks)  ...
+ 636               			;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
+ 637:kernel.S      **** 		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+ 638:kernel.S      **** 		INC   R16                                         ;increment ker_ind      (  1 clock )
+ 639:kernel.S      **** 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
+ 640:kernel.S      **** 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
+ 641:kernel.S      **** 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
+ 642:kernel.S      **** 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
+ 643:kernel.S      **** 		SBIW  R30                , 0x01                   ;base+KER_STZ*ker_ind-1 (  2 clocks) 
+ 644:kernel.S      **** 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
+ 645:kernel.S      **** 		LDI   R16                , lo8(KerStack)          ;load base addr Low     (  1 clock )
+ 646:kernel.S      **** 		LDI   R17                , hi8(KerStack)          ;load base addr Low     (  1 clock )
+ 647:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock )
+ 648:kernel.S      **** 		ADC   R31                , R17                    ;add high bytes+carry   (  1 clock )
+ 649:kernel.S      **** 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
+ 650:kernel.S      ****         OUT   IOSPH              , R31                    ;load SPH               (  1 clock )
+ 651               			
+ 652               			;function argument directly returns word address
+ 653:kernel.S      **** 		PUSH  R24                                         ;push word addr low       (2 clocks)
+ 654:kernel.S      **** 		PUSH  R25                                         ;push word addr high      (2 clocks) 
+ 655               			
+ 656:kernel.S      ****         KER_CONTEXT_SAVE
+ 657:kernel.S      **** 		KER_CONTEXT_RESTORE
+ 658               			
+ 659               			;save PSP of task1
+ 660:kernel.S      ****         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
+ 661:kernel.S      ****         IN    R17                , IOSPH                  ;read SPH                 (1 clock )
+ 662               			
+ 663               			;calculate the address where current task's SP will be stored and store SP
+ 664:kernel.S      **** 		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+ 665:kernel.S      **** 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+ 666:kernel.S      **** 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
+ 667:kernel.S      **** 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
+ 668:kernel.S      **** 		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+ 669:kernel.S      **** 		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
+ 670:kernel.S      **** 		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+ 671:kernel.S      **** 		ST    Z+                 , R16                    ;SPL at KerSp+offset    (  2 clocks) 
+ 672:kernel.S      **** 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
+ 673               			
+ 674               			
+ 675               			;restore MSP
+ 676               			;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
+ 677               	        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+ 678:kernel.S      **** 		SEI
+ 679:kernel.S      ****         RET                                               ;return from subroutine   (4 clocks)  ...
 DEFINED SYMBOLS
             kernel.S:14     *ABS*:000003e8 KER_TR
             kernel.S:15     *ABS*:00000003 KER_PRS
@@ -1217,11 +1256,11 @@ DEFINED SYMBOLS
             kernel.S:366    .text:0000017c Kernel_SysTick_Val_Get
             kernel.S:386    .text:0000019e Kernel_Interrupt_Sts_Get
             kernel.S:398    .text:000001a8 Kernel_Task_Init
-            kernel.S:460    .text:00000232 Kernel_Task_Start
-            kernel.S:479    .text:00000286 Kernel_Task0_Init
-            kernel.S:520    .text:000002fc Kernel_Task1_Init
-            kernel.S:564    .text:00000326 Kernel_Task0_Init_Arg
-            kernel.S:608    .text:0000039c Kernel_Task1_Init_Arg
+            kernel.S:460    .text:0000023a Kernel_Task_Start
+            kernel.S:479    .text:0000028e Kernel_Task0_Init
+            kernel.S:520    .text:00000304 Kernel_Task1_Init
+            kernel.S:564    .text:0000032e Kernel_Task0_Init_Arg
+            kernel.S:627    .text:000003c0 Kernel_Task1_Init_Arg
             kernel.S:316    .text:000000a8 _MOD_CONT
             kernel.S:316    .text:000000b0 _MOD_DONE
 
