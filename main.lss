@@ -116,7 +116,7 @@ int main(void) {
   bc:	40 e0       	ldi	r20, 0x00	; 0
   be:	0e 94 75 02 	call	0x4ea	; 0x4ea <Kernel_Task1_Init_Arg>
 	Kernel_Start();
-  c2:	0e 94 bb 02 	call	0x576	; 0x576 <Kernel_Start>
+  c2:	0e 94 ba 02 	call	0x574	; 0x574 <Kernel_Start>
   c6:	ff cf       	rjmp	.-2      	; 0xc6 <SRUDR0>
 
 000000c8 <Tasks_Delay>:
@@ -488,7 +488,7 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 000002d2 <Kernel_Task_Init>:
 ;;====================================Kernel Task Init======================================;; 
 Kernel_Task_Init:
-        ;func_ptr->R25:R24, task_index->R22, task_priority->R20
+        ;func_ptr->R25:R24, task_id->R22, task_priority->R20
 		
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;read SPL of MSP        (  1 clock ) 
@@ -501,11 +501,11 @@ Kernel_Task_Init:
  2d8:	5f 2e       	mov	r5, r31
 		
 		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
  2da:	60 93 06 01 	sts	0x0106, r22
 		
 		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
-		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
  2de:	06 2f       	mov	r16, r22
 		INC   R16                                         ;increment ker_ind      (  1 clock )
  2e0:	03 95       	inc	r16
@@ -586,7 +586,7 @@ Kernel_Task_Init:
  346:	1e b7       	in	r17, 0x3e	; 62
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
  348:	26 2f       	mov	r18, r22
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
  34a:	22 0f       	add	r18, r18
@@ -844,13 +844,13 @@ Kernel_Task0_Init_Arg:
  45e:	5f 2e       	mov	r5, r31
 		
 		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
  460:	60 93 06 01 	sts	0x0106, r22
 		
 		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
-		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
  464:	06 2f       	mov	r16, r22
-		INC   R16                                         ;increment ker_ind      (  1 clock )
+		INC   R16                                         ;increment task_id      (  1 clock )
  466:	03 95       	inc	r16
 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
  468:	10 e8       	ldi	r17, 0x80	; 128
@@ -929,7 +929,7 @@ Kernel_Task0_Init_Arg:
  4cc:	1e b7       	in	r17, 0x3e	; 62
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
  4ce:	26 2f       	mov	r18, r22
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
  4d0:	22 0f       	add	r18, r18
@@ -973,11 +973,11 @@ Kernel_Task1_Init_Arg:
  4ec:	3e b6       	in	r3, 0x3e	; 62
 		
 		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
  4ee:	60 93 06 01 	sts	0x0106, r22
 		
-		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
-		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+		;set stack pointer for current task (KerStack + KER_STZ*(task_id+1) - 1)
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
  4f2:	06 2f       	mov	r16, r22
 		INC   R16                                         ;increment ker_ind      (  1 clock )
  4f4:	03 95       	inc	r16
@@ -1057,7 +1057,7 @@ Kernel_Task1_Init_Arg:
  55a:	1e b7       	in	r17, 0x3e	; 62
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
  55c:	26 2f       	mov	r18, r22
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
  55e:	22 0f       	add	r18, r18
@@ -1076,64 +1076,63 @@ Kernel_Task1_Init_Arg:
 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
  56c:	10 83       	st	Z, r17
 		
-		
-	    ;restore MSP
+		;restore MSP
 		OUT   IOSPL              , R2                     ;load SPL               (  1 clock )
  56e:	2d be       	out	0x3d, r2	; 61
         OUT   IOSPH              , R3                     ;load SPH               (  1 clock )
  570:	3e be       	out	0x3e, r3	; 62
-		SEI
- 572:	78 94       	sei
+		;SEI
 		RET                                               ;return from subroutine (  4 clocks)  
- 574:	08 95       	ret
+ 572:	08 95       	ret
 
-00000576 <Kernel_Start>:
+00000574 <Kernel_Start>:
 		
 Kernel_Start:
 		LDS   R30                , KerSP+2
- 576:	e0 91 0c 01 	lds	r30, 0x010C
+ 574:	e0 91 0c 01 	lds	r30, 0x010C
 		LDS   R31                , KerSP+3
- 57a:	f0 91 0d 01 	lds	r31, 0x010D
+ 578:	f0 91 0d 01 	lds	r31, 0x010D
 		OUT   IOSPL              , R30                   
- 57e:	ed bf       	out	0x3d, r30	; 61
+ 57c:	ed bf       	out	0x3d, r30	; 61
         OUT   IOSPH              , R31
- 580:	fe bf       	out	0x3e, r31	; 62
+ 57e:	fe bf       	out	0x3e, r31	; 62
 		KER_CONTEXT_RESTORE
- 582:	ff 91       	pop	r31
- 584:	ef 91       	pop	r30
- 586:	df 91       	pop	r29
- 588:	cf 91       	pop	r28
- 58a:	bf 91       	pop	r27
- 58c:	af 91       	pop	r26
- 58e:	9f 91       	pop	r25
- 590:	8f 91       	pop	r24
- 592:	7f 91       	pop	r23
- 594:	6f 91       	pop	r22
- 596:	5f 91       	pop	r21
- 598:	4f 91       	pop	r20
- 59a:	3f 91       	pop	r19
- 59c:	2f 91       	pop	r18
- 59e:	1f 91       	pop	r17
- 5a0:	0f 91       	pop	r16
- 5a2:	ff 90       	pop	r15
- 5a4:	ef 90       	pop	r14
- 5a6:	df 90       	pop	r13
- 5a8:	cf 90       	pop	r12
- 5aa:	bf 90       	pop	r11
- 5ac:	af 90       	pop	r10
- 5ae:	9f 90       	pop	r9
- 5b0:	8f 90       	pop	r8
- 5b2:	7f 90       	pop	r7
- 5b4:	6f 90       	pop	r6
- 5b6:	5f 90       	pop	r5
- 5b8:	4f 90       	pop	r4
- 5ba:	3f 90       	pop	r3
- 5bc:	2f 90       	pop	r2
- 5be:	1f 90       	pop	r1
- 5c0:	0f 90       	pop	r0
- 5c2:	0f be       	out	0x3f, r0	; 63
- 5c4:	0f 90       	pop	r0
-		
+ 580:	ff 91       	pop	r31
+ 582:	ef 91       	pop	r30
+ 584:	df 91       	pop	r29
+ 586:	cf 91       	pop	r28
+ 588:	bf 91       	pop	r27
+ 58a:	af 91       	pop	r26
+ 58c:	9f 91       	pop	r25
+ 58e:	8f 91       	pop	r24
+ 590:	7f 91       	pop	r23
+ 592:	6f 91       	pop	r22
+ 594:	5f 91       	pop	r21
+ 596:	4f 91       	pop	r20
+ 598:	3f 91       	pop	r19
+ 59a:	2f 91       	pop	r18
+ 59c:	1f 91       	pop	r17
+ 59e:	0f 91       	pop	r16
+ 5a0:	ff 90       	pop	r15
+ 5a2:	ef 90       	pop	r14
+ 5a4:	df 90       	pop	r13
+ 5a6:	cf 90       	pop	r12
+ 5a8:	bf 90       	pop	r11
+ 5aa:	af 90       	pop	r10
+ 5ac:	9f 90       	pop	r9
+ 5ae:	8f 90       	pop	r8
+ 5b0:	7f 90       	pop	r7
+ 5b2:	6f 90       	pop	r6
+ 5b4:	5f 90       	pop	r5
+ 5b6:	4f 90       	pop	r4
+ 5b8:	3f 90       	pop	r3
+ 5ba:	2f 90       	pop	r2
+ 5bc:	1f 90       	pop	r1
+ 5be:	0f 90       	pop	r0
+ 5c0:	0f be       	out	0x3f, r0	; 63
+ 5c2:	0f 90       	pop	r0
+		SEI
+ 5c4:	78 94       	sei
         RET                                               ;return from subroutine (  4 clocks)  
  5c6:	08 95       	ret
 

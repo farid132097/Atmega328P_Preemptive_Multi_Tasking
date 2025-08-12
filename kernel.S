@@ -56,7 +56,7 @@
 .section  .bss
 
 .global   KerBase                 ;declare global space for kernel
-KerBase:  .skip 10                ;TickCnt(5), rld_val(1), task_ind(1), ntask(1), rsrvd(2)
+KerBase:  .skip 10                ;TickCnt(5), rld_val(1), task_id(1), ntask(1), rsrvd(2)
 
 .global   KerSP                   ;declare global space for stack pointers
 KerSP:    .skip 20                ;2 bytes for each task, max 10 tasks
@@ -271,7 +271,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 .macro  KER_TASK_SWITCH                                   ;total operation        ( 39 clocks) 
 		IN    R24                , IOSPL                  ;fetch SPL0             (  1 clock ) 
 		IN    R25                , IOSPH                  ;fetch SPH0             (  1 clock ) 
-		LDS   R16                , KerBase+0x06           ;fetch task_ind         (  2 clocks) 
+		LDS   R16                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -280,7 +280,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		ADC   R31                , R16                    ;add carry if any       (  1 clock ) 
 		ST    Z+                 , R24                    ;store SPL at ZP        (  2 clocks) 
 		ST    z                  , R25                    ;store SPH ZP+1         (  2 clocks) 
-		LDS   R16                , KerBase+0x06           ;fetch task_ind         (  2 clocks) 
+		LDS   R16                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
 		INC   R16                                         ;increment task index   (  1 clock ) 
 		LDS   R17                , KerBase+0x07           ;load ntask             (  2 clocks) 
 	_MOD_CONT:
@@ -289,7 +289,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock ) 
 		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks) 
 	_MOD_DONE:
-	    STS   KerBase+0x06       , R16                    ;task_ind%ntask         (  2 clocks) 
+	    STS   KerBase+0x06       , R16                    ;task_id%ntask         (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -397,7 +397,7 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 ;;====================================Kernel Task Init======================================;; 
 Kernel_Task_Init:
-        ;func_ptr->R25:R24, task_index->R22, task_priority->R20
+        ;func_ptr->R25:R24, task_id->R22, task_priority->R20
 		
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;read SPL of MSP        (  1 clock ) 
@@ -406,10 +406,10 @@ Kernel_Task_Init:
 		MOV   R5                 , R31                    ;push ZPL               (  2 clocks)
 		
 		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
 		
 		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
-		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
 		INC   R16                                         ;increment ker_ind      (  1 clock )
 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
@@ -437,7 +437,7 @@ Kernel_Task_Init:
         IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -572,11 +572,11 @@ Kernel_Task0_Init_Arg:
 		MOV   R5                 , R31                    ;push ZPL               (  2 clocks) 
 		
 		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
 		
 		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
-		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
-		INC   R16                                         ;increment ker_ind      (  1 clock )
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
+		INC   R16                                         ;increment task_id      (  1 clock )
 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
@@ -603,7 +603,7 @@ Kernel_Task0_Init_Arg:
         IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -631,10 +631,10 @@ Kernel_Task1_Init_Arg:
 		IN    R3                 , IOSPH
 		
 		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
 		
-		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1)
-		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+		;set stack pointer for current task (KerStack + KER_STZ*(task_id+1) - 1)
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
 		INC   R16                                         ;increment ker_ind      (  1 clock )
 		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
@@ -661,7 +661,7 @@ Kernel_Task1_Init_Arg:
         IN    R17                , IOSPH                  ;read SPH               (  1 clock )
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -671,11 +671,10 @@ Kernel_Task1_Init_Arg:
 		ST    Z+                 , R16                    ;SPL at KerSp+offset    (  2 clocks) 
 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
 		
-		
-	    ;restore MSP
+		;restore MSP
 		OUT   IOSPL              , R2                     ;load SPL               (  1 clock )
         OUT   IOSPH              , R3                     ;load SPH               (  1 clock )
-		SEI
+		;SEI
 		RET                                               ;return from subroutine (  4 clocks)  
 		
 Kernel_Start:
@@ -684,7 +683,7 @@ Kernel_Start:
 		OUT   IOSPL              , R30                   
         OUT   IOSPH              , R31
 		KER_CONTEXT_RESTORE
-		
+		SEI
         RET                                               ;return from subroutine (  4 clocks)  
 		
 		
