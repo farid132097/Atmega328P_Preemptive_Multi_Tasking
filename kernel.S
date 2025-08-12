@@ -96,6 +96,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 .global  Kernel_Task_Start
 .global  Kernel_Task0_Init
 .global  Kernel_Task1_Init
+.global  Kernel_Task0_Init_Arg
+.global  Kernel_Task1_Init_Arg
 
 ;;================================define global functions end===============================;;
 
@@ -396,11 +398,11 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 Kernel_Task_Init:
         ;func_ptr->R25:R24, task_index->R22, task_priority->R20
 		
-		;save main SP, push Z pointer
+        ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;read SPL of MSP        (  1 clock ) 
         IN    R3                 , IOSPH                  ;read SPH of MSP        (  1 clock ) 
-        PUSH  R30                                         ;push ZPL               (  2 clocks)
-		PUSH  R31                                         ;push ZPH               (  2 clocks)
+        MOV   R4                 , R30                    ;push ZPL               (  2 clocks)
+		MOV   R5                 , R31                    ;push ZPL               (  2 clocks)
 		
 		;store task index to RAM from argument
 		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
@@ -417,14 +419,14 @@ Kernel_Task_Init:
         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
 		
 		;calculate word address of task function
-		MOV   R16                , R24                    ;low byte func_ptr      (  1 clock ) 
-        MOV   R17                , R25                    ;high byte func_ptr     (  1 clock ) 
-        LSR   R17                                         ;shift right high byte  (  1 clock ) 
-        ROR   R16                                         ;add carry to low byte  (  1 clock ) 
+		;MOV   R16                , R24                    ;low byte func_ptr      (  1 clock ) 
+        ;MOV   R17                , R25                    ;high byte func_ptr     (  1 clock ) 
+        ;LSR   R17                                         ;shift right high byte  (  1 clock ) 
+        ;ROR   R16                                         ;add carry to low byte  (  1 clock ) 
 		
 		;push word address of task function to stack of this task
-	    PUSH  R16                                         ;push word addr low     (  2 clocks) 
-		PUSH  R17                                         ;push word addr high    (  2 clocks) 
+	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
+		PUSH  R25                                         ;push word addr high    (  2 clocks) 
 		
 		;push context to stack of this task
 		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
@@ -447,8 +449,8 @@ Kernel_Task_Init:
 		;load Main SP, restore Z pointer
 		OUT   IOSPL              , R2                     ;load SPL               (  1 clock )
         OUT   IOSPH              , R3                     ;load SPH               (  1 clock )
-		POP   R30                                         ;pop ZPL                (  2 clocks)
-		POP   R31                                         ;pop ZPH                (  2 clocks)
+		MOV   R30                , R4                     ;push ZPL               (  2 clocks)
+		MOV   R31                , R5                     ;push ZPL               (  2 clocks)
 		RET                                               ;return from subroutine (  4 clocks) 
 
 
@@ -536,6 +538,90 @@ Kernel_Task1_Init:
 		PUSH  R17                                         ;push word addr high      (2 clocks) 
 		
         ;KER_CNTXT_SV
+		
+		;save PSP of task1
+        IN    R16                , IOSPL                  ;read SPL                 (1 clock )
+        IN    R17                , IOSPH                  ;read SPH                 (1 clock )
+        STS   KerSP + 2          , R16                    ;set stp of task1         (2 clocks) 
+        STS   KerSP + 3          , R17                    ;set stp of task1         (2 clocks) 
+		
+		;set task index -> 1
+		LDI   R16                , 0x01                   ;set R16 to 0x01          (1 clock )
+		STS   KerBase+0x06       , R16                    ;set task index = 1       (2 clocks) 
+		
+		;restore MSP
+		;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
+        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+		SEI
+        RET                                               ;return from subroutine   (4 clocks)  
+		
+		
+
+
+
+
+;;====================================Kernel Task0 Init=====================================;;
+Kernel_Task0_Init_Arg:
+        ;init stack for task0
+		
+		;save main SP & Z pointer
+        IN    R2                 , IOSPL                  ;read SPL of MSP        (  1 clock ) 
+        IN    R3                 , IOSPH                  ;read SPH of MSP        (  1 clock ) 
+        MOV   R4                 , R30                    ;push ZPL               (  2 clocks) 
+		MOV   R5                 , R31                    ;push ZPL               (  2 clocks) 
+		
+		;set stack for task0
+		LDI   R16                , lo8(KerStack+KER_STZ-1);fetch top SPL0,          (1 clock )
+		LDI   R17                , hi8(KerStack+KER_STZ-1);fetch top SPH0,          (1 clock )
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+		
+		
+		;psuh return address of task0
+		PUSH  R24                                         ;push word addr low       (2 clocks)
+		PUSH  R25                                         ;push word addr high      (2 clocks) 
+		
+		
+        KER_CONTEXT_SAVE
+		
+		;save PSP of task0
+        IN    R16                , IOSPL                  ;read SPL                 (1 clock ) 
+        IN    R17                , IOSPH                  ;read SPH                 (1 clock ) 
+        STS   KerSP + 0          , R16                    ;set stp of task0         (2 clocks) 
+        STS   KerSP + 1          , R17                    ;set stp of task0         (2 clocks) 
+		
+		;set task index -> 0
+		LDI   R16                , 0x00                   ;set R16 to 0x00          (1 clock ) 
+		STS   KerBase+0x06       , R16                    ;set task index = 0       (2 clocks) 
+		
+		;restore MSP
+		OUT   IOSPL              , R2                     ;load SPL                 (1 clock ) 
+        OUT   IOSPH              , R3                     ;load SPH                 (1 clock ) 
+		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
+		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
+        RET                                               ;return from subroutine   (4 clocks) 
+		
+
+
+
+;;====================================Kernel Task1 Init=====================================;;
+Kernel_Task1_Init_Arg:
+        ;init stack for task1
+		;save MSP
+		;IN    R2                 , IOSPL
+		;IN    R3                 , IOSPH
+		
+		;set stack for task1
+		LDI   R16                , lo8(KerStack+KER_STZ*2-1);fetch top SPL1,          (1 clock )
+		LDI   R17                , hi8(KerStack+KER_STZ*2-1);fetch top SPH1,          (1 clock )
+		OUT   IOSPL              , R16                    ;load SPL                 (1 clock )
+        OUT   IOSPH              , R17                    ;load SPH                 (1 clock )
+		
+		PUSH  R24                                         ;push word addr low       (2 clocks)
+		PUSH  R25                                         ;push word addr high      (2 clocks) 
+		
+        KER_CONTEXT_SAVE
+		KER_CONTEXT_RESTORE
 		
 		;save PSP of task1
         IN    R16                , IOSPL                  ;read SPL                 (1 clock )
