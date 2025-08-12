@@ -5,31 +5,23 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 #include "debug.h"
+#include "tasks.h"
 
-//uint64_t cur = 0, next = 0;
 
 int main(void) {
     
 	
 	//Debug_Init();
 	Kernel_SysTick_Reg_Init(1000);
-	Kernel_Task0_Init();
-	Kernel_Task1_Init();
+	Kernel_Task_Init(&Tasks_Task0, 1, 0);
+	Kernel_Task_Init(&Tasks_Task1, 2, 0);
+	Kernel_Task_Start();
 	
+	//Kernel_Task0_Init();
 	//Kernel_Task1_Init();
-	//Kernel_Test_Task0();
-	//sei();
-	
-	
 	
     while(1){
 		
-		/*
-		while(next > cur){
-		  cur = Kernel_SysTick_Val_Get();  
-		}
-		next  = Kernel_SysTick_Val_Get() + 50;
-		Debug_Tx_Byte('A');
-		*/
+     
     }
 }

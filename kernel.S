@@ -54,6 +54,7 @@
 
 ;;===============================define global variables start==============================;;
 .section  .bss
+
 .global   KerBase                 ;declare global space for kernel
 KerBase:  .skip 10                ;TickCnt(5), rld_val(1), task_ind(1), ntask(1), rsrvd(2)
 
@@ -61,7 +62,7 @@ KerBase:  .skip 10                ;TickCnt(5), rld_val(1), task_ind(1), ntask(1)
 KerSP:    .skip 20                ;2 bytes for each task, max 10 tasks
 
 .global   KerStack                ;declare global space for stack
-KerStack: .skip KER_STZ*10        ;128 bytes for each task
+KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 ;;================================define global variables end===============================;;
 
 
@@ -70,6 +71,7 @@ KerStack: .skip KER_STZ*10        ;128 bytes for each task
 
 ;;=================================define vector section start==============================;;
 .section .vectors, "ax", @progbits
+
 .org    0x20
         RJMP  __vector_16
 ;;=================================define vector section end================================;;
@@ -392,47 +394,84 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 ;;====================================Kernel Task Init======================================;; 
 Kernel_Task_Init:
-;   func_ptr->R25:R24, task_id->R22, task_priority->R20
-        IN    R16                , IOSPL                  ;read SPL of MSP          (1 clock ) 
-        IN    R17                , IOSPH                  ;read SPH of MSP          (1 clock ) 
-        
+        ;func_ptr->R25:R24, task_index->R22, task_priority->R20
 		
-		IN    R2                 , IOSPL
-		IN    R3                 , IOSPH
-	    LDI   R16                , lo8(KER_STZ-1)
-        LDI   R17                , hi8(KER_STZ-1)
-        ADD   R22                , R16
-        ADC   R23                , R17
-		OUT   IOSPL              , R22
-        OUT   IOSPH              , R23
-		MOV   R16                , R24        ; low byte func_ptr
-        MOV   R17                , R25        ; high byte func_ptr
-        LSR   R17                             ; shift right high byte
-        ROR   R16                             ; rotate carry into low byte
-	    PUSH  R16
-        PUSH  R17
-		KER_CONTEXT_SAVE
-		IN    R16                , IOSPL
-        IN    R17                , IOSPH
-        MOV   R20                , R18        ; task_id copy
-        LSL   R20                             ; multiply by 2 (word index)
-        LDI   R30                , lo8(KerSP)
-        LDI   R31                , hi8(KerSP)
-        ADD   R30                , R20        ; offset low byte
-        ADC   R31                , R1         ; offset high byte = 0
-        ST     Z+                , R16        ; store low byte of SP
-        ST     Z                 , R17        ; store high byte of SP
-		OUT   IOSPL, R2
-        OUT   IOSPH, R3
+		;save main SP, push Z pointer
+        IN    R2                 , IOSPL                  ;read SPL of MSP        (  1 clock ) 
+        IN    R3                 , IOSPH                  ;read SPH of MSP        (  1 clock ) 
+        PUSH  R30                                         ;push ZPL               (  2 clocks)
+		PUSH  R31                                         ;push ZPH               (  2 clocks)
+		
+		;store task index to RAM from argument
+		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
+		
+		;set stack pointer for current tas (KerBase + KER_STZ*ker_ind - 1)
+		MOV   R16                , R22                    ;load task_ind          (  1 clock ) 
+		LDI   R17                , KER_STZ                ;load with stack size   (  1 clock ) 
+		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
+		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
+		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
+		SBIW  R30                , 0x01                   ;base+KER_STZ*ker_ind-1 (  2 clocks) 
+		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
+		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
+        OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
+		
+		;calculate word address of task function
+		MOV   R16                , R24                    ;low byte func_ptr      (  1 clock ) 
+        MOV   R17                , R25                    ;high byte func_ptr     (  1 clock ) 
+        LSR   R17                                         ;shift right high byte  (  1 clock ) 
+        ROR   R16                                         ;add carry to low byte  (  1 clock ) 
+		
+		;push word address of task function to stack of this task
+	    PUSH  R16                                         ;push word addr low     (  2 clocks) 
+		PUSH  R17                                         ;push word addr high    (  2 clocks) 
+		
+		;push context to stack of this task
+		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
+		
+		;read stack pointer of current task (necessary when restore)
+		IN    R16                , IOSPL                  ;read SPL               (  1 clock ) 
+        IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
+		
+		;calculate the address where current task's SP will be stored and store SP
+		LDS   R18                , KerBase+0x06           ;fetch task_ind         (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+		ST    Z+                 , R16                    ;SPL at KerSp+offset    (  2 clocks) 
+		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
+		
+		;load Main SP, restore Z pointer
+		OUT   IOSPL              , R2                     ;load SPL               (  1 clock )
+        OUT   IOSPH              , R3                     ;load SPH               (  1 clock )
+		POP   R30                                         ;pop ZPL                (  2 clocks)
+		POP   R31                                         ;pop ZPH                (  2 clocks)
+		RET                                               ;return from subroutine (  4 clocks) 
+
+
+
 
 ;;====================================Kernel Task start=====================================;;
 Kernel_Task_Start:
-;   func_ptr->R25:R24, task_id->R22, task_priority->R20
-        ;save MSP
-		IN    R2                 , IOSPL
-		IN    R3                 , IOSPH
-	    LDI   R16                , lo8(KER_STZ-1)
-        SEI
+        ;set SP as task0 sp
+		LDS   R16                , KerSP+0x00             ;fetch base pos low     (  1 clock ) 
+		LDS   R17                , KerSP+0x01             ;fetch base pos high    (  1 clock )
+		OUT   IOSPL              , R16                    ;load SPL               (  1 clock )
+        OUT   IOSPH              , R17                    ;load SPH               (  1 clock )
+       
+        ;forcefully restore context, in ISR it will be stored automatically
+		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks)
+		
+		;enable global interrupt to start executing task, starting with task0
+		SEI                                               ;enable global int      (  1 clock )
+		
+		;execute return to jump to task0 function address, pushed while task init
+		RET                                               ;return from subroutine (  4 clocks)
+
+ 
 
 ;;====================================Kernel Task0 Init=====================================;;
 Kernel_Task0_Init:
