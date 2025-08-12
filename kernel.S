@@ -15,7 +15,7 @@
 .equ     KER_PRS,         0x03    ;For prescaler 64, manually select
 .equ     KER_RLD,         0x82    ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
 
-.equ     KER_STZ,         256     ;stack size for each task
+.equ     KER_STZ,         128     ;stack size for each task
 .equ     KER_NTASK,       2       ;total tasks
 ;;==============================define user address or macro end============================;;
 
@@ -97,8 +97,10 @@ ker_stk2: .skip KER_STZ           ;KER_STZ B->Stack2
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_Interrupt_Sts_Get
 .global  Kernel_Task_Init
+.global  Kernel_Task_Start
 .global  Kernel_Task0_Init
 .global  Kernel_Task1_Init
+
 ;;================================define global functions end===============================;;
 
 
@@ -394,9 +396,9 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-;;====================================Kernel Task0 Init=====================================;;
+;;====================================Kernel Task Init=====================================;;
 Kernel_Task_Init:
-;   func_ptr->R25:R24, stack_base->R23:R22, task_id->R18, task_priority->R19
+;   func_ptr->R25:R24, task_id->R22, task_priority->R20
         ;save MSP
 		IN    R2                 , IOSPL
 		IN    R3                 , IOSPH
@@ -425,6 +427,15 @@ Kernel_Task_Init:
         ST     Z                 , R17        ; store high byte of SP
 		OUT   IOSPL, R2
         OUT   IOSPH, R3
+
+;;====================================Kernel Task start=====================================;;
+Kernel_Task_Start:
+;   func_ptr->R25:R24, task_id->R22, task_priority->R20
+        ;save MSP
+		IN    R2                 , IOSPL
+		IN    R3                 , IOSPH
+	    LDI   R16                , lo8(KER_STZ-1)
+        SEI
 
 ;;====================================Kernel Task0 Init=====================================;;
 Kernel_Task0_Init:
