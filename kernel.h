@@ -32,7 +32,7 @@ extern void      Kernel_Task1_Init(void);
 
 extern void      Kernel_Task0_Init_Arg(void (*func)(void), uint8_t task_id, uint8_t task_priority);
 extern void      Kernel_Task1_Init_Arg(void (*func)(void), uint8_t task_id, uint8_t task_priority);
-
+extern void      Kernel_Start(void);
 #endif
 
 #endif

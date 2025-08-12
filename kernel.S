@@ -98,6 +98,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 .global  Kernel_Task1_Init
 .global  Kernel_Task0_Init_Arg
 .global  Kernel_Task1_Init_Arg
+.global  Kernel_Start
 
 ;;================================define global functions end===============================;;
 
@@ -614,21 +615,20 @@ Kernel_Task0_Init_Arg:
 		
 		
 		;restore MSP
-		OUT   IOSPL              , R2                     ;load SPL                 (1 clock ) 
-        OUT   IOSPH              , R3                     ;load SPH                 (1 clock ) 
+		OUT   IOSPL              , R2                     ;load SPL               (  1 clock ) 
+        OUT   IOSPH              , R3                     ;load SPH               (  1 clock ) 
 		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
 		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
-        RET                                               ;return from subroutine   (4 clocks) 
+        RET                                               ;return from subroutine (  4 clocks) 
 		
 
 
 
 ;;====================================Kernel Task1 Init=====================================;;
 Kernel_Task1_Init_Arg:
-        ;init stack for task1
 		;save MSP
-		;IN    R2                 , IOSPL
-		;IN    R3                 , IOSPH
+		IN    R2                 , IOSPL
+		IN    R3                 , IOSPH
 		
 		;store task index to RAM from argument
 		STS   KerBase+0x06       , R22                    ;save task_ind in RAM   (  2 clocks)
@@ -650,15 +650,15 @@ Kernel_Task1_Init_Arg:
         OUT   IOSPH              , R31                    ;load SPH               (  1 clock )
 		
 		;function argument directly returns word address
-		PUSH  R24                                         ;push word addr low       (2 clocks)
-		PUSH  R25                                         ;push word addr high      (2 clocks) 
+		PUSH  R24                                         ;push word addr low     (  2 clocks)
+		PUSH  R25                                         ;push word addr high    (  2 clocks) 
 		
         KER_CONTEXT_SAVE
-		KER_CONTEXT_RESTORE
+		;KER_CONTEXT_RESTORE
 		
 		;save PSP of task1
-        IN    R16                , IOSPL                  ;read SPL                 (1 clock )
-        IN    R17                , IOSPH                  ;read SPH                 (1 clock )
+        IN    R16                , IOSPL                  ;read SPL               (  1 clock )
+        IN    R17                , IOSPH                  ;read SPH               (  1 clock )
 		
 		;calculate the address where current task's SP will be stored and store SP
 		MOV   R18                , R22                    ;fetch task_ind from arg(  1 clock ) 
@@ -672,8 +672,21 @@ Kernel_Task1_Init_Arg:
 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
 		
 		
-		;restore MSP
-		;OUT   IOSPL              , R2                     ;load SPL                 (1 clock )
-        ;OUT   IOSPH              , R3                     ;load SPH                 (1 clock )
+	    ;restore MSP
+		OUT   IOSPL              , R2                     ;load SPL               (  1 clock )
+        OUT   IOSPH              , R3                     ;load SPH               (  1 clock )
 		SEI
-        RET                                               ;return from subroutine   (4 clocks)  
+		RET                                               ;return from subroutine (  4 clocks)  
+		
+Kernel_Start:
+		LDS   R30                , KerSP+2
+		LDS   R31                , KerSP+3
+		OUT   IOSPL              , R30                   
+        OUT   IOSPH              , R31
+		KER_CONTEXT_RESTORE
+		
+        RET                                               ;return from subroutine (  4 clocks)  
+		
+		
+		
+		
