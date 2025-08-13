@@ -10,7 +10,7 @@
 
 
 
-;;=============================define user address or macro start===========================;;
+;;============================define user address or macro starting=========================;;
 .equ     KER_TR ,         1000    ;TickRate in Hz, only defined, not calculated
 .equ     KER_PRS,         0x03    ;For prescaler 64, manually select
 .equ     KER_RLD,         0x82    ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
@@ -23,7 +23,7 @@
 
 
 
-;;=============================define hardware reg address start============================;;
+;;===========================define hardware reg address starting===========================;;
 .equ     SRSREG,          0x5F    ;manually defined SREG in SRAM
 .equ     SRSPH,           0x5E    ;manually defined SPH in SRAM
 .equ     SRSPL,           0x5D    ;manually defined SPL in SRAM
@@ -52,7 +52,7 @@
 
 
 
-;;===============================define global variables start==============================;;
+;;=============================define global variables starting=============================;;
 .section  .bss
 
 .global   KerBase                 ;declare global space for kernel
@@ -69,7 +69,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;=================================define vector section start==============================;;
+;;===============================define vector section starting=============================;;
 .section .vectors, "ax", @progbits
 
 .org    0x20
@@ -80,7 +80,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;=================================define text section start================================;;
+;;===============================define text section starting===============================;;
 .section .text
 ;;==================================define text section end=================================;;
 
@@ -88,19 +88,19 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;===============================define global functions start==============================;;
+;;==============================define global functions starting============================;;
 .global  Kernel_SysTick_Reg_Init
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_Interrupt_Sts_Get
 .global  Kernel_Task_Init
-.global  Kernel_Task_Start
+.global  Kernel_Start_Tasks
 ;;================================define global functions end===============================;;
 
 
 
 
 
-;;==============================debug pin operation init start==============================;; 
+;;============================debug pin operation init starting=============================;; 
 .macro  KER_DEBUG_PIN_INIT                                ;total operation        (  4 clocks) 
         #ifdef KER_DBG_ENABLE
 		SBI   KER_DBG_DDR        , KER_DBG_PIN            ;set bit in DDR         (  2 clocks) 
@@ -113,7 +113,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;=============================debug pin operation set start================================;; 
+;;===========================debug pin operation set starting===============================;; 
 .macro  KER_DEBUG_PIN_SET                                 ;total operation        (  2 clocks) 
         #ifdef KER_DBG_ENABLE
         SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio               (  2 clocks) 
@@ -125,7 +125,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;=============================debug pin operation clear start==============================;; 
+;;===========================debug pin operation clear starting=============================;; 
 .macro  KER_DEBUG_PIN_CLEAR                               ;total operation        (  2 clocks) 
         #ifdef KER_DBG_ENABLE
 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear gpio             (  2 clocks) 
@@ -137,7 +137,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;================================reload counter value start================================;; 
+;;==============================reload counter value starting===============================;; 
 .macro  KER_COUNTER_RELOAD                                ;total operation        (  4 clocks) 
         LDS   R16                , KerBase+0x05           ;fetch reload value     (  2 clocks) 
 		STS   SRTCNT0            , R16                    ;Set value to TCNT0     (  2 clocks) 
@@ -148,7 +148,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;====================================context save start====================================;; 
+;;==================================context save starting===================================;; 
 .macro  KER_CONTEXT_SAVE                                  ;total operation        ( 68 clocks) 
         PUSH  R0                                          ;save R0                (  2 clocks) 
 		IN    R0                 , IOSREG                 ;load SREG              (  1 clock ) 
@@ -192,7 +192,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;==================================context restore start===================================;; 
+;;================================context restore starting==================================;; 
 .macro  KER_CONTEXT_RESTORE                               ;total operation        ( 67 clocks) 
 		POP   R31                                         ;restore R31            (  2 clocks) 
 		POP   R30                                         ;restore R30            (  2 clocks) 
@@ -235,7 +235,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;================================increment tick counter start==============================;;
+;;==============================increment tick counter starting=============================;;
 .macro  KER_TICK_INCREMENT                                ;total operation        ( 27 clocks) 
 		LDI   R16                , 0x01                   ;load 1 to R16          (  1 clock )
 		LDS   R17                , KerBase+0x00           ;load Byte0             (  2 clocks)
@@ -261,7 +261,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;======================================task switch start===================================;;
+;;====================================task switch starting==================================;;
 .macro  KER_TASK_SWITCH                                   ;total operation        ( 39 clocks) 
 		IN    R24                , IOSPL                  ;fetch SPL0             (  1 clock ) 
 		IN    R25                , IOSPH                  ;fetch SPH0             (  1 clock ) 
@@ -301,7 +301,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;===================================ISR execution start====================================;; 
+;;=================================ISR execution starting===================================;; 
 .global  __vector_16
     __vector_16:                                          ;total operation        (208 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
@@ -318,7 +318,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;==================================SysTick reg init start==================================;; 
+;;================================SysTick reg init starting=================================;; 
 Kernel_SysTick_Reg_Init:                                  ;total operation        ( 55 clocks) 
         CLI                                               ;disable global int,    (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
@@ -357,7 +357,7 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 
 
 
-;;=================================SysTick value get start==================================;; 
+;;===============================SysTick value get starting=================================;; 
 Kernel_SysTick_Val_Get:                                   ;total operation        ( 20 clocks) 
         IN    R16                , IOSREG                 ;save SREG              (  1 clock ) 
         CLI                                               ;disable interrupts     (  1 clock ) 
@@ -377,7 +377,7 @@ Kernel_SysTick_Val_Get:                                   ;total operation      
 
 
 
-;;===============================interrupt status get start=================================;; 
+;;==============================interrupt status get starting===============================;; 
 Kernel_Interrupt_Sts_Get:                                 ;total operation        ( 10 clocks) 
         LDI   R24		         , 0x00                   ;clear R24              (  1 clock ) 
         IN    R16		         , IOSREG                 ;save SREG in R16       (  1 clock ) 
@@ -389,10 +389,9 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-;;====================================Kernel Task Init======================================;; 
+;;================================kernel task init starting=================================;; 
 Kernel_Task_Init:
         ;func_ptr->R25:R24, task_id->R22, task_priority->R20
-		
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
         IN    R3                 , IOSPH                  ;save SPH of MSP        (  1 clock ) 
@@ -423,7 +422,6 @@ Kernel_Task_Init:
 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
 		
-		
 		;function argument directly returns word address
 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
@@ -452,12 +450,14 @@ Kernel_Task_Init:
 		MOV   R30                , R4                     ;push ZPL               (  2 clocks)
 		MOV   R31                , R5                     ;push ZPL               (  2 clocks)
 		RET                                               ;return from subroutine (  4 clocks) 
+;;===================================kernel task init end===================================;; 
 
 
 
 
-;;====================================Kernel Task start=====================================;;
-Kernel_Task_Start:
+
+;;===================================Kernel Task starting===================================;;
+Kernel_Start_Tasks:
         ;fetch ntask, for 3 tasks-> ntask will be 3
         LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
 		DEC   R16                                         ;decrement ntask        (  1 clock )
@@ -497,3 +497,9 @@ Kernel_Task_Start:
 		
 		;execute return to jump to last task's function address, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
+;;======================================Kernel Task end=====================================;;
+
+
+
+
+

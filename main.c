@@ -23,7 +23,7 @@ int main(void) {
 	Kernel_Task_Init(Tasks_Task0, 0, 0);
 	Kernel_Task_Init(Tasks_Task1, 1, 0);
 	Kernel_Task_Init(Tasks_Task2, 2, 0);
-	Kernel_Task_Start();
+	Kernel_Start_Tasks();
 	
 	
     while(1){
