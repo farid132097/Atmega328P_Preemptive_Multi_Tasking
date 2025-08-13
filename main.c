@@ -15,14 +15,13 @@
 int main(void) {
     
 	
-	//Debug_Init();
-	//Debug_Tx_Dbg();
 	Kernel_SysTick_Reg_Init(0x03, 0x82);
-	
 	
 	Kernel_Task_Init(Tasks_Task0, 0, 0);
 	Kernel_Task_Init(Tasks_Task1, 1, 0);
 	Kernel_Task_Init(Tasks_Task2, 2, 0);
+	Kernel_Task_Init(Tasks_Task3, 3, 0);
+	Kernel_Task_Init(Tasks_Task4, 4, 0);
 	Kernel_Start_Tasks();
 	
 	

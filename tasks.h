@@ -9,6 +9,8 @@
 void     Tasks_Task0(void);
 void     Tasks_Task1(void);
 void     Tasks_Task2(void);
+void     Tasks_Task3(void);
+void     Tasks_Task4(void);
 
 #endif
 

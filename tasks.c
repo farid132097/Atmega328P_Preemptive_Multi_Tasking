@@ -25,7 +25,7 @@ void Tasks_Task0(void){
   while(1){
     
     PORTD ^= (1<<5);
-	Debug_Print_TSK0();
+	Debug_Print_TSK(0);
 	Tasks_Delay(12);
 	
   }
@@ -39,8 +39,8 @@ void Tasks_Task1(void){
   while(1){
     
     PORTD ^= (1<<6);
-	Debug_Print_TSK1();
-	Tasks_Delay(41);
+	Debug_Print_TSK(1);
+	Tasks_Delay(26);
 	
   }
 }
@@ -53,8 +53,32 @@ void Tasks_Task2(void){
   while(1){
     
     PORTD ^= (1<<7);
-	Debug_Print_TSK2();
-	Tasks_Delay(70);
+	Debug_Print_TSK(2);
+	Tasks_Delay(37);
+	
+  }
+}
+
+void Tasks_Task3(void){
+  
+  Debug_Init();
+  
+  while(1){
+    
+	Debug_Print_TSK(3);
+	Tasks_Delay(42);
+	
+  }
+}
+
+void Tasks_Task4(void){
+  
+  Debug_Init();
+  
+  while(1){
+    
+	Debug_Print_TSK(4);
+	Tasks_Delay(55);
 	
   }
 }

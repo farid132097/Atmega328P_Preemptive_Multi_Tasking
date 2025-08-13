@@ -32,10 +32,7 @@
 .global  Debug_Tx_From_RAM_No_Stack
 .global  Debug_Tx_RAM_Area_No_Stack
 
-.global  Debug_Print_Dbg
-.global  Debug_Print_TSK0
-.global  Debug_Print_TSK1
-.global  Debug_Print_TSK2
+.global  Debug_Print_TSK
 
 ;;========================================Debug Init========================================;;
 Debug_Init:
@@ -140,45 +137,16 @@ Debug_Tx_RAM_Area:
 
 
 
+;;=====================================Debug Dummy Print====================================;;
+Debug_Print_TSK:
+        ;write 4 bytes, (Arg R22-R25), Args retained
+		MOV   R16                , R24                    ;copy R24 to R16          (1 clock )
+		LDI   R22                , 'T'                    ;copy char                (1 clock )
+		LDI   R23                , 'S'                    ;copy char                (1 clock )
+		LDI   R24                , 'k'                    ;copy char                (1 clock )
+		MOV   R25                , R16                    ;copy char                (1 clock )
+		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
 
 
 
-;;======================================Debug Print->Dbg====================================;;
-Debug_Print_Dbg:
-        ;write 4 bytes, (Arg R22-R25), Args retained
-		LDI   R22                , '-'                    ;copy R18 to R24          (1 clock )
-		LDI   R23                , 'D'                    ;copy R18 to R24          (1 clock )
-		LDI   R24                , 'b'                    ;copy R18 to R24          (1 clock )
-		LDI   R25                , 'g'                    ;copy R18 to R24          (1 clock )
-		CALL  Debug_Tx_DWord_Conf                         ;send via uart
-        RET                                               ;return from subroutine,  (4 clocks) 
-		
-;;=====================================Debug Dummy Print====================================;;
-Debug_Print_TSK0:
-        ;write 4 bytes, (Arg R22-R25), Args retained
-		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
-		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
-		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
-		LDI   R25                , '0'                    ;copy R18 to R24          (1 clock )
-		CALL  Debug_Tx_DWord_Conf                         ;send via uart
-        RET                                               ;return from subroutine,  (4 clocks) 
-		
-;;=====================================Debug Dummy Print====================================;;
-Debug_Print_TSK1:
-        ;write 4 bytes, (Arg R22-R25), Args retained
-		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
-		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
-		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
-		LDI   R25                , '1'                    ;copy R18 to R24          (1 clock )
-		CALL  Debug_Tx_DWord_Conf                         ;send via uart
-        RET                                               ;return from subroutine,  (4 clocks) 
-		
-;;=====================================Debug Dummy Print====================================;;
-Debug_Print_TSK2:
-        ;write 4 bytes, (Arg R22-R25), Args retained
-		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
-		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
-		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
-		LDI   R25                , '2'                    ;copy R18 to R24          (1 clock )
-		CALL  Debug_Tx_DWord_Conf                         ;send via uart
-        RET                                               ;return from subroutine,  (4 clocks) 

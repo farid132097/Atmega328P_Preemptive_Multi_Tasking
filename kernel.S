@@ -357,18 +357,21 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 ;;===============================SysTick value get starting=================================;; 
 Kernel_SysTick_Val_Get:                                   ;total operation        ( 42 clocks) 
     _READ_AGAIN:
+	    ;first read & store to actual return registers
 		LDS   R18		         , KerBase+0x00           ;byte0 (LSB)            (  2 clocks) 
 		LDS   R19		         , KerBase+0x01           ;byte1                  (  2 clocks) 
 		LDS   R20		         , KerBase+0x02           ;byte2                  (  2 clocks) 
 		LDS   R21		         , KerBase+0x03           ;byte3                  (  2 clocks) 
 		LDS   R22		         , KerBase+0x04           ;byte4 (MSB)            (  2 clocks) 
 		
+		;second read to scratch registers
 		LDS   R26		         , KerBase+0x00           ;byte0 (LSB)            (  2 clocks) 
 		LDS   R27		         , KerBase+0x01           ;byte1                  (  2 clocks) 
 		LDS   R30		         , KerBase+0x02           ;byte2                  (  2 clocks) 
 		LDS   R31		         , KerBase+0x03           ;byte3                  (  2 clocks) 
 		LDS   R0		         , KerBase+0x04           ;byte4 (MSB)            (  2 clocks) 
 		
+		;compare all pairs
 		CP    R18                , R26                    ;compare                (  1 clock ) 
 		BRNE  _READ_AGAIN                                 ;if !=0, read again     (  2 clocks) 
 		CP    R19                , R27                    ;compare                (  1 clock ) 
@@ -379,6 +382,8 @@ Kernel_SysTick_Val_Get:                                   ;total operation      
 		BRNE  _READ_AGAIN                                 ;if !=0, read again     (  2 clocks) 
 		CP    R22                , R0                     ;compare                (  1 clock ) 
 		BRNE  _READ_AGAIN                                 ;if !=0, read again     (  2 clocks) 
+		
+		;only 5 bytes data are taken, force clear 3 high bytes (64bit return R25:R18)
 		LDI   R23		         , 0x00                   ;byte5 -> R23           (  1 clocks) 
 		LDI   R24		         , 0x00                   ;byte6 -> R24           (  1 clocks) 
 		LDI   R25		         , 0x00                   ;byte7 -> R25           (  1 clocks) 

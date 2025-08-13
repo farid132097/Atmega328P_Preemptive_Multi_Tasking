@@ -23,10 +23,7 @@ extern void      Debug_Tx_DWord_Conf(uint32_t data);
 extern void      Debug_Tx_From_RAM(uint16_t addr);
 extern void      Debug_Tx_RAM_Area(uint16_t strt_addr, uint8_t len);
 
-extern void      Debug_Print_Dbg(void);
-extern void      Debug_Print_TSK0(void);
-extern void      Debug_Print_TSK1(void);
-extern void      Debug_Print_TSK2(void);
+extern void      Debug_Print_TSK(uint8_t index);
 
 #endif
 
