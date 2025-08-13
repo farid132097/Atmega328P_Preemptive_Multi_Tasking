@@ -401,9 +401,6 @@ Kernel_Task_Init:
 		INC   R16                                         ;increment ntask        (  1 clock ) 
 		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
 		
-		;store task index to RAM from argument
-		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
-		
 		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1) ->stack top
 		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
 		INC   R16                                         ;increment task_id      (  1 clock ) 
@@ -456,14 +453,7 @@ Kernel_Task_Init:
 
 ;;===================================Kernel Task starting===================================;;
 Kernel_Start_Tasks:
-        ;fetch ntask, for 3 tasks-> ntask will be 3
-        LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
-		DEC   R16                                         ;decrement ntask        (  1 clock )
-		LDI   R17                , 0x02                   ;set 2 in R17           (  1 clock ) 
-		MUL   R16                , R17                    ;offset = (ntask-1)*2   (  2 clocks) 
-		MOV   R17                , R0                     ;result stored R1:R0    (  1 clock )
-		CLR   R1                                          ;gcc expects cleard     (  1 clock )
-		
+		;start executing from task0
 		;save ZP
 		MOV   R4                 , R30                    ;save ZPL               (  2 clocks)
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks)
@@ -471,9 +461,6 @@ Kernel_Start_Tasks:
 		;load ZP with addr+offset
 		LDI   R30                , lo8(KerSP)             ;fetch ZPL KerSP        (  1 clock )
 		LDI   R31                , hi8(KerSP)             ;fetch ZPH KerSP        (  1 clock )
-		ADD   R30                , R17                    ;R30+offset             (  1 clock )
-		LDI   R17                , 0x00                   ;clear R17              (  1 clock )
-		ADC   R31                , R17                    ;R31+carry              (  1 clock )
 		
 		;load last task's SP
 		LD    R16                , Z+                     ;load val from Z, inc Z (  2 clocks)
