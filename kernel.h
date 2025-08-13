@@ -22,7 +22,7 @@
 #ifndef __ASSEMBLER__           //Only accessible via C
 
 
-extern void      Kernel_SysTick_Reg_Init(uint16_t tick_rate);
+extern void      Kernel_SysTick_Reg_Init(uint8_t presclaer_reg, uint8_t reload_val);
 extern uint64_t  Kernel_SysTick_Val_Get(void);
 extern uint8_t   Kernel_Interrupt_Sts_Get(void);
 extern void      Kernel_Task_Init(void (*func)(void), uint8_t task_id, uint8_t task_priority);

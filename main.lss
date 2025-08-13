@@ -94,9 +94,9 @@ int main(void) {
 	
 	//Debug_Init();
 	//Debug_Tx_Dbg();
-	Kernel_SysTick_Reg_Init(1000);
-  a2:	88 ee       	ldi	r24, 0xE8	; 232
-  a4:	93 e0       	ldi	r25, 0x03	; 3
+	Kernel_SysTick_Reg_Init(0x03, 0x41);
+  a2:	83 e0       	ldi	r24, 0x03	; 3
+  a4:	61 e4       	ldi	r22, 0x41	; 65
   a6:	0e 94 2f 01 	call	0x25e	; 0x25e <Kernel_SysTick_Reg_Init>
 	
 	
@@ -415,7 +415,7 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
  286:	00 93 08 01 	sts	0x0108, r16
         STS   KerBase+0x09       , R16                    ;clear  KerBase[9]      (  2 clocks) 
  28a:	00 93 09 01 	sts	0x0109, r16
-		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
+		STS   KerBase+0x07       , R16                    ;set ntask to 0         (  2 clocks) 
  28e:	00 93 07 01 	sts	0x0107, r16
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
  292:	00 93 44 00 	sts	0x0044, r16
@@ -431,12 +431,12 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
  2a6:	00 93 48 00 	sts	0x0048, r16
 		STS   SRTCNT0            , R16                    ;clear TCNT0            (  2 clocks) 
  2aa:	00 93 46 00 	sts	0x0046, r16
-		LDI   R16                , KER_PRS                ;prescaler 64           (  1 clock ) 
- 2ae:	03 e0       	ldi	r16, 0x03	; 3
+		MOV   R16                , R24                    ;prescaler from arg1    (  1 clock ) 
+ 2ae:	08 2f       	mov	r16, r24
 		STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
  2b0:	00 93 45 00 	sts	0x0045, r16
-		LDI   R16                , KER_RLD                ;reload value (130)     (  1 clock ) 
- 2b4:	02 e8       	ldi	r16, 0x82	; 130
+		MOV   R16                , R22                    ;reload val from arg2   (  1 clock ) 
+ 2b4:	06 2f       	mov	r16, r22
 		STS   KerBase+0x05       , R16                    ;KerBase[5] reload val  (  2 clocks) 
  2b6:	00 93 05 01 	sts	0x0105, r16
 		STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 

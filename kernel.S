@@ -2,8 +2,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "kernel.h"
-#include "debug.h"
-#include "tasks.h"
 
 
 
@@ -333,7 +331,7 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 		STS   KerBase+0x07       , R16                    ;clear  KerBase[7]      (  2 clocks) 
 		STS   KerBase+0x08       , R16                    ;clear  KerBase[8]      (  2 clocks) 
         STS   KerBase+0x09       , R16                    ;clear  KerBase[9]      (  2 clocks) 
-		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
+		STS   KerBase+0x07       , R16                    ;set ntask to 0         (  2 clocks) 
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
 		STS   SRTIMSK0           , R16                    ;clear TIMSK0           (  2 clocks) 
@@ -341,9 +339,9 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 		STS   SROCR0A            , R16                    ;clear OCR0A            (  2 clocks) 
 		STS   SROCR0B            , R16                    ;clear OCR0B            (  2 clocks) 
 		STS   SRTCNT0            , R16                    ;clear TCNT0            (  2 clocks) 
-		LDI   R16                , KER_PRS                ;prescaler 64           (  1 clock ) 
+		MOV   R16                , R24                    ;prescaler from arg1    (  1 clock ) 
 		STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
-		LDI   R16                , KER_RLD                ;reload value (130)     (  1 clock ) 
+		MOV   R16                , R22                    ;reload val from arg2   (  1 clock ) 
 		STS   KerBase+0x05       , R16                    ;KerBase[5] reload val  (  2 clocks) 
 		STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 
 		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
