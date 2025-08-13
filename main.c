@@ -9,7 +9,7 @@
 
 
 
-//#define  TEST_TASK
+#define  TEST_TASK
 
 
 
@@ -17,18 +17,21 @@ int main(void) {
     
 	
 	//Debug_Init();
+	//Debug_Tx_Dbg();
 	Kernel_SysTick_Reg_Init(1000);
 	
 	#ifdef TEST_TASK
 	
 	Kernel_Task_Init(Tasks_Task0, 0, 0);
 	Kernel_Task_Init(Tasks_Task1, 1, 0);
+	Kernel_Task_Init(Tasks_Task2, 2, 0);
 	Kernel_Task_Start();
 	
 	#else
 	
 	Kernel_Task0_Init_Arg(Tasks_Task0, 0, 0);
-	Kernel_Task1_Init_Arg(Tasks_Task1, 1, 0);
+	Kernel_Task0_Init_Arg(Tasks_Task1, 1, 0);
+	Kernel_Task0_Init_Arg(Tasks_Task2, 2, 0);
 	Kernel_Start();
 	
 	#endif

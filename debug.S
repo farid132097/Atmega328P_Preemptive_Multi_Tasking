@@ -32,6 +32,10 @@
 .global  Debug_Tx_From_RAM_No_Stack
 .global  Debug_Tx_RAM_Area_No_Stack
 
+.global  Debug_Print_Dbg
+.global  Debug_Print_TSK0
+.global  Debug_Print_TSK1
+.global  Debug_Print_TSK2
 
 ;;========================================Debug Init========================================;;
 Debug_Init:
@@ -65,7 +69,7 @@ Debug_Tx_Byte:
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
-        ;write single byte to data register and wait until tx is complete (Arg R24)
+        ;write 1 byte, (Arg R24), Args retained
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
 		
@@ -81,15 +85,17 @@ Debug_Tx_Byte_Conf:
 
 ;;======================================Debug Tx Word=======================================;;
 Debug_Tx_Word_Conf:
-        ;write 2 bytes to data register and wait until tx is complete (Arg R24, R25)
+        ;write 2 bytes, (Arg R24, R25), Args retained
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		STS   SRGPIOR0           , R24                    ;store R24 val,           (2 clocks)
 		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		LDS   R24                , SRGPIOR0               ;restore R24 val,         (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 
 ;;=====================================Debug Tx DWord=======================================;;
 Debug_Tx_DWord_Conf:
-        ;write 4 bytes to data register and wait until tx is complete (Arg R22-R25)
+        ;write 4 bytes, (Arg R22-R25), Args retained
 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
 		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
@@ -97,8 +103,10 @@ Debug_Tx_DWord_Conf:
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
 		LDS   R24                , SRGPIOR1               ;restore R24              (2 clocks)
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
 		MOV   R24                , R25                    ;copy R22 to R24          (1 clock )
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
+		LDS   R24                , SRGPIOR1               ;restore R24 val,         (2 clocks)
         RET                                               ;return from subroutine,  (4 clocks) 
 
 
@@ -130,3 +138,47 @@ Debug_Tx_RAM_Area:
 		BRNE  __DUMP_BYTES
         RET                                               ;return from subroutine,  (4 clocks) 
 
+
+
+
+
+
+;;======================================Debug Print->Dbg====================================;;
+Debug_Print_Dbg:
+        ;write 4 bytes, (Arg R22-R25), Args retained
+		LDI   R22                , '-'                    ;copy R18 to R24          (1 clock )
+		LDI   R23                , 'D'                    ;copy R18 to R24          (1 clock )
+		LDI   R24                , 'b'                    ;copy R18 to R24          (1 clock )
+		LDI   R25                , 'g'                    ;copy R18 to R24          (1 clock )
+		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
+		
+;;=====================================Debug Dummy Print====================================;;
+Debug_Print_TSK0:
+        ;write 4 bytes, (Arg R22-R25), Args retained
+		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
+		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
+		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
+		LDI   R25                , '0'                    ;copy R18 to R24          (1 clock )
+		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
+		
+;;=====================================Debug Dummy Print====================================;;
+Debug_Print_TSK1:
+        ;write 4 bytes, (Arg R22-R25), Args retained
+		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
+		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
+		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
+		LDI   R25                , '1'                    ;copy R18 to R24          (1 clock )
+		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
+		
+;;=====================================Debug Dummy Print====================================;;
+Debug_Print_TSK2:
+        ;write 4 bytes, (Arg R22-R25), Args retained
+		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
+		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
+		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
+		LDI   R25                , '2'                    ;copy R18 to R24          (1 clock )
+		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+        RET                                               ;return from subroutine,  (4 clocks) 
