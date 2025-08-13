@@ -89,6 +89,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 ;;==============================define global functions starting============================;;
 .global  Kernel_SysTick_Reg_Init
 .global  Kernel_SysTick_Val_Get
+.global  Kernel_SysTick_Val_Safely_Get
 .global  Kernel_Interrupt_Sts_Get
 .global  Kernel_Task_Init
 .global  Kernel_Start_Tasks
@@ -354,8 +355,43 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 
 
 ;;===============================SysTick value get starting=================================;; 
-Kernel_SysTick_Val_Get:                                   ;total operation        ( 20 clocks) 
-        IN    R16                , IOSREG                 ;save SREG              (  1 clock ) 
+Kernel_SysTick_Val_Get:                                   ;total operation        ( 42 clocks) 
+    _UNFINISHED_READ:
+        LDS   R6		         , KerBase+0x00           ;byte0 (LSB)            (  2 clocks) 
+		LDS   R7		         , KerBase+0x01           ;byte1                  (  2 clocks) 
+		LDS   R8		         , KerBase+0x02           ;byte2                  (  2 clocks) 
+		LDS   R9		         , KerBase+0x03           ;byte3                  (  2 clocks) 
+		LDS   R10		         , KerBase+0x04           ;byte4 (MSB)            (  2 clocks) 
+		
+		LDS   R18		         , KerBase+0x00           ;byte0 (LSB)            (  2 clocks) 
+		LDS   R19		         , KerBase+0x01           ;byte1                  (  2 clocks) 
+		LDS   R20		         , KerBase+0x02           ;byte2                  (  2 clocks) 
+		LDS   R21		         , KerBase+0x03           ;byte3                  (  2 clocks) 
+		LDS   R22		         , KerBase+0x04           ;byte4 (MSB)            (  2 clocks) 
+        
+		CP    R6                 , R18                    ;compare                (  1 clock )
+		BRNE  _UNFINISHED_READ                            ;if !=0, read again     (  2 clocks) 
+		CP    R7                 , R19                    ;compare                (  1 clock )
+		BRNE  _UNFINISHED_READ                            ;if !=0, read again     (  2 clocks) 
+		CP    R8                 , R20                    ;compare                (  1 clock )
+		BRNE  _UNFINISHED_READ                            ;if !=0, read again     (  2 clocks) 
+		CP    R9                 , R21                    ;compare                (  1 clock )
+		BRNE  _UNFINISHED_READ                            ;if !=0, read again     (  2 clocks) 
+		CP    R10                , R22                    ;compare                (  1 clock )
+		BRNE  _UNFINISHED_READ                            ;if !=0, read again     (  2 clocks) 
+		LDI   R23		         , 0x00                   ;byte5 -> R23           (  1 clocks) 
+		LDI   R24		         , 0x00                   ;byte6 -> R24           (  1 clocks) 
+		LDI   R25		         , 0x00                   ;byte7 -> R25           (  1 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;==================================SysTick value get end===================================;; 
+
+
+
+
+
+;;============================SysTick value safely get starting=============================;; 
+Kernel_SysTick_Val_Safely_Get:                            ;total operation        ( 20 clocks) 
+        IN    R2                 , IOSREG                 ;save SREG              (  1 clock ) 
         CLI                                               ;disable interrupts     (  1 clock ) 
 		LDS   R18		         , KerBase+0x00           ;byte0 -> R18 (LSB)     (  2 clocks) 
 		LDS   R19		         , KerBase+0x01           ;byte1 -> R19           (  2 clocks) 
@@ -365,9 +401,9 @@ Kernel_SysTick_Val_Get:                                   ;total operation      
 		LDI   R23		         , 0x00                   ;byte5 -> R23           (  1 clocks) 
 		LDI   R24		         , 0x00                   ;byte6 -> R24           (  1 clocks) 
 		LDI   R25		         , 0x00                   ;byte7 -> R25 (MSB)     (  1 clocks) 
-		OUT   IOSREG             , R16          		  ;restore SREG           (  1 clock ) 
+		OUT   IOSREG             , R2          		      ;restore SREG           (  1 clock ) 
 		RET                                               ;return from subroutine (  4 clocks) 
-;;==================================SysTick value get end===================================;; 
+;;===============================SysTick value safely get end===============================;;
 
 
 

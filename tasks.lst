@@ -11,130 +11,300 @@
   19               	.LFB6:
   20               	.LM1:
   21               	.LVL0:
-  22 0000 CF93      		push r28
-  23 0002 DF93      		push r29
-  24               	/* prologue: function */
-  25               	/* frame size = 0 */
-  26 0004 EC01      		movw r28,r24
-  27               	.LVL1:
-  28               	.LM2:
-  29 0006 0E94 0000 		call Kernel_SysTick_Val_Get
-  30               	.LVL2:
-  31 000a C901      		movw r24,r18
-  32               	.LM3:
-  33 000c C20F      		add r28,r18
-  34 000e D31F      		adc r29,r19
-  35               	.LVL3:
-  36 0010 00C0      		rjmp .L2
-  37               	.LVL4:
-  38               	.L3:
-  39               	.LM4:
-  40 0012 0E94 0000 		call Kernel_SysTick_Val_Get
-  41               	.LVL5:
-  42 0016 C901      		movw r24,r18
-  43               	.LVL6:
-  44               	.L2:
-  45               	.LM5:
-  46 0018 8C17      		cp r24,r28
-  47 001a 9D07      		cpc r25,r29
-  48 001c 00F0      		brlo .L3
-  49               	.LVL7:
-  50               	/* epilogue start */
-  51               	.LM6:
-  52 001e DF91      		pop r29
-  53 0020 CF91      		pop r28
-  54               	.LVL8:
-  55 0022 0895      		ret
-  56               	.LFE6:
-  58               	.global	Tasks_Task2
-  60               	Tasks_Task2:
-  61               	.LFB9:
-  62               	.LM7:
-  63               	/* prologue: function */
-  64               	/* frame size = 0 */
-  65               	.LM8:
-  66 0024 0E94 0000 		call Debug_Init
-  67               	.LM9:
-  68 0028 579A      		sbi 42-32,7
-  69               	.L6:
-  70               	.LM10:
-  71 002a 8BB1      		in r24,43-32
-  72 002c 8058      		subi r24,lo8(-(-128))
-  73 002e 8BB9      		out 43-32,r24
-  74               	.LM11:
-  75 0030 0E94 0000 		call Debug_Print_TSK2
-  76               	.LM12:
-  77 0034 86E4      		ldi r24,lo8(70)
-  78 0036 90E0      		ldi r25,hi8(70)
-  79 0038 0E94 0000 		call Tasks_Delay
-  80 003c 00C0      		rjmp .L6
-  81               	.LFE9:
-  83               	.global	Tasks_Task1
-  85               	Tasks_Task1:
-  86               	.LFB8:
-  87               	.LM13:
-  88 003e 1F93      		push r17
-  89               	/* prologue: function */
-  90               	/* frame size = 0 */
-  91               	.LM14:
-  92 0040 0E94 0000 		call Debug_Init
-  93               	.LM15:
-  94 0044 569A      		sbi 42-32,6
-  95               	.LM16:
-  96 0046 10E4      		ldi r17,lo8(64)
-  97               	.L9:
-  98 0048 8BB1      		in r24,43-32
-  99 004a 8127      		eor r24,r17
- 100 004c 8BB9      		out 43-32,r24
- 101               	.LM17:
- 102 004e 0E94 0000 		call Debug_Print_TSK1
- 103               	.LM18:
- 104 0052 89E2      		ldi r24,lo8(41)
- 105 0054 90E0      		ldi r25,hi8(41)
- 106 0056 0E94 0000 		call Tasks_Delay
- 107 005a 00C0      		rjmp .L9
- 108               	.LFE8:
- 110               	.global	Tasks_Task0
- 112               	Tasks_Task0:
- 113               	.LFB7:
- 114               	.LM19:
- 115 005c 1F93      		push r17
- 116               	/* prologue: function */
- 117               	/* frame size = 0 */
- 118               	.LM20:
- 119 005e 0E94 0000 		call Debug_Init
- 120               	.LM21:
- 121 0062 559A      		sbi 42-32,5
- 122               	.LM22:
- 123 0064 10E2      		ldi r17,lo8(32)
- 124               	.L12:
- 125 0066 8BB1      		in r24,43-32
- 126 0068 8127      		eor r24,r17
- 127 006a 8BB9      		out 43-32,r24
- 128               	.LM23:
- 129 006c 0E94 0000 		call Debug_Print_TSK0
- 130               	.LM24:
- 131 0070 8CE0      		ldi r24,lo8(12)
- 132 0072 90E0      		ldi r25,hi8(12)
- 133 0074 0E94 0000 		call Tasks_Delay
- 134 0078 00C0      		rjmp .L12
- 135               	.LFE7:
- 185               	.Letext0:
+  22 0000 5F92      		push r5
+  23 0002 6F92      		push r6
+  24 0004 7F92      		push r7
+  25 0006 8F92      		push r8
+  26 0008 9F92      		push r9
+  27 000a AF92      		push r10
+  28 000c BF92      		push r11
+  29 000e CF92      		push r12
+  30 0010 DF92      		push r13
+  31 0012 EF92      		push r14
+  32 0014 FF92      		push r15
+  33 0016 0F93      		push r16
+  34 0018 1F93      		push r17
+  35               	/* prologue: function */
+  36               	/* frame size = 0 */
+  37 001a 8C01      		movw r16,r24
+  38               	.LM2:
+  39 001c 0E94 0000 		call Kernel_SysTick_Val_Safely_Get
+  40               	.LVL1:
+  41 0020 622E      		mov r6,r18
+  42               	.LVL2:
+  43 0022 832E      		mov r8,r19
+  44               	.LVL3:
+  45 0024 C42E      		mov r12,r20
+  46               	.LVL4:
+  47 0026 E52E      		mov r14,r21
+  48               	.LVL5:
+  49 0028 F62E      		mov r15,r22
+  50               	.LVL6:
+  51 002a B72F      		mov r27,r23
+  52               	.LVL7:
+  53               	.LM3:
+  54 002c 20E0      		ldi r18,lo8(0)
+  55 002e 30E0      		ldi r19,hi8(0)
+  56               	.LVL8:
+  57 0030 40E0      		ldi r20,lo8(0)
+  58 0032 50E0      		ldi r21,hi8(0)
+  59 0034 60E0      		ldi r22,hlo8(0)
+  60 0036 70E0      		ldi r23,hhi8(0)
+  61               	.LVL9:
+  62 0038 502E      		mov r5,r16
+  63               	.LVL10:
+  64 003a 560C      		add r5,r6
+  65 003c A1E0      		ldi r26,lo8(1)
+  66 003e 5016      		cp r5,r16
+  67               	.LVL11:
+  68 0040 00F0      		brlo .L2
+  69 0042 A0E0      		ldi r26,lo8(0)
+  70               	.L2:
+  71 0044 E12F      		mov r30,r17
+  72 0046 E80D      		add r30,r8
+  73 0048 F1E0      		ldi r31,lo8(1)
+  74 004a E117      		cp r30,r17
+  75               	.LVL12:
+  76 004c 00F0      		brlo .L3
+  77 004e F0E0      		ldi r31,lo8(0)
+  78               	.L3:
+  79 0050 7A2E      		mov r7,r26
+  80 0052 7E0E      		add r7,r30
+  81 0054 A1E0      		ldi r26,lo8(1)
+  82 0056 7E16      		cp r7,r30
+  83 0058 00F0      		brlo .L4
+  84 005a A0E0      		ldi r26,lo8(0)
+  85               	.L4:
+  86 005c FA2B      		or r31,r26
+  87 005e E1E0      		ldi r30,lo8(1)
+  88 0060 C216      		cp r12,r18
+  89 0062 00F0      		brlo .L5
+  90 0064 E0E0      		ldi r30,lo8(0)
+  91               	.L5:
+  92 0066 9F2E      		mov r9,r31
+  93 0068 9C0C      		add r9,r12
+  94 006a F1E0      		ldi r31,lo8(1)
+  95 006c 9C14      		cp r9,r12
+  96 006e 00F0      		brlo .L6
+  97 0070 F0E0      		ldi r31,lo8(0)
+  98               	.L6:
+  99 0072 EF2B      		or r30,r31
+ 100 0074 F1E0      		ldi r31,lo8(1)
+ 101 0076 E316      		cp r14,r19
+ 102               	.LVL13:
+ 103 0078 00F0      		brlo .L7
+ 104 007a F0E0      		ldi r31,lo8(0)
+ 105               	.L7:
+ 106 007c AE2E      		mov r10,r30
+ 107 007e AE0C      		add r10,r14
+ 108 0080 E1E0      		ldi r30,lo8(1)
+ 109 0082 AE14      		cp r10,r14
+ 110 0084 00F0      		brlo .L8
+ 111 0086 E0E0      		ldi r30,lo8(0)
+ 112               	.L8:
+ 113 0088 FE2B      		or r31,r30
+ 114 008a E1E0      		ldi r30,lo8(1)
+ 115 008c F416      		cp r15,r20
+ 116 008e 00F0      		brlo .L9
+ 117 0090 E0E0      		ldi r30,lo8(0)
+ 118               	.L9:
+ 119 0092 BF2E      		mov r11,r31
+ 120 0094 BF0C      		add r11,r15
+ 121 0096 F1E0      		ldi r31,lo8(1)
+ 122 0098 BF14      		cp r11,r15
+ 123 009a 00F0      		brlo .L10
+ 124 009c F0E0      		ldi r31,lo8(0)
+ 125               	.L10:
+ 126 009e EF2B      		or r30,r31
+ 127 00a0 F1E0      		ldi r31,lo8(1)
+ 128 00a2 B517      		cp r27,r21
+ 129               	.LVL14:
+ 130 00a4 00F0      		brlo .L11
+ 131 00a6 F0E0      		ldi r31,lo8(0)
+ 132               	.L11:
+ 133 00a8 DE2E      		mov r13,r30
+ 134 00aa DB0E      		add r13,r27
+ 135 00ac E1E0      		ldi r30,lo8(1)
+ 136 00ae DB16      		cp r13,r27
+ 137 00b0 00F0      		brlo .L12
+ 138 00b2 E0E0      		ldi r30,lo8(0)
+ 139               	.L12:
+ 140 00b4 FE2B      		or r31,r30
+ 141 00b6 A1E0      		ldi r26,lo8(1)
+ 142 00b8 8617      		cp r24,r22
+ 143               	.LVL15:
+ 144 00ba 00F0      		brlo .L13
+ 145 00bc A0E0      		ldi r26,lo8(0)
+ 146               	.L13:
+ 147 00be 0F2F      		mov r16,r31
+ 148               	.LVL16:
+ 149 00c0 080F      		add r16,r24
+ 150 00c2 E1E0      		ldi r30,lo8(1)
+ 151 00c4 0817      		cp r16,r24
+ 152 00c6 00F0      		brlo .L14
+ 153 00c8 E0E0      		ldi r30,lo8(0)
+ 154               	.L14:
+ 155 00ca 1A2F      		mov r17,r26
+ 156               	.LVL17:
+ 157 00cc 1E2B      		or r17,r30
+ 158 00ce 190F      		add r17,r25
+ 159               	.LVL18:
+ 160 00d0 00C0      		rjmp .L15
+ 161               	.L16:
+ 162               	.LM4:
+ 163 00d2 0E94 0000 		call Kernel_SysTick_Val_Safely_Get
+ 164               	.LVL19:
+ 165 00d6 622E      		mov r6,r18
+ 166 00d8 832E      		mov r8,r19
+ 167 00da C42E      		mov r12,r20
+ 168 00dc E52E      		mov r14,r21
+ 169 00de F62E      		mov r15,r22
+ 170 00e0 B72F      		mov r27,r23
+ 171               	.LVL20:
+ 172               	.L15:
+ 173               	.LM5:
+ 174 00e2 9117      		cp r25,r17
+ 175 00e4 00F0      		brlo .L16
+ 176 00e6 1917      		cp r17,r25
+ 177 00e8 01F4      		brne .L18
+ 178 00ea 8017      		cp r24,r16
+ 179 00ec 00F0      		brlo .L16
+ 180 00ee 0817      		cp r16,r24
+ 181 00f0 01F4      		brne .L18
+ 182 00f2 BD15      		cp r27,r13
+ 183 00f4 00F0      		brlo .L16
+ 184 00f6 DB16      		cp r13,r27
+ 185 00f8 01F4      		brne .L18
+ 186 00fa FB14      		cp r15,r11
+ 187 00fc 00F0      		brlo .L16
+ 188 00fe BF14      		cp r11,r15
+ 189 0100 01F4      		brne .L18
+ 190 0102 EA14      		cp r14,r10
+ 191 0104 00F0      		brlo .L16
+ 192 0106 AE14      		cp r10,r14
+ 193 0108 01F4      		brne .L18
+ 194 010a C914      		cp r12,r9
+ 195 010c 00F0      		brlo .L16
+ 196 010e 9C14      		cp r9,r12
+ 197 0110 01F4      		brne .L18
+ 198 0112 8714      		cp r8,r7
+ 199 0114 00F0      		brlo .L16
+ 200 0116 7814      		cp r7,r8
+ 201 0118 01F4      		brne .L18
+ 202 011a 6514      		cp r6,r5
+ 203 011c 00F0      		brlo .L16
+ 204               	.L18:
+ 205               	/* epilogue start */
+ 206               	.LM6:
+ 207 011e 1F91      		pop r17
+ 208 0120 0F91      		pop r16
+ 209 0122 FF90      		pop r15
+ 210               	.LVL21:
+ 211 0124 EF90      		pop r14
+ 212               	.LVL22:
+ 213 0126 DF90      		pop r13
+ 214 0128 CF90      		pop r12
+ 215               	.LVL23:
+ 216 012a BF90      		pop r11
+ 217 012c AF90      		pop r10
+ 218 012e 9F90      		pop r9
+ 219 0130 8F90      		pop r8
+ 220               	.LVL24:
+ 221 0132 7F90      		pop r7
+ 222 0134 6F90      		pop r6
+ 223               	.LVL25:
+ 224 0136 5F90      		pop r5
+ 225 0138 0895      		ret
+ 226               	.LFE6:
+ 228               	.global	Tasks_Task2
+ 230               	Tasks_Task2:
+ 231               	.LFB9:
+ 232               	.LM7:
+ 233               	/* prologue: function */
+ 234               	/* frame size = 0 */
+ 235               	.LM8:
+ 236 013a 0E94 0000 		call Debug_Init
+ 237               	.LM9:
+ 238 013e 579A      		sbi 42-32,7
+ 239               	.L20:
+ 240               	.LM10:
+ 241 0140 8BB1      		in r24,43-32
+ 242 0142 8058      		subi r24,lo8(-(-128))
+ 243 0144 8BB9      		out 43-32,r24
+ 244               	.LM11:
+ 245 0146 0E94 0000 		call Debug_Print_TSK2
+ 246               	.LM12:
+ 247 014a 86E4      		ldi r24,lo8(70)
+ 248 014c 90E0      		ldi r25,hi8(70)
+ 249 014e 0E94 0000 		call Tasks_Delay
+ 250 0152 00C0      		rjmp .L20
+ 251               	.LFE9:
+ 253               	.global	Tasks_Task1
+ 255               	Tasks_Task1:
+ 256               	.LFB8:
+ 257               	.LM13:
+ 258 0154 1F93      		push r17
+ 259               	/* prologue: function */
+ 260               	/* frame size = 0 */
+ 261               	.LM14:
+ 262 0156 0E94 0000 		call Debug_Init
+ 263               	.LM15:
+ 264 015a 569A      		sbi 42-32,6
+ 265               	.LM16:
+ 266 015c 10E4      		ldi r17,lo8(64)
+ 267               	.L23:
+ 268 015e 8BB1      		in r24,43-32
+ 269 0160 8127      		eor r24,r17
+ 270 0162 8BB9      		out 43-32,r24
+ 271               	.LM17:
+ 272 0164 0E94 0000 		call Debug_Print_TSK1
+ 273               	.LM18:
+ 274 0168 89E2      		ldi r24,lo8(41)
+ 275 016a 90E0      		ldi r25,hi8(41)
+ 276 016c 0E94 0000 		call Tasks_Delay
+ 277 0170 00C0      		rjmp .L23
+ 278               	.LFE8:
+ 280               	.global	Tasks_Task0
+ 282               	Tasks_Task0:
+ 283               	.LFB7:
+ 284               	.LM19:
+ 285 0172 1F93      		push r17
+ 286               	/* prologue: function */
+ 287               	/* frame size = 0 */
+ 288               	.LM20:
+ 289 0174 0E94 0000 		call Debug_Init
+ 290               	.LM21:
+ 291 0178 559A      		sbi 42-32,5
+ 292               	.LM22:
+ 293 017a 10E2      		ldi r17,lo8(32)
+ 294               	.L26:
+ 295 017c 8BB1      		in r24,43-32
+ 296 017e 8127      		eor r24,r17
+ 297 0180 8BB9      		out 43-32,r24
+ 298               	.LM23:
+ 299 0182 0E94 0000 		call Debug_Print_TSK0
+ 300               	.LM24:
+ 301 0186 8CE0      		ldi r24,lo8(12)
+ 302 0188 90E0      		ldi r25,hi8(12)
+ 303 018a 0E94 0000 		call Tasks_Delay
+ 304 018e 00C0      		rjmp .L26
+ 305               	.LFE7:
+ 355               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:2      *ABS*:0000003f __SREG__
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:3      *ABS*:0000003e __SP_H__
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:4      *ABS*:0000003d __SP_L__
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:5      *ABS*:00000034 __CCP__
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:18     .text:00000000 Tasks_Delay
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:60     .text:00000024 Tasks_Task2
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:85     .text:0000003e Tasks_Task1
-C:\Users\WALTON\AppData\Local\Temp/ccmFubTh.s:112    .text:0000005c Tasks_Task0
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:2      *ABS*:0000003f __SREG__
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:3      *ABS*:0000003e __SP_H__
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:4      *ABS*:0000003d __SP_L__
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:5      *ABS*:00000034 __CCP__
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:18     .text:00000000 Tasks_Delay
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:230    .text:0000013a Tasks_Task2
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:255    .text:00000154 Tasks_Task1
+C:\Users\WALTON\AppData\Local\Temp/ccf1oPBc.s:282    .text:00000172 Tasks_Task0
 
 UNDEFINED SYMBOLS
-Kernel_SysTick_Val_Get
+Kernel_SysTick_Val_Safely_Get
 Debug_Init
 Debug_Print_TSK2
 Debug_Print_TSK1

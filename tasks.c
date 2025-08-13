@@ -9,11 +9,11 @@
 
 
 void Tasks_Delay(uint16_t val){
-  uint16_t curr = 0, next = 0;
-  curr = Kernel_SysTick_Val_Get();
+  uint64_t curr = 0, next = 0;
+  curr = Kernel_SysTick_Val_Safely_Get();
   next = curr + val;
   while( curr < next ){
-    curr = Kernel_SysTick_Val_Get();
+    curr = Kernel_SysTick_Val_Safely_Get();
   }
 }
 

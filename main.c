@@ -17,7 +17,7 @@ int main(void) {
 	
 	//Debug_Init();
 	//Debug_Tx_Dbg();
-	Kernel_SysTick_Reg_Init(0x03, 0x41);
+	Kernel_SysTick_Reg_Init(0x03, 0x82);
 	
 	
 	Kernel_Task_Init(Tasks_Task0, 0, 0);
