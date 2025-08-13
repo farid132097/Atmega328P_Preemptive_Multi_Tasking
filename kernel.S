@@ -283,7 +283,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock ) 
 		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks) 
 	_MOD_DONE:
-	    STS   KerBase+0x06       , R16                    ;task_id%ntask         (  2 clocks) 
+	    STS   KerBase+0x06       , R16                    ;task_id%ntask          (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -333,9 +333,7 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 		STS   KerBase+0x07       , R16                    ;clear  KerBase[7]      (  2 clocks) 
 		STS   KerBase+0x08       , R16                    ;clear  KerBase[8]      (  2 clocks) 
         STS   KerBase+0x09       , R16                    ;clear  KerBase[9]      (  2 clocks) 
-		LDI   R16                , 0x00                   ;load ntask to reg      (  1 clock ) 
 		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
-		LDI   R16                , 0x00                   ;store r16 with 0       (  1 clock ) 
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
 		STS   SRTIMSK0           , R16                    ;clear TIMSK0           (  2 clocks) 

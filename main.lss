@@ -3,29 +3,29 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000004f6  00000000  00000000  00000074  2**1
+  0 .text         000004f2  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          0000051e  00800100  00800100  0000056a  2**0
+  1 .bss          0000051e  00800100  00800100  00000566  2**0
                   ALLOC
-  2 .stab         000009f0  00000000  00000000  0000056c  2**2
+  2 .stab         000009d8  00000000  00000000  00000568  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      0000006c  00000000  00000000  00000f5c  2**0
+  3 .stabstr      0000006d  00000000  00000000  00000f40  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000040  00000000  00000000  00000fc8  2**0
+  4 .debug_aranges 00000040  00000000  00000000  00000fad  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 0000006d  00000000  00000000  00001008  2**0
+  5 .debug_pubnames 0000006d  00000000  00000000  00000fed  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000161  00000000  00000000  00001075  2**0
+  6 .debug_info   00000161  00000000  00000000  0000105a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000000c2  00000000  00000000  000011d6  2**0
+  7 .debug_abbrev 000000c2  00000000  00000000  000011bb  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000001be  00000000  00000000  00001298  2**0
+  8 .debug_line   000001be  00000000  00000000  0000127d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000070  00000000  00000000  00001458  2**2
+  9 .debug_frame  00000070  00000000  00000000  0000143c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    000000e5  00000000  00000000  000014c8  2**0
+ 10 .debug_str    000000e5  00000000  00000000  000014ac  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000078  00000000  00000000  000015ad  2**0
+ 11 .debug_loc    00000078  00000000  00000000  00001591  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -83,161 +83,86 @@ Disassembly of section .text:
   92:	de bf       	out	0x3e, r29	; 62
   94:	cd bf       	out	0x3d, r28	; 61
   96:	0e 94 51 00 	call	0xa2	; 0xa2 <main>
-  9a:	0c 94 79 02 	jmp	0x4f2	; 0x4f2 <_exit>
+  9a:	0c 94 77 02 	jmp	0x4ee	; 0x4ee <_exit>
 
 0000009e <__bad_interrupt>:
   9e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 000000a2 <main>:
-int main(void) {
-    
-	
-	//Debug_Init();
-	//Debug_Tx_Dbg();
-	Kernel_SysTick_Reg_Init(1000);
   a2:	88 ee       	ldi	r24, 0xE8	; 232
   a4:	93 e0       	ldi	r25, 0x03	; 3
   a6:	0e 94 2f 01 	call	0x25e	; 0x25e <Kernel_SysTick_Reg_Init>
-	
-	
-	Kernel_Task_Init(Tasks_Task0, 0, 0);
   aa:	88 e9       	ldi	r24, 0x98	; 152
   ac:	90 e0       	ldi	r25, 0x00	; 0
   ae:	60 e0       	ldi	r22, 0x00	; 0
   b0:	40 e0       	ldi	r20, 0x00	; 0
-  b2:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <Kernel_Task_Init>
-	Kernel_Task_Init(Tasks_Task1, 1, 0);
+  b2:	0e 94 79 01 	call	0x2f2	; 0x2f2 <Kernel_Task_Init>
   b6:	89 e8       	ldi	r24, 0x89	; 137
   b8:	90 e0       	ldi	r25, 0x00	; 0
   ba:	61 e0       	ldi	r22, 0x01	; 1
   bc:	40 e0       	ldi	r20, 0x00	; 0
-  be:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <Kernel_Task_Init>
-	Kernel_Task_Init(Tasks_Task2, 2, 0);
+  be:	0e 94 79 01 	call	0x2f2	; 0x2f2 <Kernel_Task_Init>
   c2:	8c e7       	ldi	r24, 0x7C	; 124
   c4:	90 e0       	ldi	r25, 0x00	; 0
   c6:	62 e0       	ldi	r22, 0x02	; 2
   c8:	40 e0       	ldi	r20, 0x00	; 0
-  ca:	0e 94 7b 01 	call	0x2f6	; 0x2f6 <Kernel_Task_Init>
-	Kernel_Start_Tasks();
-  ce:	0e 94 c9 01 	call	0x392	; 0x392 <Kernel_Start_Tasks>
+  ca:	0e 94 79 01 	call	0x2f2	; 0x2f2 <Kernel_Task_Init>
+  ce:	0e 94 c7 01 	call	0x38e	; 0x38e <Kernel_Start_Tasks>
   d2:	ff cf       	rjmp	.-2      	; 0xd2 <SRUDR0+0xc>
 
 000000d4 <Tasks_Delay>:
-#include "tasks.h"
-#include "debug.h"
-
-
-
-void Tasks_Delay(uint16_t val){
   d4:	cf 93       	push	r28
   d6:	df 93       	push	r29
   d8:	ec 01       	movw	r28, r24
-  uint16_t curr = 0, next = 0;
-  curr = Kernel_SysTick_Val_Get();
-  da:	0e 94 65 01 	call	0x2ca	; 0x2ca <Kernel_SysTick_Val_Get>
+  da:	0e 94 63 01 	call	0x2c6	; 0x2c6 <Kernel_SysTick_Val_Get>
   de:	c9 01       	movw	r24, r18
-  next = curr + val;
   e0:	c2 0f       	add	r28, r18
   e2:	d3 1f       	adc	r29, r19
   e4:	03 c0       	rjmp	.+6      	; 0xec <Tasks_Delay+0x18>
-  while( curr < next ){
-    curr = Kernel_SysTick_Val_Get();
-  e6:	0e 94 65 01 	call	0x2ca	; 0x2ca <Kernel_SysTick_Val_Get>
+  e6:	0e 94 63 01 	call	0x2c6	; 0x2c6 <Kernel_SysTick_Val_Get>
   ea:	c9 01       	movw	r24, r18
-
-void Tasks_Delay(uint16_t val){
-  uint16_t curr = 0, next = 0;
-  curr = Kernel_SysTick_Val_Get();
-  next = curr + val;
-  while( curr < next ){
   ec:	8c 17       	cp	r24, r28
   ee:	9d 07       	cpc	r25, r29
   f0:	d0 f3       	brcs	.-12     	; 0xe6 <Tasks_Delay+0x12>
-    curr = Kernel_SysTick_Val_Get();
-  }
-}
   f2:	df 91       	pop	r29
   f4:	cf 91       	pop	r28
   f6:	08 95       	ret
 
 000000f8 <Tasks_Task2>:
-  }
-}
-
-void Tasks_Task2(void){
-  
-  Debug_Init();
-  f8:	0e 94 01 02 	call	0x402	; 0x402 <Debug_Init>
-  DDRD |= (1<<7);
+  f8:	0e 94 ff 01 	call	0x3fe	; 0x3fe <Debug_Init>
   fc:	57 9a       	sbi	0x0a, 7	; 10
-  
-  while(1){
-    
-    PORTD ^= (1<<7);
   fe:	8b b1       	in	r24, 0x0b	; 11
  100:	80 58       	subi	r24, 0x80	; 128
  102:	8b b9       	out	0x0b, r24	; 11
-	Debug_Print_TSK2();
- 104:	0e 94 72 02 	call	0x4e4	; 0x4e4 <Debug_Print_TSK2>
-	Tasks_Delay(70);
+ 104:	0e 94 70 02 	call	0x4e0	; 0x4e0 <Debug_Print_TSK2>
  108:	86 e4       	ldi	r24, 0x46	; 70
  10a:	90 e0       	ldi	r25, 0x00	; 0
  10c:	0e 94 6a 00 	call	0xd4	; 0xd4 <Tasks_Delay>
  110:	f6 cf       	rjmp	.-20     	; 0xfe <Tasks_Task2+0x6>
 
 00000112 <Tasks_Task1>:
-	Tasks_Delay(12);
-	
-  }
-}
-
-void Tasks_Task1(void){
  112:	1f 93       	push	r17
-  
-  Debug_Init();
- 114:	0e 94 01 02 	call	0x402	; 0x402 <Debug_Init>
-  DDRD |= (1<<6);
+ 114:	0e 94 ff 01 	call	0x3fe	; 0x3fe <Debug_Init>
  118:	56 9a       	sbi	0x0a, 6	; 10
-  
-  while(1){
-    
-    PORTD ^= (1<<6);
  11a:	10 e4       	ldi	r17, 0x40	; 64
  11c:	8b b1       	in	r24, 0x0b	; 11
  11e:	81 27       	eor	r24, r17
  120:	8b b9       	out	0x0b, r24	; 11
-	Debug_Print_TSK1();
- 122:	0e 94 6b 02 	call	0x4d6	; 0x4d6 <Debug_Print_TSK1>
-	Tasks_Delay(41);
+ 122:	0e 94 69 02 	call	0x4d2	; 0x4d2 <Debug_Print_TSK1>
  126:	89 e2       	ldi	r24, 0x29	; 41
  128:	90 e0       	ldi	r25, 0x00	; 0
  12a:	0e 94 6a 00 	call	0xd4	; 0xd4 <Tasks_Delay>
  12e:	f6 cf       	rjmp	.-20     	; 0x11c <Tasks_Task1+0xa>
 
 00000130 <Tasks_Task0>:
-  while( curr < next ){
-    curr = Kernel_SysTick_Val_Get();
-  }
-}
-
-void Tasks_Task0(void){
  130:	1f 93       	push	r17
-  
-  Debug_Init();
- 132:	0e 94 01 02 	call	0x402	; 0x402 <Debug_Init>
-  DDRD |= (1<<5);
+ 132:	0e 94 ff 01 	call	0x3fe	; 0x3fe <Debug_Init>
  136:	55 9a       	sbi	0x0a, 5	; 10
-  
-  while(1){
-    
-    PORTD ^= (1<<5);
  138:	10 e2       	ldi	r17, 0x20	; 32
  13a:	8b b1       	in	r24, 0x0b	; 11
  13c:	81 27       	eor	r24, r17
  13e:	8b b9       	out	0x0b, r24	; 11
-	Debug_Print_TSK0();
- 140:	0e 94 64 02 	call	0x4c8	; 0x4c8 <Debug_Print_TSK0>
-	Tasks_Delay(12);
+ 140:	0e 94 62 02 	call	0x4c4	; 0x4c4 <Debug_Print_TSK0>
  144:	8c e0       	ldi	r24, 0x0C	; 12
  146:	90 e0       	ldi	r25, 0x00	; 0
  148:	0e 94 6a 00 	call	0xd4	; 0xd4 <Tasks_Delay>
@@ -415,585 +340,581 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
  286:	00 93 08 01 	sts	0x0108, r16
         STS   KerBase+0x09       , R16                    ;clear  KerBase[9]      (  2 clocks) 
  28a:	00 93 09 01 	sts	0x0109, r16
-		LDI   R16                , 0x00                   ;load ntask to reg      (  1 clock ) 
- 28e:	00 e0       	ldi	r16, 0x00	; 0
 		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
- 290:	00 93 07 01 	sts	0x0107, r16
-		LDI   R16                , 0x00                   ;store r16 with 0       (  1 clock ) 
- 294:	00 e0       	ldi	r16, 0x00	; 0
+ 28e:	00 93 07 01 	sts	0x0107, r16
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
- 296:	00 93 44 00 	sts	0x0044, r16
+ 292:	00 93 44 00 	sts	0x0044, r16
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
- 29a:	00 93 45 00 	sts	0x0045, r16
+ 296:	00 93 45 00 	sts	0x0045, r16
 		STS   SRTIMSK0           , R16                    ;clear TIMSK0           (  2 clocks) 
- 29e:	00 93 6e 00 	sts	0x006E, r16
+ 29a:	00 93 6e 00 	sts	0x006E, r16
 		STS   SRTIFR0            , R16                    ;clear TIFR0            (  2 clocks) 
- 2a2:	00 93 35 00 	sts	0x0035, r16
+ 29e:	00 93 35 00 	sts	0x0035, r16
 		STS   SROCR0A            , R16                    ;clear OCR0A            (  2 clocks) 
- 2a6:	00 93 47 00 	sts	0x0047, r16
+ 2a2:	00 93 47 00 	sts	0x0047, r16
 		STS   SROCR0B            , R16                    ;clear OCR0B            (  2 clocks) 
- 2aa:	00 93 48 00 	sts	0x0048, r16
+ 2a6:	00 93 48 00 	sts	0x0048, r16
 		STS   SRTCNT0            , R16                    ;clear TCNT0            (  2 clocks) 
- 2ae:	00 93 46 00 	sts	0x0046, r16
+ 2aa:	00 93 46 00 	sts	0x0046, r16
 		LDI   R16                , KER_PRS                ;prescaler 64           (  1 clock ) 
- 2b2:	03 e0       	ldi	r16, 0x03	; 3
+ 2ae:	03 e0       	ldi	r16, 0x03	; 3
 		STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
- 2b4:	00 93 45 00 	sts	0x0045, r16
+ 2b0:	00 93 45 00 	sts	0x0045, r16
 		LDI   R16                , KER_RLD                ;reload value (130)     (  1 clock ) 
- 2b8:	02 e8       	ldi	r16, 0x82	; 130
+ 2b4:	02 e8       	ldi	r16, 0x82	; 130
 		STS   KerBase+0x05       , R16                    ;KerBase[5] reload val  (  2 clocks) 
- 2ba:	00 93 05 01 	sts	0x0105, r16
+ 2b6:	00 93 05 01 	sts	0x0105, r16
 		STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 
- 2be:	00 93 46 00 	sts	0x0046, r16
+ 2ba:	00 93 46 00 	sts	0x0046, r16
 		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
- 2c2:	01 e0       	ldi	r16, 0x01	; 1
+ 2be:	01 e0       	ldi	r16, 0x01	; 1
 		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
- 2c4:	00 93 6e 00 	sts	0x006E, r16
+ 2c0:	00 93 6e 00 	sts	0x006E, r16
 		RET                                               ;return from subroutine (  4 clocks) 
- 2c8:	08 95       	ret
+ 2c4:	08 95       	ret
 
-000002ca <Kernel_SysTick_Val_Get>:
+000002c6 <Kernel_SysTick_Val_Get>:
 
 
 
 ;;===============================SysTick value get starting=================================;; 
 Kernel_SysTick_Val_Get:                                   ;total operation        ( 20 clocks) 
         IN    R16                , IOSREG                 ;save SREG              (  1 clock ) 
- 2ca:	0f b7       	in	r16, 0x3f	; 63
+ 2c6:	0f b7       	in	r16, 0x3f	; 63
         CLI                                               ;disable interrupts     (  1 clock ) 
- 2cc:	f8 94       	cli
+ 2c8:	f8 94       	cli
 		LDS   R18		         , KerBase+0x00           ;byte0 -> R18 (LSB)     (  2 clocks) 
- 2ce:	20 91 00 01 	lds	r18, 0x0100
+ 2ca:	20 91 00 01 	lds	r18, 0x0100
 		LDS   R19		         , KerBase+0x01           ;byte1 -> R19           (  2 clocks) 
- 2d2:	30 91 01 01 	lds	r19, 0x0101
+ 2ce:	30 91 01 01 	lds	r19, 0x0101
 		LDS   R20		         , KerBase+0x02           ;byte2 -> R20           (  2 clocks) 
- 2d6:	40 91 02 01 	lds	r20, 0x0102
+ 2d2:	40 91 02 01 	lds	r20, 0x0102
 		LDS   R21		         , KerBase+0x03           ;byte3 -> R21           (  2 clocks) 
- 2da:	50 91 03 01 	lds	r21, 0x0103
+ 2d6:	50 91 03 01 	lds	r21, 0x0103
 		LDS   R22		         , KerBase+0x04           ;byte4 -> R22           (  2 clocks) 
- 2de:	60 91 04 01 	lds	r22, 0x0104
+ 2da:	60 91 04 01 	lds	r22, 0x0104
 		LDI   R23		         , 0x00                   ;byte5 -> R23           (  1 clocks) 
- 2e2:	70 e0       	ldi	r23, 0x00	; 0
+ 2de:	70 e0       	ldi	r23, 0x00	; 0
 		LDI   R24		         , 0x00                   ;byte6 -> R24           (  1 clocks) 
- 2e4:	80 e0       	ldi	r24, 0x00	; 0
+ 2e0:	80 e0       	ldi	r24, 0x00	; 0
 		LDI   R25		         , 0x00                   ;byte7 -> R25 (MSB)     (  1 clocks) 
- 2e6:	90 e0       	ldi	r25, 0x00	; 0
+ 2e2:	90 e0       	ldi	r25, 0x00	; 0
 		OUT   IOSREG             , R16          		  ;restore SREG           (  1 clock ) 
- 2e8:	0f bf       	out	0x3f, r16	; 63
+ 2e4:	0f bf       	out	0x3f, r16	; 63
 		RET                                               ;return from subroutine (  4 clocks) 
- 2ea:	08 95       	ret
+ 2e6:	08 95       	ret
 
-000002ec <Kernel_Interrupt_Sts_Get>:
+000002e8 <Kernel_Interrupt_Sts_Get>:
 
 
 
 ;;==============================interrupt status get starting===============================;; 
 Kernel_Interrupt_Sts_Get:                                 ;total operation        ( 10 clocks) 
         LDI   R24		         , 0x00                   ;clear R24              (  1 clock ) 
- 2ec:	80 e0       	ldi	r24, 0x00	; 0
+ 2e8:	80 e0       	ldi	r24, 0x00	; 0
         IN    R16		         , IOSREG                 ;save SREG in R16       (  1 clock ) 
- 2ee:	0f b7       	in	r16, 0x3f	; 63
+ 2ea:	0f b7       	in	r16, 0x3f	; 63
 		SBRC  R16		         , 0x07                   ;check I flag->bit7     (  3 clocks) 
- 2f0:	07 fd       	sbrc	r16, 7
+ 2ec:	07 fd       	sbrc	r16, 7
 		LDI   R24		         , 0x01                   ;set R24 to 1           (  1 clock ) 
- 2f2:	81 e0       	ldi	r24, 0x01	; 1
+ 2ee:	81 e0       	ldi	r24, 0x01	; 1
 		RET                                               ;return from subroutine (  4 clocks) 
- 2f4:	08 95       	ret
+ 2f0:	08 95       	ret
 
-000002f6 <Kernel_Task_Init>:
+000002f2 <Kernel_Task_Init>:
 
 ;;================================kernel task init starting=================================;; 
 Kernel_Task_Init:
         ;func_ptr->R25:R24, task_id->R22, task_priority->R20
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
- 2f6:	2d b6       	in	r2, 0x3d	; 61
+ 2f2:	2d b6       	in	r2, 0x3d	; 61
         IN    R3                 , IOSPH                  ;save SPH of MSP        (  1 clock ) 
- 2f8:	3e b6       	in	r3, 0x3e	; 62
+ 2f4:	3e b6       	in	r3, 0x3e	; 62
         MOV   R4                 , R30                    ;save ZPL               (  2 clocks)
- 2fa:	4e 2e       	mov	r4, r30
+ 2f6:	4e 2e       	mov	r4, r30
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks)
- 2fc:	5f 2e       	mov	r5, r31
+ 2f8:	5f 2e       	mov	r5, r31
 		
 		;increment ntask
 		LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
- 2fe:	00 91 07 01 	lds	r16, 0x0107
+ 2fa:	00 91 07 01 	lds	r16, 0x0107
 		INC   R16                                         ;increment ntask        (  1 clock ) 
- 302:	03 95       	inc	r16
+ 2fe:	03 95       	inc	r16
 		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
- 304:	00 93 07 01 	sts	0x0107, r16
+ 300:	00 93 07 01 	sts	0x0107, r16
 		
 		;store task index to RAM from argument
 		STS   KerBase+0x06       , R22                    ;save task_id in RAM    (  2 clocks)
- 308:	60 93 06 01 	sts	0x0106, r22
+ 304:	60 93 06 01 	sts	0x0106, r22
 		
 		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1) ->stack top
 		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
- 30c:	06 2f       	mov	r16, r22
+ 308:	06 2f       	mov	r16, r22
 		INC   R16                                         ;increment task_id      (  1 clock ) 
- 30e:	03 95       	inc	r16
+ 30a:	03 95       	inc	r16
 		LDI   R17                , KER_STZ                ;load stack size        (  1 clock ) 
- 310:	10 e8       	ldi	r17, 0x80	; 128
+ 30c:	10 e8       	ldi	r17, 0x80	; 128
 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
- 312:	01 9f       	mul	r16, r17
+ 30e:	01 9f       	mul	r16, r17
 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
- 314:	e0 2d       	mov	r30, r0
+ 310:	e0 2d       	mov	r30, r0
 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
- 316:	f1 2d       	mov	r31, r1
+ 312:	f1 2d       	mov	r31, r1
 		SBIW  R30                , 0x01                   ;KER_STZ*(task_id+1)-1  (  2 clocks) 
- 318:	31 97       	sbiw	r30, 0x01	; 1
+ 314:	31 97       	sbiw	r30, 0x01	; 1
 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
- 31a:	11 24       	eor	r1, r1
+ 316:	11 24       	eor	r1, r1
 		LDI   R16                , lo8(KerStack)          ;load base addr low     (  1 clock ) 
- 31c:	0e e1       	ldi	r16, 0x1E	; 30
+ 318:	0e e1       	ldi	r16, 0x1E	; 30
 		LDI   R17                , hi8(KerStack)          ;load base addr high    (  1 clock ) 
- 31e:	11 e0       	ldi	r17, 0x01	; 1
+ 31a:	11 e0       	ldi	r17, 0x01	; 1
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
- 320:	e0 0f       	add	r30, r16
+ 31c:	e0 0f       	add	r30, r16
 		ADC   R31                , R17                    ;add high bytes+carry   (  1 clock ) 
- 322:	f1 1f       	adc	r31, r17
+ 31e:	f1 1f       	adc	r31, r17
 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
- 324:	ed bf       	out	0x3d, r30	; 61
+ 320:	ed bf       	out	0x3d, r30	; 61
         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
- 326:	fe bf       	out	0x3e, r31	; 62
+ 322:	fe bf       	out	0x3e, r31	; 62
 		
 		;function argument directly returns word address
 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
- 328:	8f 93       	push	r24
+ 324:	8f 93       	push	r24
 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
- 32a:	9f 93       	push	r25
+ 326:	9f 93       	push	r25
 		
 		;push context to stack of this task
 		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
+ 328:	0f 92       	push	r0
+ 32a:	0f b6       	in	r0, 0x3f	; 63
  32c:	0f 92       	push	r0
- 32e:	0f b6       	in	r0, 0x3f	; 63
- 330:	0f 92       	push	r0
- 332:	1f 92       	push	r1
- 334:	11 24       	eor	r1, r1
- 336:	2f 92       	push	r2
- 338:	3f 92       	push	r3
- 33a:	4f 92       	push	r4
- 33c:	5f 92       	push	r5
- 33e:	6f 92       	push	r6
- 340:	7f 92       	push	r7
- 342:	8f 92       	push	r8
- 344:	9f 92       	push	r9
- 346:	af 92       	push	r10
- 348:	bf 92       	push	r11
- 34a:	cf 92       	push	r12
- 34c:	df 92       	push	r13
- 34e:	ef 92       	push	r14
- 350:	ff 92       	push	r15
- 352:	0f 93       	push	r16
- 354:	1f 93       	push	r17
- 356:	2f 93       	push	r18
- 358:	3f 93       	push	r19
- 35a:	4f 93       	push	r20
- 35c:	5f 93       	push	r21
- 35e:	6f 93       	push	r22
- 360:	7f 93       	push	r23
- 362:	8f 93       	push	r24
- 364:	9f 93       	push	r25
- 366:	af 93       	push	r26
- 368:	bf 93       	push	r27
- 36a:	cf 93       	push	r28
- 36c:	df 93       	push	r29
- 36e:	ef 93       	push	r30
- 370:	ff 93       	push	r31
+ 32e:	1f 92       	push	r1
+ 330:	11 24       	eor	r1, r1
+ 332:	2f 92       	push	r2
+ 334:	3f 92       	push	r3
+ 336:	4f 92       	push	r4
+ 338:	5f 92       	push	r5
+ 33a:	6f 92       	push	r6
+ 33c:	7f 92       	push	r7
+ 33e:	8f 92       	push	r8
+ 340:	9f 92       	push	r9
+ 342:	af 92       	push	r10
+ 344:	bf 92       	push	r11
+ 346:	cf 92       	push	r12
+ 348:	df 92       	push	r13
+ 34a:	ef 92       	push	r14
+ 34c:	ff 92       	push	r15
+ 34e:	0f 93       	push	r16
+ 350:	1f 93       	push	r17
+ 352:	2f 93       	push	r18
+ 354:	3f 93       	push	r19
+ 356:	4f 93       	push	r20
+ 358:	5f 93       	push	r21
+ 35a:	6f 93       	push	r22
+ 35c:	7f 93       	push	r23
+ 35e:	8f 93       	push	r24
+ 360:	9f 93       	push	r25
+ 362:	af 93       	push	r26
+ 364:	bf 93       	push	r27
+ 366:	cf 93       	push	r28
+ 368:	df 93       	push	r29
+ 36a:	ef 93       	push	r30
+ 36c:	ff 93       	push	r31
 		
 		;read stack pointer of current task (necessary when restore)
 		IN    R16                , IOSPL                  ;read SPL               (  1 clock ) 
- 372:	0d b7       	in	r16, 0x3d	; 61
+ 36e:	0d b7       	in	r16, 0x3d	; 61
         IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
- 374:	1e b7       	in	r17, 0x3e	; 62
+ 370:	1e b7       	in	r17, 0x3e	; 62
 		
 		;calculate the address where current task's SP will be stored and store SP
 		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
- 376:	26 2f       	mov	r18, r22
+ 372:	26 2f       	mov	r18, r22
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
- 378:	22 0f       	add	r18, r18
+ 374:	22 0f       	add	r18, r18
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
- 37a:	ea e0       	ldi	r30, 0x0A	; 10
+ 376:	ea e0       	ldi	r30, 0x0A	; 10
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
- 37c:	f1 e0       	ldi	r31, 0x01	; 1
+ 378:	f1 e0       	ldi	r31, 0x01	; 1
 		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
- 37e:	e2 0f       	add	r30, r18
+ 37a:	e2 0f       	add	r30, r18
 		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
- 380:	20 e0       	ldi	r18, 0x00	; 0
+ 37c:	20 e0       	ldi	r18, 0x00	; 0
 		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
- 382:	f2 1f       	adc	r31, r18
+ 37e:	f2 1f       	adc	r31, r18
 		ST    Z+                 , R16                    ;SPL at KerSp+offset    (  2 clocks) 
- 384:	01 93       	st	Z+, r16
+ 380:	01 93       	st	Z+, r16
 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
- 386:	10 83       	st	Z, r17
+ 382:	10 83       	st	Z, r17
 		
 		;load Main SP, restore Z pointer
 		OUT   IOSPL              , R2                     ;load SPL               (  1 clock )
- 388:	2d be       	out	0x3d, r2	; 61
+ 384:	2d be       	out	0x3d, r2	; 61
         OUT   IOSPH              , R3                     ;load SPH               (  1 clock )
- 38a:	3e be       	out	0x3e, r3	; 62
+ 386:	3e be       	out	0x3e, r3	; 62
 		MOV   R30                , R4                     ;push ZPL               (  2 clocks)
- 38c:	e4 2d       	mov	r30, r4
+ 388:	e4 2d       	mov	r30, r4
 		MOV   R31                , R5                     ;push ZPL               (  2 clocks)
- 38e:	f5 2d       	mov	r31, r5
+ 38a:	f5 2d       	mov	r31, r5
 		RET                                               ;return from subroutine (  4 clocks) 
- 390:	08 95       	ret
+ 38c:	08 95       	ret
 
-00000392 <Kernel_Start_Tasks>:
+0000038e <Kernel_Start_Tasks>:
 
 
 ;;===================================Kernel Task starting===================================;;
 Kernel_Start_Tasks:
         ;fetch ntask, for 3 tasks-> ntask will be 3
         LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
- 392:	00 91 07 01 	lds	r16, 0x0107
+ 38e:	00 91 07 01 	lds	r16, 0x0107
 		DEC   R16                                         ;decrement ntask        (  1 clock )
- 396:	0a 95       	dec	r16
+ 392:	0a 95       	dec	r16
 		LDI   R17                , 0x02                   ;set 2 in R17           (  1 clock ) 
- 398:	12 e0       	ldi	r17, 0x02	; 2
+ 394:	12 e0       	ldi	r17, 0x02	; 2
 		MUL   R16                , R17                    ;offset = (ntask-1)*2   (  2 clocks) 
- 39a:	01 9f       	mul	r16, r17
+ 396:	01 9f       	mul	r16, r17
 		MOV   R17                , R0                     ;result stored R1:R0    (  1 clock )
- 39c:	10 2d       	mov	r17, r0
+ 398:	10 2d       	mov	r17, r0
 		CLR   R1                                          ;gcc expects cleard     (  1 clock )
- 39e:	11 24       	eor	r1, r1
+ 39a:	11 24       	eor	r1, r1
 		
 		;save ZP
 		MOV   R4                 , R30                    ;save ZPL               (  2 clocks)
- 3a0:	4e 2e       	mov	r4, r30
+ 39c:	4e 2e       	mov	r4, r30
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks)
- 3a2:	5f 2e       	mov	r5, r31
+ 39e:	5f 2e       	mov	r5, r31
 		
 		;load ZP with addr+offset
 		LDI   R30                , lo8(KerSP)             ;fetch ZPL KerSP        (  1 clock )
- 3a4:	ea e0       	ldi	r30, 0x0A	; 10
+ 3a0:	ea e0       	ldi	r30, 0x0A	; 10
 		LDI   R31                , hi8(KerSP)             ;fetch ZPH KerSP        (  1 clock )
- 3a6:	f1 e0       	ldi	r31, 0x01	; 1
+ 3a2:	f1 e0       	ldi	r31, 0x01	; 1
 		ADD   R30                , R17                    ;R30+offset             (  1 clock )
- 3a8:	e1 0f       	add	r30, r17
+ 3a4:	e1 0f       	add	r30, r17
 		LDI   R17                , 0x00                   ;clear R17              (  1 clock )
- 3aa:	10 e0       	ldi	r17, 0x00	; 0
+ 3a6:	10 e0       	ldi	r17, 0x00	; 0
 		ADC   R31                , R17                    ;R31+carry              (  1 clock )
- 3ac:	f1 1f       	adc	r31, r17
+ 3a8:	f1 1f       	adc	r31, r17
 		
 		;load last task's SP
 		LD    R16                , Z+                     ;load val from Z, inc Z (  2 clocks)
- 3ae:	01 91       	ld	r16, Z+
+ 3aa:	01 91       	ld	r16, Z+
 		LD    R17                , Z                      ;load val from Z+1      (  2 clocks)
- 3b0:	10 81       	ld	r17, Z
+ 3ac:	10 81       	ld	r17, Z
 		
 		;set last task's SP
 		OUT   IOSPL              , R16                    ;load SPL               (  1 clock ) 
- 3b2:	0d bf       	out	0x3d, r16	; 61
+ 3ae:	0d bf       	out	0x3d, r16	; 61
         OUT   IOSPH              , R17                    ;load SPH               (  1 clock ) 
- 3b4:	1e bf       	out	0x3e, r17	; 62
+ 3b0:	1e bf       	out	0x3e, r17	; 62
        
         ;forcefully restore context, in ISR it will be stored automatically
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
- 3b6:	ff 91       	pop	r31
- 3b8:	ef 91       	pop	r30
- 3ba:	df 91       	pop	r29
- 3bc:	cf 91       	pop	r28
- 3be:	bf 91       	pop	r27
- 3c0:	af 91       	pop	r26
- 3c2:	9f 91       	pop	r25
- 3c4:	8f 91       	pop	r24
- 3c6:	7f 91       	pop	r23
- 3c8:	6f 91       	pop	r22
- 3ca:	5f 91       	pop	r21
- 3cc:	4f 91       	pop	r20
- 3ce:	3f 91       	pop	r19
- 3d0:	2f 91       	pop	r18
- 3d2:	1f 91       	pop	r17
- 3d4:	0f 91       	pop	r16
- 3d6:	ff 90       	pop	r15
- 3d8:	ef 90       	pop	r14
- 3da:	df 90       	pop	r13
- 3dc:	cf 90       	pop	r12
- 3de:	bf 90       	pop	r11
- 3e0:	af 90       	pop	r10
- 3e2:	9f 90       	pop	r9
- 3e4:	8f 90       	pop	r8
- 3e6:	7f 90       	pop	r7
- 3e8:	6f 90       	pop	r6
- 3ea:	5f 90       	pop	r5
- 3ec:	4f 90       	pop	r4
- 3ee:	3f 90       	pop	r3
- 3f0:	2f 90       	pop	r2
- 3f2:	1f 90       	pop	r1
+ 3b2:	ff 91       	pop	r31
+ 3b4:	ef 91       	pop	r30
+ 3b6:	df 91       	pop	r29
+ 3b8:	cf 91       	pop	r28
+ 3ba:	bf 91       	pop	r27
+ 3bc:	af 91       	pop	r26
+ 3be:	9f 91       	pop	r25
+ 3c0:	8f 91       	pop	r24
+ 3c2:	7f 91       	pop	r23
+ 3c4:	6f 91       	pop	r22
+ 3c6:	5f 91       	pop	r21
+ 3c8:	4f 91       	pop	r20
+ 3ca:	3f 91       	pop	r19
+ 3cc:	2f 91       	pop	r18
+ 3ce:	1f 91       	pop	r17
+ 3d0:	0f 91       	pop	r16
+ 3d2:	ff 90       	pop	r15
+ 3d4:	ef 90       	pop	r14
+ 3d6:	df 90       	pop	r13
+ 3d8:	cf 90       	pop	r12
+ 3da:	bf 90       	pop	r11
+ 3dc:	af 90       	pop	r10
+ 3de:	9f 90       	pop	r9
+ 3e0:	8f 90       	pop	r8
+ 3e2:	7f 90       	pop	r7
+ 3e4:	6f 90       	pop	r6
+ 3e6:	5f 90       	pop	r5
+ 3e8:	4f 90       	pop	r4
+ 3ea:	3f 90       	pop	r3
+ 3ec:	2f 90       	pop	r2
+ 3ee:	1f 90       	pop	r1
+ 3f0:	0f 90       	pop	r0
+ 3f2:	0f be       	out	0x3f, r0	; 63
  3f4:	0f 90       	pop	r0
- 3f6:	0f be       	out	0x3f, r0	; 63
- 3f8:	0f 90       	pop	r0
 		
 		;restore ZP
 		MOV   R30                , R4                     ;push ZPL               (  2 clocks)
- 3fa:	e4 2d       	mov	r30, r4
+ 3f6:	e4 2d       	mov	r30, r4
 		MOV   R31                , R5                     ;push ZPL               (  2 clocks)
- 3fc:	f5 2d       	mov	r31, r5
+ 3f8:	f5 2d       	mov	r31, r5
 		
 		;enable global interrupt to start executing task, starting with last task entry
 		SEI                                               ;enable global int      (  1 clock ) 
- 3fe:	78 94       	sei
+ 3fa:	78 94       	sei
 		
 		;execute return to jump to last task's function address, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
- 400:	08 95       	ret
+ 3fc:	08 95       	ret
 
-00000402 <Debug_Init>:
+000003fe <Debug_Init>:
 .global  Debug_Print_TSK2
 
 ;;========================================Debug Init========================================;;
 Debug_Init:
         ;init registers for UART0
 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
- 402:	02 e0       	ldi	r16, 0x02	; 2
+ 3fe:	02 e0       	ldi	r16, 0x02	; 2
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
- 404:	00 93 c0 00 	sts	0x00C0, r16
+ 400:	00 93 c0 00 	sts	0x00C0, r16
 		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
- 408:	00 e0       	ldi	r16, 0x00	; 0
+ 404:	00 e0       	ldi	r16, 0x00	; 0
 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
- 40a:	00 93 c5 00 	sts	0x00C5, r16
+ 406:	00 93 c5 00 	sts	0x00C5, r16
 		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
- 40e:	03 e0       	ldi	r16, 0x03	; 3
+ 40a:	03 e0       	ldi	r16, 0x03	; 3
 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
- 410:	00 93 c4 00 	sts	0x00C4, r16
+ 40c:	00 93 c4 00 	sts	0x00C4, r16
 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
- 414:	06 e0       	ldi	r16, 0x06	; 6
+ 410:	06 e0       	ldi	r16, 0x06	; 6
 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
- 416:	00 93 c2 00 	sts	0x00C2, r16
+ 412:	00 93 c2 00 	sts	0x00C2, r16
 		LDI   R16                , (1<<3)                 ;enable tx,               (1 clock )
- 41a:	08 e0       	ldi	r16, 0x08	; 8
+ 416:	08 e0       	ldi	r16, 0x08	; 8
 		STS   SRUCSR0B           , R16                    ;load val to UCSR0B,      (2 clocks)
- 41c:	00 93 c1 00 	sts	0x00C1, r16
+ 418:	00 93 c1 00 	sts	0x00C1, r16
         RET                                               ;return from subroutine,  (4 clocks) 
- 420:	08 95       	ret
+ 41c:	08 95       	ret
 
-00000422 <Debug_Tx_Byte>:
+0000041e <Debug_Tx_Byte>:
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte:
 		;write single byte to data register (Arg R24)
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
- 422:	00 93 3e 00 	sts	0x003E, r16
+ 41e:	00 93 3e 00 	sts	0x003E, r16
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
- 426:	80 93 c6 00 	sts	0x00C6, r24
+ 422:	80 93 c6 00 	sts	0x00C6, r24
 
-0000042a <__UDRE0_CLEARED>:
+00000426 <__UDRE0_CLEARED>:
 		
     __UDRE0_CLEARED:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 42a:	00 91 c0 00 	lds	r16, 0x00C0
+ 426:	00 91 c0 00 	lds	r16, 0x00C0
 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
- 42e:	05 ff       	sbrs	r16, 5
+ 42a:	05 ff       	sbrs	r16, 5
 		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set, (2 clocks)
- 430:	fc cf       	rjmp	.-8      	; 0x42a <__UDRE0_CLEARED>
+ 42c:	fc cf       	rjmp	.-8      	; 0x426 <__UDRE0_CLEARED>
 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
- 432:	00 91 3e 00 	lds	r16, 0x003E
+ 42e:	00 91 3e 00 	lds	r16, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 436:	08 95       	ret
+ 432:	08 95       	ret
 
-00000438 <Debug_Tx_Byte_Conf>:
+00000434 <Debug_Tx_Byte_Conf>:
 
 
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte_Conf:
         ;write 1 byte, (Arg R24), Args retained
 		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
- 438:	00 93 3e 00 	sts	0x003E, r16
+ 434:	00 93 3e 00 	sts	0x003E, r16
 		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
- 43c:	80 93 c6 00 	sts	0x00C6, r24
+ 438:	80 93 c6 00 	sts	0x00C6, r24
 
-00000440 <__TXC0_CLEARED>:
+0000043c <__TXC0_CLEARED>:
 		
     __TXC0_CLEARED:
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 440:	00 91 c0 00 	lds	r16, 0x00C0
+ 43c:	00 91 c0 00 	lds	r16, 0x00C0
 		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
- 444:	06 ff       	sbrs	r16, 6
+ 440:	06 ff       	sbrs	r16, 6
 		RJMP  __TXC0_CLEARED                              ;wait until TXC0 is set,  (2 clocks)
- 446:	fc cf       	rjmp	.-8      	; 0x440 <__TXC0_CLEARED>
+ 442:	fc cf       	rjmp	.-8      	; 0x43c <__TXC0_CLEARED>
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
- 448:	00 91 c0 00 	lds	r16, 0x00C0
+ 444:	00 91 c0 00 	lds	r16, 0x00C0
 		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
- 44c:	00 64       	ori	r16, 0x40	; 64
+ 448:	00 64       	ori	r16, 0x40	; 64
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
- 44e:	00 93 c0 00 	sts	0x00C0, r16
+ 44a:	00 93 c0 00 	sts	0x00C0, r16
 		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
- 452:	00 91 3e 00 	lds	r16, 0x003E
+ 44e:	00 91 3e 00 	lds	r16, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 456:	08 95       	ret
+ 452:	08 95       	ret
 
-00000458 <Debug_Tx_Word_Conf>:
+00000454 <Debug_Tx_Word_Conf>:
 
 ;;======================================Debug Tx Word=======================================;;
 Debug_Tx_Word_Conf:
         ;write 2 bytes, (Arg R24, R25), Args retained
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 458:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 454:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		STS   SRGPIOR0           , R24                    ;store R24 val,           (2 clocks)
- 45c:	80 93 3e 00 	sts	0x003E, r24
+ 458:	80 93 3e 00 	sts	0x003E, r24
 		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
- 460:	89 2f       	mov	r24, r25
+ 45c:	89 2f       	mov	r24, r25
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 462:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 45e:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		LDS   R24                , SRGPIOR0               ;restore R24 val,         (2 clocks)
- 466:	80 91 3e 00 	lds	r24, 0x003E
+ 462:	80 91 3e 00 	lds	r24, 0x003E
         RET                                               ;return from subroutine,  (4 clocks) 
- 46a:	08 95       	ret
+ 466:	08 95       	ret
 
-0000046c <Debug_Tx_DWord_Conf>:
+00000468 <Debug_Tx_DWord_Conf>:
 
 ;;=====================================Debug Tx DWord=======================================;;
 Debug_Tx_DWord_Conf:
         ;write 4 bytes, (Arg R22-R25), Args retained
 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
- 46c:	80 93 4a 00 	sts	0x004A, r24
+ 468:	80 93 4a 00 	sts	0x004A, r24
 		MOV   R24                , R22                    ;copy R22 to R24          (1 clock )
- 470:	86 2f       	mov	r24, r22
+ 46c:	86 2f       	mov	r24, r22
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 472:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 46e:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		MOV   R24                , R23                    ;copy R23 to R24          (1 clock )
- 476:	87 2f       	mov	r24, r23
+ 472:	87 2f       	mov	r24, r23
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 478:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 474:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		LDS   R24                , SRGPIOR1               ;restore R24              (2 clocks)
- 47c:	80 91 4a 00 	lds	r24, 0x004A
+ 478:	80 91 4a 00 	lds	r24, 0x004A
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 480:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 47c:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		STS   SRGPIOR1           , R24                    ;store R24 val,           (2 clocks)
- 484:	80 93 4a 00 	sts	0x004A, r24
+ 480:	80 93 4a 00 	sts	0x004A, r24
 		MOV   R24                , R25                    ;copy R22 to R24          (1 clock )
- 488:	89 2f       	mov	r24, r25
+ 484:	89 2f       	mov	r24, r25
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 48a:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 486:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		LDS   R24                , SRGPIOR1               ;restore R24 val,         (2 clocks)
- 48e:	80 91 4a 00 	lds	r24, 0x004A
+ 48a:	80 91 4a 00 	lds	r24, 0x004A
         RET                                               ;return from subroutine,  (4 clocks) 
- 492:	08 95       	ret
+ 48e:	08 95       	ret
 
-00000494 <Debug_Tx_From_RAM>:
+00000490 <Debug_Tx_From_RAM>:
 
 
 ;;===================================Debug Tx From RAM======================================;;
 Debug_Tx_From_RAM:
         ;print data from RAM address (Arg R24-R25)
 		MOV   R16                , R30                    ;copy R30 to R16          (1 clock )
- 494:	0e 2f       	mov	r16, r30
+ 490:	0e 2f       	mov	r16, r30
 		MOV   R17                , R31                    ;copy R31 to R17          (1 clock )
- 496:	1f 2f       	mov	r17, r31
+ 492:	1f 2f       	mov	r17, r31
 		MOV   R18                , R24                    ;copy R24 to R18          (1 clock )
- 498:	28 2f       	mov	r18, r24
+ 494:	28 2f       	mov	r18, r24
 		MOV   R30                , R24                    ;copy R22 to R24          (1 clock )
- 49a:	e8 2f       	mov	r30, r24
+ 496:	e8 2f       	mov	r30, r24
 		MOV   R31                , R25                    ;copy R22 to R24          (1 clock )
- 49c:	f9 2f       	mov	r31, r25
+ 498:	f9 2f       	mov	r31, r25
 		LD    R24                , Z                      ;load val to R24          (2 clocks)
- 49e:	80 81       	ld	r24, Z
+ 49a:	80 81       	ld	r24, Z
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
- 4a0:	0e 94 1c 02 	call	0x438	; 0x438 <Debug_Tx_Byte_Conf>
+ 49c:	0e 94 1a 02 	call	0x434	; 0x434 <Debug_Tx_Byte_Conf>
 		MOV   R30                , R16                    ;copy R16 to R30          (1 clock )
- 4a4:	e0 2f       	mov	r30, r16
+ 4a0:	e0 2f       	mov	r30, r16
 		MOV   R31                , R17                    ;copy R17 to R31          (1 clock )
- 4a6:	f1 2f       	mov	r31, r17
+ 4a2:	f1 2f       	mov	r31, r17
 		MOV   R24                , R18                    ;copy R18 to R24          (1 clock )
- 4a8:	82 2f       	mov	r24, r18
+ 4a4:	82 2f       	mov	r24, r18
         RET                                               ;return from subroutine,  (4 clocks) 
- 4aa:	08 95       	ret
+ 4a6:	08 95       	ret
 
-000004ac <Debug_Tx_RAM_Area>:
+000004a8 <Debug_Tx_RAM_Area>:
 
 ;;===================================Debug Tx RAM Area======================================;;
 Debug_Tx_RAM_Area:
         ;print data from RAM address (arguments R24:R25, R22)
 	__DUMP_BYTES:
 	    CALL  Debug_Tx_From_RAM                           ;send via uart from ram
- 4ac:	0e 94 4a 02 	call	0x494	; 0x494 <Debug_Tx_From_RAM>
+ 4a8:	0e 94 48 02 	call	0x490	; 0x490 <Debug_Tx_From_RAM>
 		SUBI  R24                , 0x01                   ;decrement from LSByte
- 4b0:	81 50       	subi	r24, 0x01	; 1
+ 4ac:	81 50       	subi	r24, 0x01	; 1
         SBCI  R25                , 0x00                   ;decrement if carry
- 4b2:	90 40       	sbci	r25, 0x00	; 0
+ 4ae:	90 40       	sbci	r25, 0x00	; 0
 		SUBI  R22                , 0x01                   ;decrement
- 4b4:	61 50       	subi	r22, 0x01	; 1
+ 4b0:	61 50       	subi	r22, 0x01	; 1
 		BRNE  __DUMP_BYTES
- 4b6:	d1 f7       	brne	.-12     	; 0x4ac <Debug_Tx_RAM_Area>
+ 4b2:	d1 f7       	brne	.-12     	; 0x4a8 <Debug_Tx_RAM_Area>
         RET                                               ;return from subroutine,  (4 clocks) 
- 4b8:	08 95       	ret
+ 4b4:	08 95       	ret
 
-000004ba <Debug_Print_Dbg>:
+000004b6 <Debug_Print_Dbg>:
 
 
 ;;======================================Debug Print->Dbg====================================;;
 Debug_Print_Dbg:
         ;write 4 bytes, (Arg R22-R25), Args retained
 		LDI   R22                , '-'                    ;copy R18 to R24          (1 clock )
- 4ba:	6d e2       	ldi	r22, 0x2D	; 45
+ 4b6:	6d e2       	ldi	r22, 0x2D	; 45
 		LDI   R23                , 'D'                    ;copy R18 to R24          (1 clock )
- 4bc:	74 e4       	ldi	r23, 0x44	; 68
+ 4b8:	74 e4       	ldi	r23, 0x44	; 68
 		LDI   R24                , 'b'                    ;copy R18 to R24          (1 clock )
- 4be:	82 e6       	ldi	r24, 0x62	; 98
+ 4ba:	82 e6       	ldi	r24, 0x62	; 98
 		LDI   R25                , 'g'                    ;copy R18 to R24          (1 clock )
- 4c0:	97 e6       	ldi	r25, 0x67	; 103
+ 4bc:	97 e6       	ldi	r25, 0x67	; 103
 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
- 4c2:	0e 94 36 02 	call	0x46c	; 0x46c <Debug_Tx_DWord_Conf>
+ 4be:	0e 94 34 02 	call	0x468	; 0x468 <Debug_Tx_DWord_Conf>
         RET                                               ;return from subroutine,  (4 clocks) 
- 4c6:	08 95       	ret
+ 4c2:	08 95       	ret
 
-000004c8 <Debug_Print_TSK0>:
+000004c4 <Debug_Print_TSK0>:
 		
 ;;=====================================Debug Dummy Print====================================;;
 Debug_Print_TSK0:
         ;write 4 bytes, (Arg R22-R25), Args retained
 		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
- 4c8:	64 e5       	ldi	r22, 0x54	; 84
+ 4c4:	64 e5       	ldi	r22, 0x54	; 84
 		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
- 4ca:	73 e5       	ldi	r23, 0x53	; 83
+ 4c6:	73 e5       	ldi	r23, 0x53	; 83
 		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
- 4cc:	8b e6       	ldi	r24, 0x6B	; 107
+ 4c8:	8b e6       	ldi	r24, 0x6B	; 107
 		LDI   R25                , '0'                    ;copy R18 to R24          (1 clock )
- 4ce:	90 e3       	ldi	r25, 0x30	; 48
+ 4ca:	90 e3       	ldi	r25, 0x30	; 48
 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
- 4d0:	0e 94 36 02 	call	0x46c	; 0x46c <Debug_Tx_DWord_Conf>
+ 4cc:	0e 94 34 02 	call	0x468	; 0x468 <Debug_Tx_DWord_Conf>
         RET                                               ;return from subroutine,  (4 clocks) 
- 4d4:	08 95       	ret
+ 4d0:	08 95       	ret
 
-000004d6 <Debug_Print_TSK1>:
+000004d2 <Debug_Print_TSK1>:
 		
 ;;=====================================Debug Dummy Print====================================;;
 Debug_Print_TSK1:
         ;write 4 bytes, (Arg R22-R25), Args retained
 		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
- 4d6:	64 e5       	ldi	r22, 0x54	; 84
+ 4d2:	64 e5       	ldi	r22, 0x54	; 84
 		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
- 4d8:	73 e5       	ldi	r23, 0x53	; 83
+ 4d4:	73 e5       	ldi	r23, 0x53	; 83
 		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
- 4da:	8b e6       	ldi	r24, 0x6B	; 107
+ 4d6:	8b e6       	ldi	r24, 0x6B	; 107
 		LDI   R25                , '1'                    ;copy R18 to R24          (1 clock )
- 4dc:	91 e3       	ldi	r25, 0x31	; 49
+ 4d8:	91 e3       	ldi	r25, 0x31	; 49
 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
- 4de:	0e 94 36 02 	call	0x46c	; 0x46c <Debug_Tx_DWord_Conf>
+ 4da:	0e 94 34 02 	call	0x468	; 0x468 <Debug_Tx_DWord_Conf>
         RET                                               ;return from subroutine,  (4 clocks) 
- 4e2:	08 95       	ret
+ 4de:	08 95       	ret
 
-000004e4 <Debug_Print_TSK2>:
+000004e0 <Debug_Print_TSK2>:
 		
 ;;=====================================Debug Dummy Print====================================;;
 Debug_Print_TSK2:
         ;write 4 bytes, (Arg R22-R25), Args retained
 		LDI   R22                , 'T'                    ;copy R18 to R24          (1 clock )
- 4e4:	64 e5       	ldi	r22, 0x54	; 84
+ 4e0:	64 e5       	ldi	r22, 0x54	; 84
 		LDI   R23                , 'S'                    ;copy R18 to R24          (1 clock )
- 4e6:	73 e5       	ldi	r23, 0x53	; 83
+ 4e2:	73 e5       	ldi	r23, 0x53	; 83
 		LDI   R24                , 'k'                    ;copy R18 to R24          (1 clock )
- 4e8:	8b e6       	ldi	r24, 0x6B	; 107
+ 4e4:	8b e6       	ldi	r24, 0x6B	; 107
 		LDI   R25                , '2'                    ;copy R18 to R24          (1 clock )
- 4ea:	92 e3       	ldi	r25, 0x32	; 50
+ 4e6:	92 e3       	ldi	r25, 0x32	; 50
 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
- 4ec:	0e 94 36 02 	call	0x46c	; 0x46c <Debug_Tx_DWord_Conf>
- 4f0:	08 95       	ret
+ 4e8:	0e 94 34 02 	call	0x468	; 0x468 <Debug_Tx_DWord_Conf>
+ 4ec:	08 95       	ret
 
-000004f2 <_exit>:
- 4f2:	f8 94       	cli
+000004ee <_exit>:
+ 4ee:	f8 94       	cli
 
-000004f4 <__stop_program>:
- 4f4:	ff cf       	rjmp	.-2      	; 0x4f4 <__stop_program>
+000004f0 <__stop_program>:
+ 4f0:	ff cf       	rjmp	.-2      	; 0x4f0 <__stop_program>
