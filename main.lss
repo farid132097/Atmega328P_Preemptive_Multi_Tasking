@@ -5,7 +5,7 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .text         00000672  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          0000051e  00800100  00800100  000006e6  2**0
+  1 .bss          00000546  00800100  00800100  000006e6  2**0
                   ALLOC
   2 .stab         000009f0  00000000  00000000  000006e8  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -804,7 +804,7 @@ Kernel_Task_Init:
 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
  4ca:	11 24       	eor	r1, r1
 		LDI   R16                , lo8(KerStack)          ;load base addr low     (  1 clock ) 
- 4cc:	0e e1       	ldi	r16, 0x1E	; 30
+ 4cc:	06 e4       	ldi	r16, 0x46	; 70
 		LDI   R17                , hi8(KerStack)          ;load base addr high    (  1 clock ) 
  4ce:	11 e0       	ldi	r17, 0x01	; 1
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
@@ -965,9 +965,9 @@ Kernel_Start_Tasks:
  594:	0f 90       	pop	r0
 		
 		;restore ZP
-		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
+		MOV   R30                , R4                     ;restore ZPL            (  2 clocks) 
  596:	e4 2d       	mov	r30, r4
-		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
+		MOV   R31                , R5                     ;restore ZPL            (  2 clocks) 
  598:	f5 2d       	mov	r31, r5
 		
 		;enable global interrupt to start executing task, starting with task0

@@ -12,9 +12,8 @@
 .equ     KER_TR ,         1000    ;TickRate in Hz, only defined, not calculated
 .equ     KER_PRS,         0x03    ;For prescaler 64, manually select
 .equ     KER_RLD,         0x82    ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
-
-.equ     KER_STZ,         128     ;stack size for each task
-.equ     KER_NTASK,       2       ;total tasks
+.equ     KER_STZ,         128     ;stack size in bytes for each task
+.equ     KER_MX_NTSK,     10      ;max number of tasks
 ;;==============================define user address or macro end============================;; 
 
 
@@ -57,11 +56,14 @@
 KerBase:  .skip 10                ;TickCnt(5), rld_val(1), task_id(1), ntask(1), rsrvd(2)
 
 .global   KerSP                   ;declare global space for stack pointers
-KerSP:    .skip 20                ;2 bytes for each task, max 10 tasks
+KerSP:    .skip KER_MX_NTSK*2     ;2 bytes for each task
+
+.global   KerSch                  ;declare global space for schedulers
+KerSch:   .skip KER_MX_NTSK*4     ;timing(3), status(1)
 
 .global   KerStack                ;declare global space for stack
 KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
-;;================================define global variables end===============================;; 
+;;==============================define global variables end=================================;; 
 
 
 
@@ -100,8 +102,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;============================debug pin operation init starting=============================;; 
-.macro  KER_DEBUG_PIN_INIT                                ;total operation        (  4 clocks) 
-        #ifdef KER_DBG_ENABLE
+.macro  KER_DEBUG_PIN_INIT                                ;total 0.5uS @8MHz      (  4 clocks) 
+        #ifdef KER_DBG_ENABLE                                                                  
 		SBI   KER_DBG_DDR        , KER_DBG_PIN            ;set bit in DDR         (  2 clocks) 
 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear port bit         (  2 clocks) 
 		#endif
@@ -113,8 +115,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;===========================debug pin operation set starting===============================;; 
-.macro  KER_DEBUG_PIN_SET                                 ;total operation        (  2 clocks) 
-        #ifdef KER_DBG_ENABLE
+.macro  KER_DEBUG_PIN_SET                                 ;total 0.25uS @8MHz     (  2 clocks) 
+        #ifdef KER_DBG_ENABLE                                                                  
         SBI   KER_DBG_PORT       , KER_DBG_PIN            ;set gpio               (  2 clocks) 
 		#endif
 .endm
@@ -125,8 +127,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;===========================debug pin operation clear starting=============================;; 
-.macro  KER_DEBUG_PIN_CLEAR                               ;total operation        (  2 clocks) 
-        #ifdef KER_DBG_ENABLE
+.macro  KER_DEBUG_PIN_CLEAR                               ;total 0.25uS @8MHz     (  2 clocks) 
+        #ifdef KER_DBG_ENABLE                                                                  
 		CBI   KER_DBG_PORT       , KER_DBG_PIN            ;clear gpio             (  2 clocks) 
 		#endif
 .endm
@@ -137,8 +139,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;==============================reload counter value starting===============================;; 
-.macro  KER_COUNTER_RELOAD                                ;total operation        (  4 clocks) 
-        LDS   R16                , KerBase+0x05           ;fetch reload value     (  2 clocks) 
+.macro  KER_COUNTER_RELOAD                                ;total 0.5uS @8MHz      (  4 clocks) 
+        LDS   R16                , KerBase+0x05           ;load reload value      (  2 clocks) 
 		STS   SRTCNT0            , R16                    ;Set value to TCNT0     (  2 clocks) 
 .endm
 ;;=================================reload counter value end=================================;; 
@@ -149,8 +151,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 ;;==================================context save starting===================================;; 
 .macro  KER_CONTEXT_SAVE                                  ;total 8.5uS @8MHz      ( 68 clocks) 
-        PUSH  R0                                          ;save R0                (  2 clocks) 
-		IN    R0                 , IOSREG                 ;load SREG              (  1 clock ) 
+        PUSH  R0                                          ;push R0                (  2 clocks) 
+		IN    R0                 , IOSREG                 ;save SREG              (  1 clock ) 
 		PUSH  R0                                          ;save SREG              (  2 clocks) 
 		PUSH  R1                                          ;save R1                (  2 clocks) 
 		CLR   R1                                          ;clear R1               (  1 clock ) 
@@ -534,8 +536,8 @@ Kernel_Start_Tasks:
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
 		
 		;restore ZP
-		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
-		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
+		MOV   R30                , R4                     ;restore ZPL            (  2 clocks) 
+		MOV   R31                , R5                     ;restore ZPL            (  2 clocks) 
 		
 		;enable global interrupt to start executing task, starting with task0
 		SEI                                               ;enable global int      (  1 clock ) 
