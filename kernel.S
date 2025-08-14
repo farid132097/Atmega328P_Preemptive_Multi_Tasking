@@ -12,9 +12,18 @@
 .equ     KER_TR ,         1000    ;TickRate in Hz, only defined, not calculated
 .equ     KER_PRS,         0x03    ;For prescaler 64, manually select
 .equ     KER_RLD,         0x82    ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
-.equ     KER_STZ,         128     ;stack size in bytes for each task
+.equ     KER_STK_SZ,      128     ;stack size in bytes for each task
 .equ     KER_MX_NTSK,     10      ;max number of tasks
 ;;==============================define user address or macro end============================;; 
+
+
+
+
+
+;;===============================define system macro starting===============================;; 
+.equ     TASK_READY ,     0x01    ;bit 0 in system status reg
+.equ     TASK_BLOCK ,     0x01    ;bit 0 in system status reg
+;;==================================define system macro end=================================;; 
 
 
 
@@ -59,10 +68,10 @@ KerBase:  .skip 10                ;TickCnt(5), rld_val(1), task_id(1), ntask(1),
 KerSP:    .skip KER_MX_NTSK*2     ;2 bytes for each task
 
 .global   KerSch                  ;declare global space for schedulers
-KerSch:   .skip KER_MX_NTSK*4     ;timing(3), status(1)
+KerSch:   .skip KER_MX_NTSK*4     ;status(1), priority(1), timing(2)
 
 .global   KerStack                ;declare global space for stack
-KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
+KerStack: .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 ;;==============================define global variables end=================================;; 
 
 
@@ -95,6 +104,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 .global  Kernel_Interrupt_Sts_Get
 .global  Kernel_Task_Init
 .global  Kernel_Start_Tasks
+.global  Kernel_Task_Yeild
 ;;================================define global functions end===============================;; 
 
 
@@ -287,12 +297,12 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		LDS   R16                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
 		INC   R16                                         ;increment task index   (  1 clock ) 
 		LDS   R17                , KerBase+0x07           ;load ntask             (  2 clocks) 
-	_MOD_CONT:
+	_MOD_CONT\@:                                          ;use local label
 	    CP    R16                , R17                    ;compare R17 with R16   (  1 clock ) 
-		BRLO  _MOD_DONE                                   ;if R16<R17, done       (  2 clocks) 
+		BRLO  _MOD_DONE\@                                 ;if R16<R17, done       (  2 clocks) 
 		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock ) 
-		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks) 
-	_MOD_DONE:
+		RJMP  _MOD_CONT\@                                 ;go to loop start       (  2 clocks) 
+	_MOD_DONE\@:                                          ;use local label
 	    STS   KerBase+0x06       , R16                    ;save task_id%ntask     (  2 clocks) 
 .endm
 ;;=================================load next task id end====================================;; 
@@ -458,19 +468,31 @@ Kernel_Task_Init:
         MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
 		
+		;set priority to KerSch+(task_id*4)+1
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
+		LSL   R16                                         ;x2                     (  1 clock ) 
+		LSL   R16                                         ;task_id*4              (  1 clock ) 
+        INC   R16                                         ;task_id*4+1 ->priority (  1 clock ) 
+		LDI   R30                , lo8(KerSch)            ;load low byte          (  1 clock ) 
+		LDI   R31                , hi8(KerSch)            ;load high byte         (  1 clock ) 
+		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
+		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+		ST    Z                  , R20                    ;save priority          (  2 clocks)
+		
 		;increment ntask
 		LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
 		INC   R16                                         ;increment ntask        (  1 clock ) 
 		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
 		
-		;set stack pointer for current task (KerStack + KER_STZ*(ker_ind+1) - 1) ->stack top   
+		;set stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top   
 		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
 		INC   R16                                         ;increment task_id      (  1 clock ) 
-		LDI   R17                , KER_STZ                ;load stack size        (  1 clock ) 
+		LDI   R17                , KER_STK_SZ             ;load stack size        (  1 clock ) 
 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
-		SBIW  R30                , 0x01                   ;KER_STZ*(task_id+1)-1  (  2 clocks) 
+		SBIW  R30                , 0x01                   ;KER_STK_SZ*(task_id+1)-1  (  2 clocks) 
 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
 		LDI   R16                , lo8(KerStack)          ;load base addr low     (  1 clock ) 
 		LDI   R17                , hi8(KerStack)          ;load base addr high    (  1 clock ) 
@@ -543,6 +565,21 @@ Kernel_Start_Tasks:
 		SEI                                               ;enable global int      (  1 clock ) 
 		
 		;execute return to jump to task0, pushed while task init
+		RET                                               ;return from subroutine (  4 clocks) 
+;;======================================Kernel Task end=====================================;; 
+
+
+
+
+
+;;===================================Kernel Task starting===================================;; 
+Kernel_Task_Yeild:
+		;save context, save sp, load next task id, load next task sp, restore context
+		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		KER_LOAD_NEXT_TASK_ID                             ;inc & load next task ID( 13 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;======================================Kernel Task end=====================================;; 
 
