@@ -280,8 +280,8 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;==============================load next task sp starting==================================;; 
-.macro  KER_LOAD_NEXT_TASK_SP                             ;total 3.13uS @8MHz     ( 25 clocks) 
+;;==============================load next task id starting==================================;; 
+.macro  KER_LOAD_NEXT_TASK_ID                             ;total 1.63uS @8MHz     ( 13 clocks) 
 		LDS   R16                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
 		INC   R16                                         ;increment task index   (  1 clock ) 
 		LDS   R17                , KerBase+0x07           ;load ntask             (  2 clocks) 
@@ -292,6 +292,16 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks) 
 	_MOD_DONE:
 	    STS   KerBase+0x06       , R16                    ;save task_id%ntask     (  2 clocks) 
+.endm
+;;=================================load next task id end====================================;; 
+
+
+
+
+
+;;==============================load task id & sp starting==================================;; 
+.macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.75uS @8MHz     ( 14 clocks) 
+	    LDS   R16                , KerBase+0x06           ;load task_id           (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -303,7 +313,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		OUT   IOSPL              , R16                    ;load SPL0              (  1 clock ) 
 		OUT   IOSPH              , R17                    ;load SPH0              (  1 clock ) 
 .endm
-;;=================================load next task sp end====================================;; 
+;;=================================load task id & sp end====================================;; 
 
 
 
@@ -311,13 +321,14 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 ;;=================================ISR execution starting===================================;; 
 .global  __vector_16
-    __vector_16:                                          ;total 26.13uS @8MHz    (209 clocks) 
+    __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks)
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_LOAD_NEXT_TASK_SP                             ;load next task SP      ( 25 clocks) 
+		KER_LOAD_NEXT_TASK_ID                             ;inc & load next task ID( 13 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
