@@ -87,3 +87,68 @@ void Tasks_Task4(void){
 	
   }
 }
+
+void Tasks_Task5(void){
+  
+  Debug_Init(0);
+  
+  while(1){
+    
+	Debug_Print_TSK(5);
+	//Kernel_Task_Yeild();
+	Tasks_Delay(20);
+	
+  }
+}
+
+void Tasks_Task6(void){
+  
+  Debug_Init(0);
+  
+  while(1){
+    
+	Debug_Print_TSK(6);
+	//Kernel_Task_Yeild();
+	Tasks_Delay(29);
+	
+  }
+}
+
+void Tasks_Task7(void){
+  
+  Debug_Init(0);
+  
+  while(1){
+    
+	Debug_Print_TSK(7);
+	//Kernel_Task_Yeild();
+	Tasks_Delay(37);
+	
+  }
+}
+
+void Tasks_Task8(void){
+  
+  Debug_Init(0);
+  
+  while(1){
+    
+	Debug_Print_TSK(8);
+	//Kernel_Task_Yeild();
+	Tasks_Delay(48);
+	
+  }
+}
+
+void Tasks_Task9(void){
+  
+  Debug_Init(0);
+  
+  while(1){
+    
+	Debug_Print_TSK(9);
+	//Kernel_Task_Yeild();
+	Tasks_Delay(27);
+	
+  }
+}

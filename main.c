@@ -22,6 +22,11 @@ int main(void) {
 	Kernel_Task_Init(Tasks_Task2, 2, 0);
 	Kernel_Task_Init(Tasks_Task3, 3, 0);
 	Kernel_Task_Init(Tasks_Task4, 4, 0);
+	Kernel_Task_Init(Tasks_Task5, 5, 0);
+	Kernel_Task_Init(Tasks_Task6, 6, 0);
+	Kernel_Task_Init(Tasks_Task7, 7, 0);
+	Kernel_Task_Init(Tasks_Task8, 8, 0);
+	Kernel_Task_Init(Tasks_Task9, 9, 0);
 	Kernel_Start_Tasks();
 	
 	
