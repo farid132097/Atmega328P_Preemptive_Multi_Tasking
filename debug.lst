@@ -470,9 +470,9 @@
   39               	        ;init registers for UART0
   40:debug.S       **** 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
   41:debug.S       **** 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
-  42:debug.S       **** 		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
+  42:debug.S       **** 		MOV   R16                , R25                    ;clear R16,               (1 clock )
   43:debug.S       **** 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
-  44:debug.S       **** 		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
+  44:debug.S       **** 		MOV   R16                , R24                    ;set 0x03, 250k baud,     (1 clock )
   45:debug.S       **** 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
   46:debug.S       **** 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
   47:debug.S       **** 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
@@ -572,12 +572,17 @@
  141               	Debug_Print_TSK:
  142               	        ;write 4 bytes, (Arg R22-R25), Args retained
  143:debug.S       **** 		MOV   R16                , R24                    ;copy R24 to R16          (1 clock )
- 144:debug.S       **** 		LDI   R22                , 'T'                    ;copy char                (1 clock )
- 145:debug.S       **** 		LDI   R23                , 'S'                    ;copy char                (1 clock )
- 146:debug.S       **** 		LDI   R24                , 'k'                    ;copy char                (1 clock )
- 147:debug.S       **** 		MOV   R25                , R16                    ;copy char                (1 clock )
- 148:debug.S       **** 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
- 149:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
+ 144               			;LDI   R17                , 48                     ;load 48 to reg           (1 clock )
+ 145               			;ADD   R16                , R17                    ;to convert val to char   (1 clock )
+ 146:debug.S       **** 		LDI   R22                , 'T'                    ;copy char                (1 clock )
+ 147:debug.S       **** 		LDI   R23                , 'S'                    ;copy char                (1 clock )
+ 148:debug.S       **** 		LDI   R24                , 'k'                    ;copy char                (1 clock )
+ 149:debug.S       **** 		MOV   R25                , R16                    ;copy char                (1 clock )
+ 150:debug.S       **** 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+ 151:debug.S       **** 		LDI   R24                , '\r'                   ;copy char                (1 clock )
+ 152:debug.S       **** 		LDI   R25                , '\n'                   ;copy char                (1 clock )
+ 153:debug.S       **** 		CALL  Debug_Tx_Word_Conf                          ;send via uart
+ 154:debug.S       ****         RET                                               ;return from subroutine,  (4 clocks) 
 DEFINED SYMBOLS
              debug.S:10     *ABS*:0000003e SRGPIOR0
              debug.S:11     *ABS*:0000004a SRGPIOR1

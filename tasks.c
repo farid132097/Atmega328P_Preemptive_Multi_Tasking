@@ -19,7 +19,7 @@ void Tasks_Delay(uint16_t val){
 
 void Tasks_Task0(void){
   
-  Debug_Init();
+  Debug_Init(0);
   DDRD |= (1<<5);
   
   while(1){
@@ -33,7 +33,7 @@ void Tasks_Task0(void){
 
 void Tasks_Task1(void){
   
-  Debug_Init();
+  Debug_Init(0);
   DDRD |= (1<<6);
   
   while(1){
@@ -47,7 +47,7 @@ void Tasks_Task1(void){
 
 void Tasks_Task2(void){
   
-  Debug_Init();
+  Debug_Init(0);
   DDRD |= (1<<7);
   
   while(1){
@@ -61,7 +61,7 @@ void Tasks_Task2(void){
 
 void Tasks_Task3(void){
   
-  Debug_Init();
+  Debug_Init(0);
   
   while(1){
     
@@ -73,7 +73,7 @@ void Tasks_Task3(void){
 
 void Tasks_Task4(void){
   
-  Debug_Init();
+  Debug_Init(0);
   
   while(1){
     

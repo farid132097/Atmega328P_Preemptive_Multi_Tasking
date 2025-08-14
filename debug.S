@@ -39,9 +39,9 @@ Debug_Init:
         ;init registers for UART0
 		LDI   R16                , (1<<1)                 ;mask U2x,                (1 clock )
 		STS   SRUCSR0A           , R16                    ;load val to UCSR0A,      (2 clocks)
-		LDI   R16                , 0x00                   ;clear R16,               (1 clock )
+		MOV   R16                , R25                    ;clear R16,               (1 clock )
 		STS   SRUBRR0H           , R16                    ;load val to UBRR0H,      (2 clocks)
-		LDI   R16                , 0x03                   ;set 0x03, 250k baud,     (1 clock )
+		MOV   R16                , R24                    ;set 0x03, 250k baud,     (1 clock )
 		STS   SRUBRR0L           , R16                    ;load val to UBRR0L,      (2 clocks)
 		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit        (1 clock )
 		STS   SRUCSR0C           , R16                    ;load val to UCSR0C,      (2 clocks)
@@ -141,11 +141,16 @@ Debug_Tx_RAM_Area:
 Debug_Print_TSK:
         ;write 4 bytes, (Arg R22-R25), Args retained
 		MOV   R16                , R24                    ;copy R24 to R16          (1 clock )
+		;LDI   R17                , 48                     ;load 48 to reg           (1 clock )
+		;ADD   R16                , R17                    ;to convert val to char   (1 clock )
 		LDI   R22                , 'T'                    ;copy char                (1 clock )
 		LDI   R23                , 'S'                    ;copy char                (1 clock )
 		LDI   R24                , 'k'                    ;copy char                (1 clock )
 		MOV   R25                , R16                    ;copy char                (1 clock )
 		CALL  Debug_Tx_DWord_Conf                         ;send via uart
+		LDI   R24                , '\r'                   ;copy char                (1 clock )
+		LDI   R25                , '\n'                   ;copy char                (1 clock )
+		CALL  Debug_Tx_Word_Conf                          ;send via uart
         RET                                               ;return from subroutine,  (4 clocks) 
 
 

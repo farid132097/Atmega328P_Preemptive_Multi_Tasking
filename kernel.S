@@ -148,7 +148,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;==================================context save starting===================================;; 
-.macro  KER_CONTEXT_SAVE                                  ;total operation        ( 68 clocks) 
+.macro  KER_CONTEXT_SAVE                                  ;total 8.5uS @8MHz      ( 68 clocks) 
         PUSH  R0                                          ;save R0                (  2 clocks) 
 		IN    R0                 , IOSREG                 ;load SREG              (  1 clock ) 
 		PUSH  R0                                          ;save SREG              (  2 clocks) 
@@ -192,7 +192,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;================================context restore starting==================================;; 
-.macro  KER_CONTEXT_RESTORE                               ;total operation        ( 67 clocks) 
+.macro  KER_CONTEXT_RESTORE                               ;total 8.38uS @8MHz     ( 67 clocks) 
 		POP   R31                                         ;restore R31            (  2 clocks) 
 		POP   R30                                         ;restore R30            (  2 clocks) 
 		POP   R29                                         ;restore R29            (  2 clocks) 
@@ -235,7 +235,7 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 ;;==============================increment tick counter starting=============================;; 
-.macro  KER_TICK_INCREMENT                                ;total operation        ( 27 clocks) 
+.macro  KER_TICK_INCREMENT                                ;total 3.38uS @8MHz     ( 27 clocks) 
 		LDI   R16                , 0x01                   ;load 1 to R16          (  1 clock ) 
 		LDS   R17                , KerBase+0x00           ;load Byte0             (  2 clocks) 
 		ADD   R17                , R16                    ;add 1 with Byte0       (  1 clock ) 
@@ -260,19 +260,28 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 
 
-;;====================================task switch starting==================================;; 
-.macro  KER_TASK_SWITCH                                   ;total operation        ( 39 clocks) 
-		IN    R24                , IOSPL                  ;fetch SPL0             (  1 clock ) 
-		IN    R25                , IOSPH                  ;fetch SPH0             (  1 clock ) 
-		LDS   R16                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
-		LSL   R16                                         ;left shift to multiply (  1 clock ) 
+;;===============================save current task sp starting==============================;; 
+.macro  KER_SAVE_CURR_TASK_SP                             ;total 1.75uS @8MHz     ( 14 clocks) 
+		IN    R16                , IOSPL                  ;fetch SPL0             (  1 clock ) 
+		IN    R17                , IOSPH                  ;fetch SPH0             (  1 clock ) 
+		LDS   R18                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
-		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
-		LDI   R16                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADC   R31                , R16                    ;add carry if any       (  1 clock ) 
-		ST    Z+                 , R24                    ;store SPL at ZP        (  2 clocks) 
-		ST    z                  , R25                    ;store SPH ZP+1         (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+		ST    Z+                 , R16                    ;store SPL at ZP        (  2 clocks) 
+		ST    z                  , R17                    ;store SPH ZP+1         (  2 clocks) 
+.endm
+;;================================save current task sp end==================================;; 
+
+
+
+
+
+;;==============================load next task sp starting==================================;; 
+.macro  KER_LOAD_NEXT_TASK_SP                             ;total 3.13uS @8MHz     ( 25 clocks) 
 		LDS   R16                , KerBase+0x06           ;fetch task_id          (  2 clocks) 
 		INC   R16                                         ;increment task index   (  1 clock ) 
 		LDS   R17                , KerBase+0x07           ;load ntask             (  2 clocks) 
@@ -282,19 +291,19 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock ) 
 		RJMP  _MOD_CONT                                   ;go to loop start       (  2 clocks) 
 	_MOD_DONE:
-	    STS   KerBase+0x06       , R16                    ;task_id%ntask          (  2 clocks) 
+	    STS   KerBase+0x06       , R16                    ;save task_id%ntask     (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
 		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
 		LDI   R16                , 0x00                   ;set 0 to R16           (  1 clock ) 
 		ADC   R31                , R16                    ;add carry if any       (  1 clock ) 
-		LD    R24                , Z+                     ;load SPL at ZP         (  2 clocks) 
-		LD    R25                , Z                      ;load SPH at ZP         (  2 clocks) 
-		OUT   IOSPL              , R24                    ;load SPL0              (  1 clock ) 
-		OUT   IOSPH              , R25                    ;load SPH0              (  1 clock ) 
+		LD    R16                , Z+                     ;load SPL at ZP         (  2 clocks) 
+		LD    R17                , Z                      ;load SPH at ZP         (  2 clocks) 
+		OUT   IOSPL              , R16                    ;load SPL0              (  1 clock ) 
+		OUT   IOSPH              , R17                    ;load SPH0              (  1 clock ) 
 .endm
-;;=======================================task switch end====================================;; 
+;;=================================load next task sp end====================================;; 
 
 
 
@@ -302,12 +311,13 @@ KerStack: .skip KER_STZ*10        ;KER_STZ bytes for each task
 
 ;;=================================ISR execution starting===================================;; 
 .global  __vector_16
-    __vector_16:                                          ;total operation        (208 clocks) 
+    __vector_16:                                          ;total 26.13uS @8MHz    (209 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
-		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
-		KER_TASK_SWITCH                                   ;task switching         ( 38 clocks) 
+		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks)
+        KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		KER_LOAD_NEXT_TASK_SP                             ;load next task SP      ( 25 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
