@@ -19,15 +19,9 @@ void Tasks_Delay(uint16_t val){
 
 void Tasks_Task0(void){
   
-  Debug_Init(0);
-  DDRD |= (1<<5);
   
   while(1){
     
-    PORTD ^= (1<<5);
-	Debug_Print_TSK(0);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(12);
 	
   }
 }
@@ -37,12 +31,14 @@ void Tasks_Task1(void){
   Debug_Init(0);
   DDRD |= (1<<6);
   
+  
   while(1){
     
     PORTD ^= (1<<6);
 	Debug_Print_TSK(1);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(26);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(10);
 	
   }
 }
@@ -56,8 +52,9 @@ void Tasks_Task2(void){
     
     PORTD ^= (1<<7);
 	Debug_Print_TSK(2);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(37);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(17);
 	
   }
 }
@@ -69,8 +66,9 @@ void Tasks_Task3(void){
   while(1){
     
 	Debug_Print_TSK(3);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(42);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(24);
 	
   }
 }
@@ -82,8 +80,9 @@ void Tasks_Task4(void){
   while(1){
     
 	Debug_Print_TSK(4);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(55);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(26);
 	
   }
 }
@@ -94,9 +93,10 @@ void Tasks_Task5(void){
   
   while(1){
     
-	Debug_Print_TSK(5);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(20);
+    Debug_Print_TSK(5);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(29);
 	
   }
 }
@@ -108,8 +108,9 @@ void Tasks_Task6(void){
   while(1){
     
 	Debug_Print_TSK(6);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(29);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(31);
 	
   }
 }
@@ -121,8 +122,9 @@ void Tasks_Task7(void){
   while(1){
     
 	Debug_Print_TSK(7);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(37);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(38);
 	
   }
 }
@@ -134,8 +136,9 @@ void Tasks_Task8(void){
   while(1){
     
 	Debug_Print_TSK(8);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(48);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(42);
 	
   }
 }
@@ -147,8 +150,9 @@ void Tasks_Task9(void){
   while(1){
     
 	Debug_Print_TSK(9);
-	//Kernel_Task_Yeild();
-	Tasks_Delay(27);
+	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
+	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
+	Kernel_Task_Sleep(44);
 	
   }
 }

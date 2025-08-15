@@ -29,6 +29,8 @@ extern uint8_t   Kernel_Interrupt_Sts_Get(void);
 extern void      Kernel_Task_Init(void (*func)(void), uint8_t task_id, uint8_t task_priority);
 extern void      Kernel_Start_Tasks(void);
 extern void      Kernel_Task_Sleep(uint16_t val);
+extern uint16_t  Kernel_Task_Sleep_Time_Get(void);
+extern uint8_t   Kernel_Task_Sts_Get(void);
 extern void      Kernel_Task_Yeild(void);
 
 #endif

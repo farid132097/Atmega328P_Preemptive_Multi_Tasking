@@ -110,6 +110,9 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 .global  Kernel_Interrupt_Sts_Get
 .global  Kernel_Task_Init
 .global  Kernel_Start_Tasks
+.global  Kernel_Task_Sleep
+.global  Kernel_Task_Sleep_Time_Get
+.global  Kernel_Task_Sts_Get
 .global  Kernel_Task_Yeild
 ;;================================define global functions end===============================;; 
 
@@ -319,52 +322,53 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;===============================decrease timeout starting==================================;; 
 .macro  KER_DEC_SLP_TIMEOUT                               ;total 1.75uS @8MHz     ( 14 clocks) 
-        
-		LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
-		LDI   R20                , 0                      ;task index             (  1 clock )
-		
-		;find KerSchSlp+task_id*2, ZP holds address
+        LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
+	 
 	_UPDATE_TASK_READY\@:
-		MOV   R17                , R20                    ;load task_id           (  2 clocks)
-		LSL   R17                                         ;x2                     (  1 clock ) 
+		;start from ntask-1
+		DEC   R16                                         ;start from ntask-1     (  1 clock )
+		
+		;find ram address for sleep counter
+		MOV   R18                , R16                    ;load task_id           (  1 clocks)
+		LSL   R18                                         ;x2                     (  1 clock )
 		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
-		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
-		ADD   R30                , R17                    ;add offset to array    (  1 clock ) 
-		LDI   R17                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADC   R31                , R17                    ;add offset to array    (  1 clock )
+		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock )
+        ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
+		ADC   R31                , R18                    ;add offset to array    (  1 clock ) 
 		
-		;check if sleep timer value reached 0
-		MOV   R28                , R30                    ;copy register          (  1 clock )
-		MOV   R29                , R31                    ;copy register          (  1 clock )
-        LD    R26                , Z+                     ;load val low byte      (  2 clocks)
-		LD    R27                , Z                      ;load val high byte     (  2 clocks)
+		;fetch current value from ram, if val=0, skip decrement
+        LD    R26                , Z+                     ;load val low byte      (  2 clocks) 
+		LD    R27                , Z                      ;load val high byte     (  2 clocks) 
 		MOV   R18                , R26                    ;copy                   (  1 clock ) 
-		MOV   R19                , R27                    ;copy                   (  1 clock ) 
-		OR    R18                , R19                    ;or high & low bytes    (  1 clock )
-		BREQ  _SAVE_TASK_READY\@                          ;val=0, save sts        (  2 clocks)
+		OR    R18                , R27                    ;or high & low bytes    (  1 clock ) 
+		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
 		
-		SBIW  R26                , 0x01                   ;decrement 1 from XP    (  2 clocks)
-		ST    Y+                 , R26                    ;store low byte         (  2 clocks)
-		ST    Y                  , R27                    ;store high byte        (  2 clocks)
-		OR    R26                , R27                    ;or high & low bytes    (  1 clock )
-		BRNE  _LOOP_CNT\@                                 ;val!=0, task not ready (  2 clocks)
-		
-	_SAVE_TASK_READY\@:
-	    MOV   R17                , R20                    ;load task_id           (  2 clocks)
-		LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		;decrease val by 1
+		SBIW  R26                , 0x01                   ;decrement 1 from XP    (  2 clocks) 
+		ST    Z                  , R27                    ;store low byte         (  2 clocks) 
+		ST    -Z                 , R26                    ;store high byte        (  2 clocks) 
+		MOV   R18                , R26                    ;copy                   (  1 clock ) 
+		OR    R18                , R27                    ;or high & low bytes    (  1 clock ) 
+		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
+		JMP   _LOOP\@
+        
+    _VAL_NULL\@:
+	    ;find ram address for status
+	    LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-		ADD   R30                , R17                    ;add offset to array    (  1 clock ) 
-		LDI   R17                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADC   R31                , R17                    ;add offset to array    (  1 clock )
-		LDI   R17                , TASK_READY             ;load task ready val    (  1 clock )
-        ST    Z                  , R17                    ;save task is ready     (  2 clocks)
+		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;set 0                  (  1 clock ) 
+		ADC   R31                , R18                    ;add offset to array    (  1 clock ) 
 		
-    _LOOP_CNT\@:
-		INC   R20                                         ;increase task_id       (  1 clock )
-		DEC   R16                                         ;decrease loop cnt      (  1 clock )
+		;update flag as task is ready
+		LDI   R18                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+		ST    Z                  , R18                    ;update flag            (  2 clocks)
+		
+	_LOOP\@:
+		;if task_id!=0, start again
 		CPI   R16                , 0x00                   ;compare with 0         (  1 clock )
 		BRNE  _UPDATE_TASK_READY\@
-	
 .endm
 ;;=================================decrease timeout end=====================================;; 
 
@@ -374,16 +378,36 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;==================================run scheduler starting==================================;; 
 .macro  KER_RUN_SCHEDULER                                 ;total 1.75uS @8MHz     ( 14 clocks) 
+        LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
+		
     _CH_TASK_READY\@:
-		LDS   R16                , KerBase+0x06           ;load task_id           (  2 clocks) 
+	    ;decrease by 1, start with ntask-1
+	    DEC   R16                                         ;decrement              (  1 clock ) 
+		
+		MOV   R17                , R16                    ;copy                   (  1 clock ) 
 		LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
-		LDI   R16                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADD   R31                , R16                    ;add offset to array    (  1 clock )
-        LD    R16                , Z                      ;load KerSchSts+task_id (  2 clocks)
-		CPI   R16                , TASK_READY             ;compare with task ready(  1 clock )
+		ADD   R30                , R17                    ;add offset to array    (  1 clock ) 
+		LDI   R17                , 0x00                   ;set 0 to R16           (  1 clock ) 
+		ADD   R31                , R17                    ;add offset to array    (  1 clock )
+        LD    R17                , Z                      ;load KerSchSts+task_id (  2 clocks)
+		CPI   R17                , TASK_READY             ;compare with task ready(  1 clock )
+		BREQ  _NEXT_TASK_FOUND\@
+		
+	_LOOP_CNT\@:
+		CPI   R16                , 0x00                   ;compare with 0         (  1 clock )
 		BRNE  _CH_TASK_READY\@
+		JMP   _IDLE_TASK\@
+		
+	_NEXT_TASK_FOUND\@:
+	    STS   KerBase+0x06       , R16                    ;save selected task_id  (  2 clocks)
+        JMP   _EXIT\@
+		
+	_IDLE_TASK\@:
+	    LDI   R16                , 0x00                   ;idle task is task0     (  1 clock ) 
+	    STS   KerBase+0x06       , R16                    ;save selected task_id  (  2 clocks)
+		
+	_EXIT\@:
 .endm
 ;;====================================run scheduler end=====================================;; 
 
@@ -419,9 +443,10 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_LOAD_NEXT_TASK_ID                             ;inc & load next task ID( 13 clocks) 
+		;KER_LOAD_NEXT_TASK_ID                             ;inc & load next task ID( 13 clocks) 
 		
 		KER_DEC_SLP_TIMEOUT
+		KER_RUN_SCHEDULER
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
@@ -551,6 +576,16 @@ Kernel_Task_Init:
         MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
 		
+		;set task status as ready
+		;MOV   R16                , R22                    ;load task_id           (  1 clock ) 
+		;LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+		;LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+		;ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
+		;LDI   R16                , 0x00                   ;set 0 to R16           (  1 clock ) 
+		;ADC   R31                , R16                    ;add offset to array    (  1 clock )
+		;LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+		;ST    Z                  , R16                    ;update flag            (  2 clocks)
+		
 		;set priority to KerSch+(task_id*4)+1
 		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
@@ -653,19 +688,28 @@ Kernel_Start_Tasks:
 
 
 ;;================================kernel task delay starting================================;; 
+Kernel_Task_Idle:
+    _IDLE_LOOP:
+		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
+;;=================================kernel task delay end====================================;; 
+
+
+
+
+;;================================kernel task delay starting================================;; 
 Kernel_Task_Sleep:
 		;create next task wakeup time
-		LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
-		LSL   R16                                         ;x2                     (  1 clock ) 
+		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
+		MOV   R17                , R16                    ;copy                   (  1 clock ) 
+		LSL   R17                                         ;x2                     (  1 clock ) 
 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
-		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
-		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
-		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+		ADD   R30                , R17                    ;add low bytes          (  1 clock ) 
+		LDI   R17                , 0x00                   ;load 0                 (  1 clock ) 
+		ADC   R31                , R17                    ;add high byte+carry    (  1 clock ) 
 		ST    Z+                 , R24                    ;save sleep time        (  2 clocks) 
 		ST    Z                  , R25                    ;save sleep time        (  2 clocks) 
 		
-		LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
@@ -674,8 +718,50 @@ Kernel_Task_Sleep:
         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
 		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
 		
+    _WAIT_TASK_READY:
+		LD    R16                , Z                      ;load val               (  2 clocks) 
+		CPI   R16                , TASK_READY             ;compare with task ready(  1 clock ) 
+		BRNE  _WAIT_TASK_READY
+		
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task delay end====================================;; 
+
+
+
+
+
+;;================================kernel task delay starting================================;; 
+Kernel_Task_Sleep_Time_Get:
+		;create next task wakeup time
+		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
+		LSL   R16                                         ;x2                     (  1 clock ) 
+		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
+		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
+		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
+		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+		LD    R24                , Z+                     ;load sleep time        (  2 clocks) 
+		LD    R25                , Z                      ;load sleep time        (  2 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;=================================kernel task delay end====================================;;
+
+
+
+
+
+;;================================kernel task delay starting================================;; 
+Kernel_Task_Sts_Get:
+		;create next task wakeup time
+		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
+		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
+		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+		LD    R24                , Z                      ;load sleep time        (  2 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;=================================kernel task delay end====================================;;
+
 
 
 
