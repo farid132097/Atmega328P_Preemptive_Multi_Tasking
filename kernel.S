@@ -20,17 +20,17 @@
 
 
 
-;;============================define user address or macro starting=========================;; 
-.equ     OFF_TICK0 ,      0x00    ;tick count byte0 offset from KerBase
-.equ     OFF_TICK1 ,      0x01    ;tick count byte1 offset from KerBase
-.equ     OFF_TICK2 ,      0x02    ;tick count byte2 offset from KerBase
-.equ     OFF_TICK3 ,      0x03    ;tick count byte3 offset from KerBase
-.equ     OFF_TICK4 ,      0x04    ;tick count byte4 offset from KerBase
+;;===============================define data offsets starting===============================;; 
+.equ     OFF_TICK0,       0x00    ;tick count byte0 offset from KerBase
+.equ     OFF_TICK1,       0x01    ;tick count byte1 offset from KerBase
+.equ     OFF_TICK2,       0x02    ;tick count byte2 offset from KerBase
+.equ     OFF_TICK3,       0x03    ;tick count byte3 offset from KerBase
+.equ     OFF_TICK4,       0x04    ;tick count byte4 offset from KerBase
 .equ     OFF_PRS  ,       0x05    ;counter prescaler offset from KerBase
 .equ     OFF_RLD  ,       0x06    ;counter reload offset from KerBase
 .equ     OFF_TID  ,       0x07    ;task id offset from KerBase
 .equ     OFF_NTSK ,       0x08    ;ntask offset from KerBase
-;;==============================define user address or macro end============================;; 
+;;==================================define data offsets end=================================;; 
 
 
 
@@ -228,6 +228,49 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 
+;;================================context restore starting==================================;; 
+.macro  KER_CONTEXT_RESTORE                               ;total 8.38uS @8MHz     ( 67 clocks) 
+		POP   R31                                         ;restore R31            (  2 clocks) 
+		POP   R30                                         ;restore R30            (  2 clocks) 
+		POP   R29                                         ;restore R29            (  2 clocks) 
+		POP   R28                                         ;restore R28            (  2 clocks) 
+		POP   R27                                         ;restore R27            (  2 clocks) 
+		POP   R26                                         ;restore R26            (  2 clocks) 
+		POP   R25                                         ;restore R25            (  2 clocks) 
+		POP   R24                                         ;restore R24            (  2 clocks) 
+		POP   R23                                         ;restore R23            (  2 clocks) 
+		POP   R22                                         ;restore R22            (  2 clocks) 
+		POP   R21                                         ;restore R21            (  2 clocks) 
+		POP   R20                                         ;restore R20            (  2 clocks) 
+		POP   R19                                         ;restore R19            (  2 clocks) 
+		POP   R18                                         ;restore R18            (  2 clocks) 
+		POP   R17                                         ;restore R17            (  2 clocks) 
+		POP   R16                                         ;restore R16            (  2 clocks) 
+		POP   R15                                         ;restore R15            (  2 clocks) 
+		POP   R14                                         ;restore R14            (  2 clocks) 
+		POP   R13                                         ;restore R13            (  2 clocks) 
+		POP   R12                                         ;restore R12            (  2 clocks) 
+		POP   R11                                         ;restore R11            (  2 clocks) 
+		POP   R10                                         ;restore R10            (  2 clocks) 
+		POP   R9                                          ;restore R9             (  2 clocks) 
+		POP   R8                                          ;restore R8             (  2 clocks) 
+		POP   R7                                          ;restore R7             (  2 clocks) 
+		POP   R6                                          ;restore R6             (  2 clocks) 
+		POP   R5                                          ;restore R5             (  2 clocks) 
+		POP   R4                                          ;restore R4             (  2 clocks) 
+		POP   R3                                          ;restore R3             (  2 clocks) 
+		POP   R2                                          ;restore R2             (  2 clocks) 
+		POP   R1                                          ;restore R1             (  2 clocks) 
+		POP   R0                                          ;fetch SREG             (  2 clocks) 
+		OUT   IOSREG             , R0                     ;load SREG              (  1 clock ) 
+		POP   R0                                          ;restore R0             (  2 clocks) 
+.endm
+;;===================================context restore end====================================;; 
+
+
+
+
+
 ;;===============================context save yeild starting================================;; 
 .macro  KER_CONTEXT_SAVE_YEILD                            ;total 8.63uS @8MHz     ( 69 clocks) 
         PUSH  R0                                          ;push R0                (  2 clocks) 
@@ -267,50 +310,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		PUSH  R30                                         ;save R30               (  2 clocks) 
 		PUSH  R31                                         ;save R31               (  2 clocks) 
 .endm
-;;=====================================context save end=====================================;; 
-
-
-
-
-
-;;================================context restore starting==================================;; 
-.macro  KER_CONTEXT_RESTORE                               ;total 8.38uS @8MHz     ( 67 clocks) 
-		POP   R31                                         ;restore R31            (  2 clocks) 
-		POP   R30                                         ;restore R30            (  2 clocks) 
-		POP   R29                                         ;restore R29            (  2 clocks) 
-		POP   R28                                         ;restore R28            (  2 clocks) 
-		POP   R27                                         ;restore R27            (  2 clocks) 
-		POP   R26                                         ;restore R26            (  2 clocks) 
-		POP   R25                                         ;restore R25            (  2 clocks) 
-		POP   R24                                         ;restore R24            (  2 clocks) 
-		POP   R23                                         ;restore R23            (  2 clocks) 
-		POP   R22                                         ;restore R22            (  2 clocks) 
-		POP   R21                                         ;restore R21            (  2 clocks) 
-		POP   R20                                         ;restore R20            (  2 clocks) 
-		POP   R19                                         ;restore R19            (  2 clocks) 
-		POP   R18                                         ;restore R18            (  2 clocks) 
-		POP   R17                                         ;restore R17            (  2 clocks) 
-		POP   R16                                         ;restore R16            (  2 clocks) 
-		POP   R15                                         ;restore R15            (  2 clocks) 
-		POP   R14                                         ;restore R14            (  2 clocks) 
-		POP   R13                                         ;restore R13            (  2 clocks) 
-		POP   R12                                         ;restore R12            (  2 clocks) 
-		POP   R11                                         ;restore R11            (  2 clocks) 
-		POP   R10                                         ;restore R10            (  2 clocks) 
-		POP   R9                                          ;restore R9             (  2 clocks) 
-		POP   R8                                          ;restore R8             (  2 clocks) 
-		POP   R7                                          ;restore R7             (  2 clocks) 
-		POP   R6                                          ;restore R6             (  2 clocks) 
-		POP   R5                                          ;restore R5             (  2 clocks) 
-		POP   R4                                          ;restore R4             (  2 clocks) 
-		POP   R3                                          ;restore R3             (  2 clocks) 
-		POP   R2                                          ;restore R2             (  2 clocks) 
-		POP   R1                                          ;restore R1             (  2 clocks) 
-		POP   R0                                          ;fetch SREG             (  2 clocks) 
-		OUT   IOSREG             , R0                     ;load SREG              (  1 clock ) 
-		POP   R0                                          ;restore R0             (  2 clocks) 
-.endm
-;;===================================context restore end====================================;; 
+;;===================================context save yeild end=================================;; 
 
 
 
@@ -602,14 +602,11 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 		;store prescaler value
 		MOV   R16                , R24                    ;prescaler from arg1    (  1 clock ) 
 		STS   KerBase+OFF_PRS    , R16                    ;KerBase[5] prescaler   (  2 clocks) 
-		STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
-		
+        
+		;store reload value
 		MOV   R16                , R22                    ;reload val from arg2   (  1 clock ) 
 		STS   KerBase+OFF_RLD    , R16                    ;KerBase[6] reload val  (  2 clocks) 
-		STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 
 		
-		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
-		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================SysTick reg init end===================================;; 
 
@@ -768,15 +765,6 @@ Kernel_Task_Init:
 		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
 		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
 		
-		;MOV   R16                , R24                    ;prescaler from arg1    (  1 clock ) 
-		;STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
-		;MOV   R16                , R22                    ;reload val from arg2   (  1 clock ) 
-		;STS   KerBase+0x05       , R16                    ;KerBase[5] reload val  (  2 clocks) 
-		;STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 
-		;LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
-		;STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks)
-		;LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
-		;STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================kernel task init end===================================;; 
@@ -811,8 +799,13 @@ Kernel_Start_Tasks:
 		MOV   R30                , R4                     ;restore ZPL            (  2 clocks) 
 		MOV   R31                , R5                     ;restore ZPL            (  2 clocks) 
 		
-		;enable global interrupt to start executing task, starting with task0
-		SEI                                               ;enable global int      (  1 clock ) 
+		
+		LDS   R16		         , KerBase+OFF_PRS        ;load prescaler         (  2 clocks) 
+		LDS   R17		         , KerBase+OFF_RLD        ;load reload val        (  2 clocks) 
+		STS   SRTCCR0B           , R16                    ;prescaler-> TCCR0B     (  2 clocks) 
+		STS   SRTCNT0            , R17                    ;reload val-> TCNT0     (  2 clocks) 
+		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
+		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
 		
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
