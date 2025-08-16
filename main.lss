@@ -663,7 +663,7 @@ void Tasks_Delay(uint16_t val){
  424:	ef 93       	push	r30
  426:	ff 93       	push	r31
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
- 428:	00 91 05 01 	lds	r16, 0x0105
+ 428:	00 91 06 01 	lds	r16, 0x0106
  42c:	00 93 46 00 	sts	0x0046, r16
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
  430:	01 e0       	ldi	r16, 0x01	; 1
@@ -686,7 +686,7 @@ void Tasks_Delay(uint16_t val){
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
  466:	0d b7       	in	r16, 0x3d	; 61
  468:	1e b7       	in	r17, 0x3e	; 62
- 46a:	20 91 06 01 	lds	r18, 0x0106
+ 46a:	20 91 07 01 	lds	r18, 0x0107
  46e:	22 0f       	add	r18, r18
  470:	ea e0       	ldi	r30, 0x0A	; 10
  472:	f1 e0       	ldi	r31, 0x01	; 1
@@ -697,7 +697,7 @@ void Tasks_Delay(uint16_t val){
  47c:	10 83       	st	Z, r17
 		
 		KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
- 47e:	00 91 07 01 	lds	r16, 0x0107
+ 47e:	00 91 08 01 	lds	r16, 0x0108
 
 00000482 <_UPDATE_TASK_READY5>:
  482:	0a 95       	dec	r16
@@ -734,7 +734,7 @@ void Tasks_Delay(uint16_t val){
  4ba:	00 30       	cpi	r16, 0x00	; 0
  4bc:	11 f7       	brne	.-60     	; 0x482 <_UPDATE_TASK_READY5>
 		KER_RUN_SCHEDULER                                 ;run task if ready
- 4be:	00 91 07 01 	lds	r16, 0x0107
+ 4be:	00 91 08 01 	lds	r16, 0x0108
 
 000004c2 <_CH_TASK_READY6>:
  4c2:	0a 95       	dec	r16
@@ -754,17 +754,17 @@ void Tasks_Delay(uint16_t val){
  4da:	0c 94 73 02 	jmp	0x4e6	; 0x4e6 <_IDLE_TASK6>
 
 000004de <_NEXT_TASK_FOUND6>:
- 4de:	00 93 06 01 	sts	0x0106, r16
+ 4de:	00 93 07 01 	sts	0x0107, r16
  4e2:	0c 94 76 02 	jmp	0x4ec	; 0x4ec <_EXIT6>
 
 000004e6 <_IDLE_TASK6>:
  4e6:	00 e0       	ldi	r16, 0x00	; 0
- 4e8:	00 93 06 01 	sts	0x0106, r16
+ 4e8:	00 93 07 01 	sts	0x0107, r16
 
 000004ec <_EXIT6>:
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
- 4ec:	00 91 06 01 	lds	r16, 0x0106
+ 4ec:	00 91 07 01 	lds	r16, 0x0107
  4f0:	00 0f       	add	r16, r16
  4f2:	ea e0       	ldi	r30, 0x0A	; 10
  4f4:	f1 e0       	ldi	r31, 0x01	; 1
@@ -828,52 +828,70 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
  550:	29 98       	cbi	0x05, 1	; 5
 		LDI   R16                , 0x00                   ;set 0x00 to R16,       (  1 clock ) 
  552:	00 e0       	ldi	r16, 0x00	; 0
-		STS   KerBase+0x00       , R16                    ;clear  KerBase[0]      (  2 clocks) 
+		
+		;clear tick counter
+		STS   KerBase+OFF_TICK0  , R16                    ;clear  KerBase[0]      (  2 clocks) 
  554:	00 93 00 01 	sts	0x0100, r16
-		STS   KerBase+0x01       , R16                    ;clear  KerBase[1]      (  2 clocks) 
+		STS   KerBase+OFF_TICK1  , R16                    ;clear  KerBase[1]      (  2 clocks) 
  558:	00 93 01 01 	sts	0x0101, r16
-		STS   KerBase+0x02       , R16                    ;clear  KerBase[2]      (  2 clocks) 
+		STS   KerBase+OFF_TICK2  , R16                    ;clear  KerBase[2]      (  2 clocks) 
  55c:	00 93 02 01 	sts	0x0102, r16
-		STS   KerBase+0x03       , R16                    ;clear  KerBase[3]      (  2 clocks) 
+		STS   KerBase+OFF_TICK3  , R16                    ;clear  KerBase[3]      (  2 clocks) 
  560:	00 93 03 01 	sts	0x0103, r16
-		STS   KerBase+0x04       , R16                    ;clear  KerBase[4]      (  2 clocks) 
+		STS   KerBase+OFF_TICK4  , R16                    ;clear  KerBase[4]      (  2 clocks) 
  564:	00 93 04 01 	sts	0x0104, r16
-		STS   KerBase+0x05       , R16                    ;clear  KerBase[5]      (  2 clocks) 
+		
+		;clear prescaler
+		STS   KerBase+OFF_PRS    , R16                    ;clear  KerBase[5]      (  2 clocks) 
  568:	00 93 05 01 	sts	0x0105, r16
-		STS   KerBase+0x06       , R16                    ;clear  KerBase[6]      (  2 clocks) 
+		
+		;clear reload value
+		STS   KerBase+OFF_RLD    , R16                    ;clear  KerBase[6]      (  2 clocks) 
  56c:	00 93 06 01 	sts	0x0106, r16
-		STS   KerBase+0x07       , R16                    ;clear  KerBase[7]      (  2 clocks) 
+		
+		;clear task id
+		STS   KerBase+OFF_TID    , R16                    ;clear  KerBase[7]      (  2 clocks) 
  570:	00 93 07 01 	sts	0x0107, r16
-		STS   KerBase+0x08       , R16                    ;clear  KerBase[8]      (  2 clocks) 
+		
+		;clear ntask
+		STS   KerBase+OFF_NTSK   , R16                    ;clear  KerBase[8]      (  2 clocks) 
  574:	00 93 08 01 	sts	0x0108, r16
+		
+		;reserved, not used
         STS   KerBase+0x09       , R16                    ;clear  KerBase[9]      (  2 clocks) 
  578:	00 93 09 01 	sts	0x0109, r16
-		STS   KerBase+0x07       , R16                    ;set ntask to 0         (  2 clocks) 
- 57c:	00 93 07 01 	sts	0x0107, r16
+		
+		;clear all timer registers
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
- 580:	00 93 44 00 	sts	0x0044, r16
+ 57c:	00 93 44 00 	sts	0x0044, r16
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
- 584:	00 93 45 00 	sts	0x0045, r16
+ 580:	00 93 45 00 	sts	0x0045, r16
 		STS   SRTIMSK0           , R16                    ;clear TIMSK0           (  2 clocks) 
- 588:	00 93 6e 00 	sts	0x006E, r16
+ 584:	00 93 6e 00 	sts	0x006E, r16
 		STS   SRTIFR0            , R16                    ;clear TIFR0            (  2 clocks) 
- 58c:	00 93 35 00 	sts	0x0035, r16
+ 588:	00 93 35 00 	sts	0x0035, r16
 		STS   SROCR0A            , R16                    ;clear OCR0A            (  2 clocks) 
- 590:	00 93 47 00 	sts	0x0047, r16
+ 58c:	00 93 47 00 	sts	0x0047, r16
 		STS   SROCR0B            , R16                    ;clear OCR0B            (  2 clocks) 
- 594:	00 93 48 00 	sts	0x0048, r16
+ 590:	00 93 48 00 	sts	0x0048, r16
 		STS   SRTCNT0            , R16                    ;clear TCNT0            (  2 clocks) 
- 598:	00 93 46 00 	sts	0x0046, r16
+ 594:	00 93 46 00 	sts	0x0046, r16
+		
+		;store prescaler value
 		MOV   R16                , R24                    ;prescaler from arg1    (  1 clock ) 
- 59c:	08 2f       	mov	r16, r24
+ 598:	08 2f       	mov	r16, r24
+		STS   KerBase+OFF_PRS    , R16                    ;KerBase[5] prescaler   (  2 clocks) 
+ 59a:	00 93 05 01 	sts	0x0105, r16
 		STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
  59e:	00 93 45 00 	sts	0x0045, r16
+		
 		MOV   R16                , R22                    ;reload val from arg2   (  1 clock ) 
  5a2:	06 2f       	mov	r16, r22
-		STS   KerBase+0x05       , R16                    ;KerBase[5] reload val  (  2 clocks) 
- 5a4:	00 93 05 01 	sts	0x0105, r16
+		STS   KerBase+OFF_RLD    , R16                    ;KerBase[6] reload val  (  2 clocks) 
+ 5a4:	00 93 06 01 	sts	0x0106, r16
 		STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 
  5a8:	00 93 46 00 	sts	0x0046, r16
+		
 		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
  5ac:	01 e0       	ldi	r16, 0x01	; 1
 		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
@@ -887,27 +905,27 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 Kernel_SysTick_Val_Get:                                   ;total operation        ( 42 clocks) 
     _READ_AGAIN:
 	    ;first read & store to actual return registers
-		LDS   R18		         , KerBase+0x00           ;byte0 (LSB)            (  2 clocks) 
+		LDS   R18		         , KerBase+OFF_TICK0      ;byte0 (LSB)            (  2 clocks) 
  5b4:	20 91 00 01 	lds	r18, 0x0100
-		LDS   R19		         , KerBase+0x01           ;byte1                  (  2 clocks) 
+		LDS   R19		         , KerBase+OFF_TICK1      ;byte1                  (  2 clocks) 
  5b8:	30 91 01 01 	lds	r19, 0x0101
-		LDS   R20		         , KerBase+0x02           ;byte2                  (  2 clocks) 
+		LDS   R20		         , KerBase+OFF_TICK2      ;byte2                  (  2 clocks) 
  5bc:	40 91 02 01 	lds	r20, 0x0102
-		LDS   R21		         , KerBase+0x03           ;byte3                  (  2 clocks) 
+		LDS   R21		         , KerBase+OFF_TICK3      ;byte3                  (  2 clocks) 
  5c0:	50 91 03 01 	lds	r21, 0x0103
-		LDS   R22		         , KerBase+0x04           ;byte4 (MSB)            (  2 clocks) 
+		LDS   R22		         , KerBase+OFF_TICK4      ;byte4 (MSB)            (  2 clocks) 
  5c4:	60 91 04 01 	lds	r22, 0x0104
 		
 		;second read to scratch registers
-		LDS   R26		         , KerBase+0x00           ;byte0 (LSB)            (  2 clocks) 
+		LDS   R26		         , KerBase+OFF_TICK0      ;byte0 (LSB)            (  2 clocks) 
  5c8:	a0 91 00 01 	lds	r26, 0x0100
-		LDS   R27		         , KerBase+0x01           ;byte1                  (  2 clocks) 
+		LDS   R27		         , KerBase+OFF_TICK1      ;byte1                  (  2 clocks) 
  5cc:	b0 91 01 01 	lds	r27, 0x0101
-		LDS   R30		         , KerBase+0x02           ;byte2                  (  2 clocks) 
+		LDS   R30		         , KerBase+OFF_TICK2      ;byte2                  (  2 clocks) 
  5d0:	e0 91 02 01 	lds	r30, 0x0102
-		LDS   R31		         , KerBase+0x03           ;byte3                  (  2 clocks) 
+		LDS   R31		         , KerBase+OFF_TICK3      ;byte3                  (  2 clocks) 
  5d4:	f0 91 03 01 	lds	r31, 0x0103
-		LDS   R0		         , KerBase+0x04           ;byte4 (MSB)            (  2 clocks) 
+		LDS   R0		         , KerBase+OFF_TICK4      ;byte4 (MSB)            (  2 clocks) 
  5d8:	00 90 04 01 	lds	r0, 0x0104
 		
 		;compare all pairs
@@ -952,15 +970,15 @@ Kernel_SysTick_Val_Safely_Get:                            ;total operation      
  5f8:	2f b6       	in	r2, 0x3f	; 63
         CLI                                               ;disable interrupts     (  1 clock ) 
  5fa:	f8 94       	cli
-		LDS   R18		         , KerBase+0x00           ;byte0 -> R18 (LSB)     (  2 clocks) 
+		LDS   R18		         , KerBase+OFF_TICK0      ;byte0 -> R18 (LSB)     (  2 clocks) 
  5fc:	20 91 00 01 	lds	r18, 0x0100
-		LDS   R19		         , KerBase+0x01           ;byte1 -> R19           (  2 clocks) 
+		LDS   R19		         , KerBase+OFF_TICK1      ;byte1 -> R19           (  2 clocks) 
  600:	30 91 01 01 	lds	r19, 0x0101
-		LDS   R20		         , KerBase+0x02           ;byte2 -> R20           (  2 clocks) 
+		LDS   R20		         , KerBase+OFF_TICK2      ;byte2 -> R20           (  2 clocks) 
  604:	40 91 02 01 	lds	r20, 0x0102
-		LDS   R21		         , KerBase+0x03           ;byte3 -> R21           (  2 clocks) 
+		LDS   R21		         , KerBase+OFF_TICK3      ;byte3 -> R21           (  2 clocks) 
  608:	50 91 03 01 	lds	r21, 0x0103
-		LDS   R22		         , KerBase+0x04           ;byte4 -> R22           (  2 clocks) 
+		LDS   R22		         , KerBase+OFF_TICK4      ;byte4 -> R22           (  2 clocks) 
  60c:	60 91 04 01 	lds	r22, 0x0104
 		LDI   R23		         , 0x00                   ;byte5 -> R23           (  1 clocks) 
  610:	70 e0       	ldi	r23, 0x00	; 0
@@ -1025,12 +1043,12 @@ Kernel_Task_Init:
  638:	40 83       	st	Z, r20
 		
 		;increment ntask
-		LDS   R16                , KerBase+0x07           ;load ntask             (  2 clocks) 
- 63a:	00 91 07 01 	lds	r16, 0x0107
+		LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
+ 63a:	00 91 08 01 	lds	r16, 0x0108
 		INC   R16                                         ;increment ntask        (  1 clock ) 
  63e:	03 95       	inc	r16
-		STS   KerBase+0x07       , R16                    ;store ntask            (  2 clocks) 
- 640:	00 93 07 01 	sts	0x0107, r16
+		STS   KerBase+OFF_NTSK   , R16                    ;store ntask            (  2 clocks) 
+ 640:	00 93 08 01 	sts	0x0108, r16
 		
 		;set stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top   
 		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
@@ -1247,8 +1265,8 @@ Kernel_Task_Idle:
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Sleep:
 		;create next task wakeup time (args R25:R24)
-		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
- 72a:	00 91 06 01 	lds	r16, 0x0106
+		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
+ 72a:	00 91 07 01 	lds	r16, 0x0107
 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
  72e:	10 2f       	mov	r17, r16
 		LSL   R17                                         ;x2                     (  1 clock ) 
@@ -1325,7 +1343,7 @@ Kernel_Task_Sleep:
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
  796:	0d b7       	in	r16, 0x3d	; 61
  798:	1e b7       	in	r17, 0x3e	; 62
- 79a:	20 91 06 01 	lds	r18, 0x0106
+ 79a:	20 91 07 01 	lds	r18, 0x0107
  79e:	22 0f       	add	r18, r18
  7a0:	ea e0       	ldi	r30, 0x0A	; 10
  7a2:	f1 e0       	ldi	r31, 0x01	; 1
@@ -1335,7 +1353,7 @@ Kernel_Task_Sleep:
  7aa:	01 93       	st	Z+, r16
  7ac:	10 83       	st	Z, r17
 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
- 7ae:	00 91 07 01 	lds	r16, 0x0107
+ 7ae:	00 91 08 01 	lds	r16, 0x0108
 
 000007b2 <_CH_TASK_READY15>:
  7b2:	0a 95       	dec	r16
@@ -1355,16 +1373,16 @@ Kernel_Task_Sleep:
  7ca:	0c 94 eb 03 	jmp	0x7d6	; 0x7d6 <_IDLE_TASK15>
 
 000007ce <_NEXT_TASK_FOUND15>:
- 7ce:	00 93 06 01 	sts	0x0106, r16
+ 7ce:	00 93 07 01 	sts	0x0107, r16
  7d2:	0c 94 ee 03 	jmp	0x7dc	; 0x7dc <_EXIT15>
 
 000007d6 <_IDLE_TASK15>:
  7d6:	00 e0       	ldi	r16, 0x00	; 0
- 7d8:	00 93 06 01 	sts	0x0106, r16
+ 7d8:	00 93 07 01 	sts	0x0107, r16
 
 000007dc <_EXIT15>:
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
- 7dc:	00 91 06 01 	lds	r16, 0x0106
+ 7dc:	00 91 07 01 	lds	r16, 0x0107
  7e0:	00 0f       	add	r16, r16
  7e2:	ea e0       	ldi	r30, 0x0A	; 10
  7e4:	f1 e0       	ldi	r31, 0x01	; 1
@@ -1421,8 +1439,8 @@ Kernel_Task_Sleep:
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Sleep_Time_Get:
 		;create next task wakeup time
-		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
- 83c:	00 91 06 01 	lds	r16, 0x0106
+		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
+ 83c:	00 91 07 01 	lds	r16, 0x0107
 		LSL   R16                                         ;x2                     (  1 clock ) 
  840:	00 0f       	add	r16, r16
 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
@@ -1448,8 +1466,8 @@ Kernel_Task_Sleep_Time_Get:
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Sts_Get:
 		;create next task wakeup time
-		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
- 852:	00 91 06 01 	lds	r16, 0x0106
+		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
+ 852:	00 91 07 01 	lds	r16, 0x0107
 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
  856:	ee e1       	ldi	r30, 0x1E	; 30
 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
@@ -1511,7 +1529,7 @@ Kernel_Task_Yeild:
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
  8ac:	0d b7       	in	r16, 0x3d	; 61
  8ae:	1e b7       	in	r17, 0x3e	; 62
- 8b0:	20 91 06 01 	lds	r18, 0x0106
+ 8b0:	20 91 07 01 	lds	r18, 0x0107
  8b4:	22 0f       	add	r18, r18
  8b6:	ea e0       	ldi	r30, 0x0A	; 10
  8b8:	f1 e0       	ldi	r31, 0x01	; 1
@@ -1521,7 +1539,7 @@ Kernel_Task_Yeild:
  8c0:	01 93       	st	Z+, r16
  8c2:	10 83       	st	Z, r17
 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
- 8c4:	00 91 07 01 	lds	r16, 0x0107
+ 8c4:	00 91 08 01 	lds	r16, 0x0108
 
 000008c8 <_CH_TASK_READY20>:
  8c8:	0a 95       	dec	r16
@@ -1541,16 +1559,16 @@ Kernel_Task_Yeild:
  8e0:	0c 94 76 04 	jmp	0x8ec	; 0x8ec <_IDLE_TASK20>
 
 000008e4 <_NEXT_TASK_FOUND20>:
- 8e4:	00 93 06 01 	sts	0x0106, r16
+ 8e4:	00 93 07 01 	sts	0x0107, r16
  8e8:	0c 94 79 04 	jmp	0x8f2	; 0x8f2 <_EXIT20>
 
 000008ec <_IDLE_TASK20>:
  8ec:	00 e0       	ldi	r16, 0x00	; 0
- 8ee:	00 93 06 01 	sts	0x0106, r16
+ 8ee:	00 93 07 01 	sts	0x0107, r16
 
 000008f2 <_EXIT20>:
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
- 8f2:	00 91 06 01 	lds	r16, 0x0106
+ 8f2:	00 91 07 01 	lds	r16, 0x0107
  8f6:	00 0f       	add	r16, r16
  8f8:	ea e0       	ldi	r30, 0x0A	; 10
  8fa:	f1 e0       	ldi	r31, 0x01	; 1
