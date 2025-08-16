@@ -39,6 +39,7 @@ void Tasks_Task1(void){
 	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
 	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
 	Kernel_Task_Sleep(10);
+	//Kernel_Task_Yeild();
 	
   }
 }
@@ -55,7 +56,7 @@ void Tasks_Task2(void){
 	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
 	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
 	Kernel_Task_Sleep(17);
-	
+	//Kernel_Task_Yeild();
   }
 }
 
@@ -69,7 +70,7 @@ void Tasks_Task3(void){
 	Debug_Tx_Word_Conf(Kernel_Task_Sleep_Time_Get());
 	Debug_Tx_Byte_Conf(Kernel_Task_Sts_Get());
 	Kernel_Task_Sleep(24);
-	
+	//Kernel_Task_Yeild();
   }
 }
 

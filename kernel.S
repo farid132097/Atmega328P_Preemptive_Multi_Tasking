@@ -62,7 +62,7 @@
 .section   .bss
 
 .global    KerBase                 ;declare global space for kernel
-KerBase:   .skip 10                ;TickCnt(5), rld_val(1), task_id(1), ntask(1), rsrvd(2)
+KerBase:   .skip 10                ;Tick(5), rld(1), task_id(1), ntask(1), prs(1), rsvd(1)
 
 .global    KerSP                   ;declare global space for stack pointers
 KerSP:     .skip KER_MX_NTSK*2     ;2 bytes for each task
@@ -212,6 +212,51 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 
+;;===============================context save yeild starting================================;; 
+.macro  KER_CONTEXT_SAVE_YEILD                            ;total 8.63uS @8MHz     ( 69 clocks) 
+        PUSH  R0                                          ;push R0                (  2 clocks) 
+		IN    R0                 , IOSREG                 ;save SREG              (  1 clock ) 
+		CLI                                               ;clear interrupt        (  1 clock ) 
+		PUSH  R0                                          ;save SREG              (  2 clocks) 
+		PUSH  R1                                          ;save R1                (  2 clocks) 
+		CLR   R1                                          ;clear R1               (  1 clock ) 
+		PUSH  R2                                          ;save R2                (  2 clocks) 
+		PUSH  R3                                          ;save R3                (  2 clocks) 
+		PUSH  R4                                          ;save R4                (  2 clocks) 
+		PUSH  R5                                          ;save R5                (  2 clocks) 
+		PUSH  R6                                          ;save R6                (  2 clocks) 
+		PUSH  R7                                          ;save R7                (  2 clocks) 
+		PUSH  R8                                          ;save R8                (  2 clocks) 
+		PUSH  R9                                          ;save R9                (  2 clocks) 
+		PUSH  R10                                         ;save R10               (  2 clocks) 
+		PUSH  R11                                         ;save R11               (  2 clocks) 
+		PUSH  R12                                         ;save R12               (  2 clocks) 
+		PUSH  R13                                         ;save R13               (  2 clocks) 
+		PUSH  R14                                         ;save R14               (  2 clocks) 
+		PUSH  R15                                         ;save R15               (  2 clocks) 
+		PUSH  R16                                         ;save R16               (  2 clocks) 
+		PUSH  R17                                         ;save R17               (  2 clocks) 
+		PUSH  R18                                         ;save R18               (  2 clocks) 
+		PUSH  R19                                         ;save R19               (  2 clocks) 
+		PUSH  R20                                         ;save R20               (  2 clocks) 
+		PUSH  R21                                         ;save R21               (  2 clocks) 
+		PUSH  R22                                         ;save R22               (  2 clocks) 
+		PUSH  R23                                         ;save R23               (  2 clocks) 
+		PUSH  R24                                         ;save R24               (  2 clocks) 
+		PUSH  R25                                         ;save R25               (  2 clocks) 
+		PUSH  R26                                         ;save R26               (  2 clocks) 
+		PUSH  R27                                         ;save R27               (  2 clocks) 
+		PUSH  R28                                         ;save R28               (  2 clocks) 
+		PUSH  R29                                         ;save R29               (  2 clocks) 
+		PUSH  R30                                         ;save R30               (  2 clocks) 
+		PUSH  R31                                         ;save R31               (  2 clocks) 
+.endm
+;;=====================================context save end=====================================;; 
+
+
+
+
+
 ;;================================context restore starting==================================;; 
 .macro  KER_CONTEXT_RESTORE                               ;total 8.38uS @8MHz     ( 67 clocks) 
 		POP   R31                                         ;restore R31            (  2 clocks) 
@@ -250,6 +295,50 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		POP   R0                                          ;restore R0             (  2 clocks) 
 .endm
 ;;===================================context restore end====================================;; 
+
+
+
+
+
+;;=============================context restore yeild starting===============================;; 
+.macro  KER_CONTEXT_RESTORE_YEILD                         ;total 8.5uS @8MHz      ( 68 clocks) 
+		POP   R31                                         ;restore R31            (  2 clocks) 
+		POP   R30                                         ;restore R30            (  2 clocks) 
+		POP   R29                                         ;restore R29            (  2 clocks) 
+		POP   R28                                         ;restore R28            (  2 clocks) 
+		POP   R27                                         ;restore R27            (  2 clocks) 
+		POP   R26                                         ;restore R26            (  2 clocks) 
+		POP   R25                                         ;restore R25            (  2 clocks) 
+		POP   R24                                         ;restore R24            (  2 clocks) 
+		POP   R23                                         ;restore R23            (  2 clocks) 
+		POP   R22                                         ;restore R22            (  2 clocks) 
+		POP   R21                                         ;restore R21            (  2 clocks) 
+		POP   R20                                         ;restore R20            (  2 clocks) 
+		POP   R19                                         ;restore R19            (  2 clocks) 
+		POP   R18                                         ;restore R18            (  2 clocks) 
+		POP   R17                                         ;restore R17            (  2 clocks) 
+		POP   R16                                         ;restore R16            (  2 clocks) 
+		POP   R15                                         ;restore R15            (  2 clocks) 
+		POP   R14                                         ;restore R14            (  2 clocks) 
+		POP   R13                                         ;restore R13            (  2 clocks) 
+		POP   R12                                         ;restore R12            (  2 clocks) 
+		POP   R11                                         ;restore R11            (  2 clocks) 
+		POP   R10                                         ;restore R10            (  2 clocks) 
+		POP   R9                                          ;restore R9             (  2 clocks) 
+		POP   R8                                          ;restore R8             (  2 clocks) 
+		POP   R7                                          ;restore R7             (  2 clocks) 
+		POP   R6                                          ;restore R6             (  2 clocks) 
+		POP   R5                                          ;restore R5             (  2 clocks) 
+		POP   R4                                          ;restore R4             (  2 clocks) 
+		POP   R3                                          ;restore R3             (  2 clocks) 
+		POP   R2                                          ;restore R2             (  2 clocks) 
+		POP   R1                                          ;restore R1             (  2 clocks) 
+		POP   R0                                          ;fetch SREG             (  2 clocks) 
+		OUT   IOSREG             , R0                     ;load SREG              (  1 clock ) 
+		POP   R0                                          ;restore R0             (  2 clocks) 
+		SEI                                               ;enable interrupt       (  1 clock ) 
+.endm
+;;================================context restore yeild end=================================;; 
 
 
 
@@ -443,10 +532,9 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		;KER_LOAD_NEXT_TASK_ID                             ;inc & load next task ID( 13 clocks) 
 		
-		KER_DEC_SLP_TIMEOUT
-		KER_RUN_SCHEDULER
+		KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
+		KER_RUN_SCHEDULER                                 ;run task if ready
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
@@ -620,6 +708,8 @@ Kernel_Task_Init:
 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
 		
+		SEI                                               ;force enable interrupt (  1 clock ) 
+		
 		;push context to stack of this task
 		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		
@@ -643,6 +733,17 @@ Kernel_Task_Init:
         OUT   IOSPH              , R3                     ;load SPH               (  1 clock ) 
 		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
 		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
+		
+		;MOV   R16                , R24                    ;prescaler from arg1    (  1 clock ) 
+		;STS   SRTCCR0B           , R16                    ;set to TCCR0B          (  2 clocks) 
+		;MOV   R16                , R22                    ;reload val from arg2   (  1 clock ) 
+		;STS   KerBase+0x05       , R16                    ;KerBase[5] reload val  (  2 clocks) 
+		;STS   SRTCNT0            , R16                    ;set to TCNT0           (  2 clocks) 
+		;LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
+		;STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks)
+		;LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
+		;STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
+		
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================kernel task init end===================================;; 
 
@@ -696,9 +797,10 @@ Kernel_Task_Idle:
 
 
 
+
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Sleep:
-		;create next task wakeup time
+		;create next task wakeup time (args R25:R24)
 		LDS   R16                , KerBase+0x06           ;load tak_id            (  2 clocks) 
 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
 		LSL   R17                                         ;x2                     (  1 clock ) 
@@ -710,6 +812,7 @@ Kernel_Task_Sleep:
 		ST    Z+                 , R24                    ;save sleep time        (  2 clocks) 
 		ST    Z                  , R25                    ;save sleep time        (  2 clocks) 
 		
+		;update task scheduler status as blocked
 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
@@ -718,10 +821,12 @@ Kernel_Task_Sleep:
         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
 		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
 		
-    _WAIT_TASK_READY:
-		LD    R16                , Z                      ;load val               (  2 clocks) 
-		CPI   R16                , TASK_READY             ;compare with task ready(  1 clock ) 
-		BRNE  _WAIT_TASK_READY
+		;save context, save sp, run scheduler, load next task sp, restore context
+		KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE_YEILD                         ;restore context        ( 67 clocks) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task delay end====================================;; 
@@ -768,12 +873,13 @@ Kernel_Task_Sts_Get:
 
 ;;================================kernel task yeild starting================================;; 
 Kernel_Task_Yeild:
-		;save context, save sp, load next task id, load next task sp, restore context
-		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
+		;save context, save sp, run scheduler, load next task sp, restore context
+		KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_LOAD_NEXT_TASK_ID                             ;inc & load next task ID( 13 clocks) 
+		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
+		SEI                                               ;enable interrupt       (  1 clock ) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task yeild end====================================;; 
 
