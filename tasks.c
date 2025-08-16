@@ -29,12 +29,12 @@ void Tasks_Task0(void){
 void Tasks_Task1(void){
   
   Debug_Init(0);
-  DDRD |= (1<<6);
+  DDRD |= (1<<5);
   uint16_t val = 100;
   
   while(1){
     
-    PORTD ^= (1<<6);
+    PORTD ^= (1<<5);
 	Debug_Tx_Byte_Conf(1);
 	Debug_Tx_Word_Conf(val--);
 	//val--;
@@ -47,15 +47,15 @@ void Tasks_Task1(void){
 void Tasks_Task2(void){
   
   Debug_Init(0);
-  DDRD |= (1<<7);
+  DDRD |= (1<<6);
   uint16_t val = 120;
   
   while(1){
     
-    PORTD ^= (1<<7);
+    PORTD ^= (1<<6);
 	Debug_Tx_Byte_Conf(2);
     Debug_Tx_Word_Conf(val);
-	val--;
+	//val--;
 	Kernel_Task_Sleep(17);
 	
 	
