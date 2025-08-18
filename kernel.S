@@ -385,7 +385,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 ;;===============================save current task sp starting==============================;; 
-.macro  KER_SAVE_CURR_TASK_SP                             ;total 1.75uS @8MHz     ( 14 clocks) 
+.macro  KER_SAVE_CURR_TASK_SP                             ;total 1.63uS @8MHz     ( 13 clocks) 
 		IN    R16                , IOSPL                  ;fetch SPL0             (  1 clock ) 
 		IN    R17                , IOSPH                  ;fetch SPH0             (  1 clock ) 
 		LDS   R18                , KerBase+OFF_TID        ;fetch task_id          (  2 clocks) 
@@ -423,7 +423,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 ;;===============================decrease timeout starting==================================;; 
-.macro  KER_DEC_SLP_TIMEOUT                               ;total 1.75uS @8MHz     ( 14 clocks) 
+.macro  KER_DEC_SLP_TIMEOUT                               ;total 4.88uS @8MHz     ( 39 clocks) 
         LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
 	 
 	_UPDATE_TASK_READY\@:
@@ -452,7 +452,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		MOV   R18                , R26                    ;copy                   (  1 clock ) 
 		OR    R18                , R27                    ;or high & low bytes    (  1 clock ) 
 		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
-		JMP   _LOOP\@
+		JMP   _LOOP\@                                     ;continue until lc=0    (  2 clocks) 
         
     _VAL_NULL\@:
 	    ;find ram address for status
@@ -468,7 +468,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 	_LOOP\@:
 		;if task_id!=0, start again
 		CPI   R16                , 0x00                   ;compare with 0         (  1 clock )
-		BRNE  _UPDATE_TASK_READY\@
+		BRNE  _UPDATE_TASK_READY\@                        ;if lc=0, run again     (  2 clocks)
 .endm
 ;;=================================decrease timeout end=====================================;; 
 
@@ -483,13 +483,11 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
     _CH_TASK_READY\@:
 	    ;decrease by 1, start with ntask-1
 	    DEC   R16                                         ;decrement              (  1 clock ) 
-		
 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
 		LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
 		ADD   R30                , R17                    ;add offset to array    (  1 clock ) 
-		LDI   R17                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADD   R31                , R17                    ;add offset to array    (  1 clock )
+		ADC   R31                , R1                     ;add carry to offset    (  1 clock )
         LD    R17                , Z                      ;load KerSchSts+task_id (  2 clocks)
 		CPI   R17                , TASK_READY             ;compare with task ready(  1 clock )
 		BREQ  _NEXT_TASK_FOUND\@
@@ -522,8 +520,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
 		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
-		LDI   R16                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADC   R31                , R16                    ;add carry if any       (  1 clock ) 
+		ADC   R31                , R1                     ;add carry if any       (  1 clock ) 
 		LD    R16                , Z+                     ;load SPL at ZP         (  2 clocks) 
 		LD    R17                , Z                      ;load SPH at ZP         (  2 clocks) 
 		OUT   IOSPL              , R16                    ;load SPL0              (  1 clock ) 
