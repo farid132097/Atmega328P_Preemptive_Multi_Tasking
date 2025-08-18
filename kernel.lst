@@ -1379,88 +1379,90 @@
  827               	
  828               	;;================================kernel task delay starting================================;; 
  829               	Kernel_Task_Sleep:
- 830               			;create next task wakeup time (args R25:R24)
- 831:kernel.S      **** 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
- 832:kernel.S      **** 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
- 833:kernel.S      **** 		LSL   R17                                         ;x2                     (  1 clock ) 
- 834:kernel.S      **** 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
- 835:kernel.S      **** 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
- 836:kernel.S      **** 		ADD   R30                , R17                    ;add low bytes          (  1 clock ) 
- 837:kernel.S      **** 		LDI   R17                , 0x00                   ;load 0                 (  1 clock ) 
- 838:kernel.S      **** 		ADC   R31                , R17                    ;add high byte+carry    (  1 clock ) 
- 839:kernel.S      **** 		ST    Z+                 , R24                    ;save sleep time        (  2 clocks) 
- 840:kernel.S      **** 		ST    Z                  , R25                    ;save sleep time        (  2 clocks) 
- 841               			
- 842               			;update task scheduler status as blocked
- 843:kernel.S      **** 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
- 844:kernel.S      **** 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
- 845:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
- 846:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
- 847:kernel.S      **** 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
- 848:kernel.S      ****         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
- 849:kernel.S      **** 		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
- 850               			
- 851               			;save context, save sp, run scheduler, load next task sp, restore context
- 852:kernel.S      **** 		KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
- 853:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
- 854:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
- 855:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
- 856:kernel.S      **** 		KER_CONTEXT_RESTORE_YEILD                         ;restore context        ( 67 clocks) 
- 857               			
- 858:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
- 859               	;;=================================kernel task delay end====================================;; 
- 860               	
- 861               	
+ 830               	        ;save current context
+ 831:kernel.S      ****         KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
+ 832:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks)
+ 833               			
+ 834               			;create next task wakeup time (args R25:R24)
+ 835:kernel.S      **** 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
+ 836:kernel.S      **** 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
+ 837:kernel.S      **** 		LSL   R17                                         ;x2                     (  1 clock ) 
+ 838:kernel.S      **** 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
+ 839:kernel.S      **** 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
+ 840:kernel.S      **** 		ADD   R30                , R17                    ;add low bytes          (  1 clock ) 
+ 841:kernel.S      **** 		LDI   R17                , 0x00                   ;load 0                 (  1 clock ) 
+ 842:kernel.S      **** 		ADC   R31                , R17                    ;add high byte+carry    (  1 clock ) 
+ 843:kernel.S      **** 		ST    Z+                 , R24                    ;save sleep time        (  2 clocks) 
+ 844:kernel.S      **** 		ST    Z                  , R25                    ;save sleep time        (  2 clocks) 
+ 845               			
+ 846               			;update task scheduler status as blocked
+ 847:kernel.S      **** 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+ 848:kernel.S      **** 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+ 849:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+ 850:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
+ 851:kernel.S      **** 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+ 852:kernel.S      ****         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
+ 853:kernel.S      **** 		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
+ 854               			
+ 855               			;run scheduler, load next task sp, restore context
+ 856:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
+ 857:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+ 858:kernel.S      **** 		KER_CONTEXT_RESTORE_YEILD                         ;restore context        ( 67 clocks) 
+ 859               			
+ 860:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
+ 861               	;;=================================kernel task delay end====================================;; 
  862               	
  863               	
  864               	
- 865               	;;================================kernel task delay starting================================;; 
- 866               	Kernel_Task_Sleep_Time_Get:
- 867               			;create next task wakeup time
- 868:kernel.S      **** 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
- 869:kernel.S      **** 		LSL   R16                                         ;x2                     (  1 clock ) 
- 870:kernel.S      **** 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
- 871:kernel.S      **** 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
- 872:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
- 873:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
- 874:kernel.S      **** 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
- 875:kernel.S      **** 		LD    R24                , Z+                     ;load sleep time        (  2 clocks) 
- 876:kernel.S      **** 		LD    R25                , Z                      ;load sleep time        (  2 clocks) 
- 877:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
- 878               	;;=================================kernel task delay end====================================;;
- 879               	
- 880               	
+ 865               	
+ 866               	
+ 867               	;;================================kernel task delay starting================================;; 
+ 868               	Kernel_Task_Sleep_Time_Get:
+ 869               			;create next task wakeup time
+ 870:kernel.S      **** 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
+ 871:kernel.S      **** 		LSL   R16                                         ;x2                     (  1 clock ) 
+ 872:kernel.S      **** 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
+ 873:kernel.S      **** 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
+ 874:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+ 875:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
+ 876:kernel.S      **** 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+ 877:kernel.S      **** 		LD    R24                , Z+                     ;load sleep time        (  2 clocks) 
+ 878:kernel.S      **** 		LD    R25                , Z                      ;load sleep time        (  2 clocks) 
+ 879:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
+ 880               	;;=================================kernel task delay end====================================;;
  881               	
  882               	
  883               	
- 884               	;;================================kernel task delay starting================================;; 
- 885               	Kernel_Task_Sts_Get:
- 886               			;create next task wakeup time
- 887:kernel.S      **** 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
- 888:kernel.S      **** 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
- 889:kernel.S      **** 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
- 890:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
- 891:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
- 892:kernel.S      **** 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
- 893:kernel.S      **** 		LD    R24                , Z                      ;load sleep time        (  2 clocks) 
- 894:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
- 895               	;;=================================kernel task delay end====================================;;
- 896               	
- 897               	
+ 884               	
+ 885               	
+ 886               	;;================================kernel task delay starting================================;; 
+ 887               	Kernel_Task_Sts_Get:
+ 888               			;create next task wakeup time
+ 889:kernel.S      **** 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
+ 890:kernel.S      **** 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+ 891:kernel.S      **** 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+ 892:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+ 893:kernel.S      **** 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
+ 894:kernel.S      **** 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+ 895:kernel.S      **** 		LD    R24                , Z                      ;load sleep time        (  2 clocks) 
+ 896:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
+ 897               	;;=================================kernel task delay end====================================;;
  898               	
  899               	
  900               	
- 901               	;;================================kernel task yeild starting================================;; 
- 902               	Kernel_Task_Yeild:
- 903               			;save context, save sp, run scheduler, load next task sp, restore context
- 904:kernel.S      **** 		KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
- 905:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
- 906:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
- 907:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
- 908:kernel.S      **** 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
- 909:kernel.S      **** 		SEI                                               ;enable interrupt       (  1 clock ) 
- 910:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
- 911               	;;=================================kernel task yeild end====================================;; 
+ 901               	
+ 902               	
+ 903               	;;================================kernel task yeild starting================================;; 
+ 904               	Kernel_Task_Yeild:
+ 905               			;save context, save sp, run scheduler, load next task sp, restore context
+ 906:kernel.S      **** 		KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
+ 907:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+ 908:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
+ 909:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+ 910:kernel.S      **** 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
+ 911:kernel.S      **** 		SEI                                               ;enable interrupt       (  1 clock ) 
+ 912:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
+ 913               	;;=================================kernel task yeild end====================================;; 
 DEFINED SYMBOLS
             kernel.S:12     *ABS*:000003e8 KER_TR
             kernel.S:13     *ABS*:00000003 KER_PRS
@@ -1511,9 +1513,9 @@ DEFINED SYMBOLS
             kernel.S:690    .text:00000236 Kernel_Task_Init
             kernel.S:777    .text:000002de Kernel_Start_Tasks
             kernel.S:829    .text:00000350 Kernel_Task_Sleep
-            kernel.S:866    .text:00000462 Kernel_Task_Sleep_Time_Get
-            kernel.S:885    .text:00000478 Kernel_Task_Sts_Get
-            kernel.S:902    .text:0000048a Kernel_Task_Yeild
+            kernel.S:868    .text:00000462 Kernel_Task_Sleep_Time_Get
+            kernel.S:887    .text:00000478 Kernel_Task_Sts_Get
+            kernel.S:904    .text:0000048a Kernel_Task_Yeild
             kernel.S:552    .text:000000a2 _UPDATE_TASK_READY5
             kernel.S:552    .text:000000cc _VAL_NULL5
             kernel.S:552    .text:000000da _LOOP5
@@ -1525,15 +1527,15 @@ DEFINED SYMBOLS
             kernel.S:619    .text:000001c6 _READ_AGAIN
             kernel.S:819    .text:0000034e Kernel_Task_Idle
             kernel.S:820    .text:0000034e _IDLE_LOOP
-            kernel.S:854    .text:000003d8 _CH_TASK_READY15
-            kernel.S:854    .text:000003f4 _NEXT_TASK_FOUND15
-            kernel.S:854    .text:000003ec _LOOP_CNT15
-            kernel.S:854    .text:000003fc _IDLE_TASK15
-            kernel.S:854    .text:00000402 _EXIT15
-            kernel.S:906    .text:000004ee _CH_TASK_READY20
-            kernel.S:906    .text:0000050a _NEXT_TASK_FOUND20
-            kernel.S:906    .text:00000502 _LOOP_CNT20
-            kernel.S:906    .text:00000512 _IDLE_TASK20
-            kernel.S:906    .text:00000518 _EXIT20
+            kernel.S:856    .text:000003d8 _CH_TASK_READY15
+            kernel.S:856    .text:000003f4 _NEXT_TASK_FOUND15
+            kernel.S:856    .text:000003ec _LOOP_CNT15
+            kernel.S:856    .text:000003fc _IDLE_TASK15
+            kernel.S:856    .text:00000402 _EXIT15
+            kernel.S:908    .text:000004ee _CH_TASK_READY20
+            kernel.S:908    .text:0000050a _NEXT_TASK_FOUND20
+            kernel.S:908    .text:00000502 _LOOP_CNT20
+            kernel.S:908    .text:00000512 _IDLE_TASK20
+            kernel.S:908    .text:00000518 _EXIT20
 
 NO UNDEFINED SYMBOLS

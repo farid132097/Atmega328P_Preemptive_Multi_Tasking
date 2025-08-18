@@ -827,6 +827,10 @@ Kernel_Task_Idle:
 
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Sleep:
+        ;save current context
+        KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks)
+		
 		;create next task wakeup time (args R25:R24)
 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
@@ -848,9 +852,7 @@ Kernel_Task_Sleep:
         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
 		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
 		
-		;save context, save sp, run scheduler, load next task sp, restore context
-		KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		;run scheduler, load next task sp, restore context
 		KER_RUN_SCHEDULER                                 ;run scheduler for tasks( 14 clocks) 
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE_YEILD                         ;restore context        ( 67 clocks) 
