@@ -124,7 +124,8 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_SysTick_Val_Safely_Get
 .global  Kernel_Interrupt_Sts_Get
-.global  Kernel_Task_Init
+.global  Kernel_Init
+.global  Kernel_Task_Create
 .global  Kernel_Start_Tasks
 .global  Kernel_Task_Sleep
 .global  Kernel_Task_Sleep_Time_Get
@@ -678,9 +679,23 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-;;================================kernel task init starting=================================;; 
-Kernel_Task_Init:
+
+;;==================================kernel init starting====================================;; 
+Kernel_Init:
         ;func_ptr->R25:R24, task_id->R22, task_priority->R20
+        ;save main SP & Z pointer
+        IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
+		
+		RET                                               ;return from subroutine (  4 clocks) 
+;;====================================kernel init end=======================================;; 
+
+
+
+
+
+;;===============================kernel task create starting================================;; 
+Kernel_Task_Create:
+        ;func_ptr->R25:R24, task_priority->R22
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
         IN    R3                 , IOSPH                  ;save SPH of MSP        (  1 clock ) 
@@ -697,14 +712,13 @@ Kernel_Task_Init:
 		;LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
 		;ST    Z                  , R16                    ;update flag            (  2 clocks)
 		
-		;set priority to KerSch+(task_id*4)+1
-		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
+		;set priority to KerSchPr
+		LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
-		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
-		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
-		ST    Z                  , R20                    ;save priority          (  2 clocks)
+		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
+		ST    Z                  , R22                    ;save priority          (  2 clocks)
 		
 		;increment ntask
 		LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
@@ -759,7 +773,7 @@ Kernel_Task_Init:
 		
 		
 		RET                                               ;return from subroutine (  4 clocks) 
-;;===================================kernel task init end===================================;; 
+;;==================================kernel task create end==================================;; 
 
 
 

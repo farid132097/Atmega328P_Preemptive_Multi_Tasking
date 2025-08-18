@@ -17,16 +17,16 @@ int main(void) {
 	
 	Kernel_SysTick_Reg_Init(0x03, 0x82);
 	
-	Kernel_Task_Init(Tasks_Task0, 0, 0);
-	Kernel_Task_Init(Tasks_Task9, 1, 0);
-	Kernel_Task_Init(Tasks_Task2, 2, 0);
-	Kernel_Task_Init(Tasks_Task3, 3, 0);
-	Kernel_Task_Init(Tasks_Task4, 4, 0);
-	Kernel_Task_Init(Tasks_Task5, 5, 0);
-	Kernel_Task_Init(Tasks_Task6, 6, 0);
-	Kernel_Task_Init(Tasks_Task7, 7, 0);
-	Kernel_Task_Init(Tasks_Task8, 8, 0);
-	Kernel_Task_Init(Tasks_Task1, 9, 0);
+	Kernel_Task_Create(Tasks_Task0,  0);
+	Kernel_Task_Create(Tasks_Task9,  0);
+	Kernel_Task_Create(Tasks_Task2,  0);
+	Kernel_Task_Create(Tasks_Task3,  0);
+	Kernel_Task_Create(Tasks_Task4,  0);
+	Kernel_Task_Create(Tasks_Task5,  0);
+	Kernel_Task_Create(Tasks_Task6,  0);
+	Kernel_Task_Create(Tasks_Task7,  0);
+	Kernel_Task_Create(Tasks_Task8,  0);
+	Kernel_Task_Create(Tasks_Task1,  0);
 	
 	Kernel_Start_Tasks();
 	
