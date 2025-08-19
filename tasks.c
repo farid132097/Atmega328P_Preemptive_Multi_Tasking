@@ -8,15 +8,6 @@
 
 
 
-void Tasks_Delay(uint16_t val){
-  uint64_t curr = 0, next = 0;
-  curr = Kernel_SysTick_Val_Get();
-  next = curr + val;
-  while( curr < next ){
-    curr = Kernel_SysTick_Val_Get();
-  }
-}
-
 void Tasks_Task0(void){
   
   
@@ -39,7 +30,6 @@ void Tasks_Task1(void){
 	Debug_Tx_Word_Conf(val--);
 	Kernel_Task_Sleep(10);
 	
-	
   }
 }
 
@@ -55,7 +45,6 @@ void Tasks_Task2(void){
 	Debug_Tx_Byte_Conf(2);
     Debug_Tx_Word_Conf(val--);
 	Kernel_Task_Sleep(17);
-	
 	
   }
 }
