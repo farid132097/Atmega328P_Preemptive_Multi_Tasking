@@ -124,7 +124,6 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_SysTick_Val_Safely_Get
 .global  Kernel_Interrupt_Sts_Get
-.global  Kernel_Init
 .global  Kernel_Task_Create
 .global  Kernel_Start_Tasks
 .global  Kernel_Task_Sleep
@@ -679,23 +678,9 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-
-;;==================================kernel init starting====================================;; 
-Kernel_Init:
-        ;func_ptr->R25:R24, task_id->R22, task_priority->R20
-        ;save main SP & Z pointer
-        IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
-		
-		RET                                               ;return from subroutine (  4 clocks) 
-;;====================================kernel init end=======================================;; 
-
-
-
-
-
-;;===============================kernel task create starting================================;; 
+;;================================kernel task init starting=================================;; 
 Kernel_Task_Create:
-        ;func_ptr->R25:R24, task_priority->R22
+        ;func_ptr->R25:R24, task_id->R22, task_priority->R20
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
         IN    R3                 , IOSPH                  ;save SPH of MSP        (  1 clock ) 
@@ -712,21 +697,23 @@ Kernel_Task_Create:
 		;LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
 		;ST    Z                  , R16                    ;update flag            (  2 clocks)
 		
-		;set priority to KerSchPr
-		LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
+		;set priority to KerSchPr+task_id
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) <-------
+		;LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
 		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
-		ST    Z                  , R22                    ;save priority          (  2 clocks)
+		ST    Z                  , R20                    ;save priority          (  2 clocks) 
 		
 		;increment ntask
 		LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
 		INC   R16                                         ;increment ntask        (  1 clock ) 
 		STS   KerBase+OFF_NTSK   , R16                    ;store ntask            (  2 clocks) 
 		
-		;set stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top   
-		MOV   R16                , R22                    ;load task_id           (  1 clock ) 
+		;set stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top 
+		MOV   R16                , R22                    ;load task_id           (  1 clock ) <-------
+		;LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
 		INC   R16                                         ;increment task_id      (  1 clock ) 
 		LDI   R17                , KER_STK_SZ             ;load stack size        (  1 clock ) 
 		MUL   R16                , R17                    ;multiply to get offset (  2 clocks) 
@@ -740,6 +727,7 @@ Kernel_Task_Create:
 		ADC   R31                , R17                    ;add high bytes+carry   (  1 clock ) 
 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
+		
 		
 		;function argument directly returns word address
 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
@@ -755,15 +743,20 @@ Kernel_Task_Create:
         IN    R17                , IOSPH                  ;read SPH               (  1 clock ) 
 		
 		;calculate the address where current task's SP will be stored and store SP
-		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) 
+		MOV   R18                , R22                    ;fetch task_id from arg (  1 clock ) <-------
+		;LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks)
 		LSL   R18                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
 		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
-		LDI   R18                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+		ADC   R31                , R1                     ;add carry if any       (  1 clock ) 
 		ST    Z+                 , R16                    ;SPL at KerSp+offset    (  2 clocks) 
 		ST    z                  , R17                    ;SPH at KerSp+offset    (  2 clocks) 
+		
+		;increment task_id
+		;LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
+		;INC   R16                                         ;increment task_id      (  1 clock ) 
+		;STS   KerBase+OFF_TID    , R16                    ;store task_id          (  2 clocks) 
 		
 		;load Main SP, restore Z pointer
 		OUT   IOSPL              , R2                     ;load SPL               (  1 clock ) 
@@ -773,7 +766,7 @@ Kernel_Task_Create:
 		
 		
 		RET                                               ;return from subroutine (  4 clocks) 
-;;==================================kernel task create end==================================;; 
+;;===================================kernel task init end===================================;; 
 
 
 
@@ -786,25 +779,28 @@ Kernel_Start_Tasks:
 		MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
 		
-		;load ZP with addr+offset
-		LDI   R30                , lo8(KerSP)             ;fetch ZPL KerSP        (  1 clock ) 
-		LDI   R31                , hi8(KerSP)             ;fetch ZPH KerSP        (  1 clock ) 
+		;clear task_id
+		LDI   R16                , 0x00                   ;load task_id           (  2 clocks) 
+		STS   KerBase+OFF_TID    , R16                    ;store task_id          (  2 clocks) 
 		
-		;load last task's SP
+		;load ZP with addr+offset
+		LDI   R30                , lo8(KerSP+0x00)        ;fetch ZPL KerSP->TID0  (  1 clock ) 
+		LDI   R31                , hi8(KerSP+0x00)        ;fetch ZPH KerSP->TID0  (  1 clock ) 
+		
+		;load TID0 task's SP
 		LD    R16                , Z+                     ;load val from Z, inc Z (  2 clocks) 
 		LD    R17                , Z                      ;load val from Z+1      (  2 clocks) 
 		
-		;set last task's SP
+		;set TID0 task's SP
 		OUT   IOSPL              , R16                    ;load SPL               (  1 clock ) 
         OUT   IOSPH              , R17                    ;load SPH               (  1 clock ) 
-       
+        
         ;forcefully restore context, in ISR it will be stored automatically
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
 		
 		;restore ZP
 		MOV   R30                , R4                     ;restore ZPL            (  2 clocks) 
 		MOV   R31                , R5                     ;restore ZPL            (  2 clocks) 
-		
 		
 		LDS   R16		         , KerBase+OFF_PRS        ;load prescaler         (  2 clocks) 
 		LDS   R17		         , KerBase+OFF_RLD        ;load reload val        (  2 clocks) 
@@ -917,7 +913,6 @@ Kernel_Task_Yeild:
 		SEI                                               ;enable interrupt       (  1 clock ) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task yeild end====================================;; 
-
 
 
 
