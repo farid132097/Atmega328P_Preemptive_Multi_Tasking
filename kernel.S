@@ -680,7 +680,7 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 ;;================================kernel task init starting=================================;; 
 Kernel_Task_Create:
-        ;func_ptr->R25:R24, task_id->R22, task_priority->R20
+        ;func_ptr->R25:R24, task_priority->R22
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
         IN    R3                 , IOSPH                  ;save SPH of MSP        (  1 clock ) 
@@ -688,18 +688,7 @@ Kernel_Task_Create:
 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks)
         
 		;across this function, R16 will be used as task_id   
-		;;MOV   R16                , R22                    ;load task_id           (  1 clock )
 		LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
-		
-		;set task status as ready
-		;MOV   R16                , R22                    ;load task_id           (  1 clock ) 
-		;LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
-		;LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		;ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
-		;LDI   R16                , 0x00                   ;set 0 to R16           (  1 clock ) 
-		;ADC   R31                , R16                    ;add offset to array    (  1 clock )
-		;LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
-		;ST    Z                  , R16                    ;update flag            (  2 clocks)
 		
 		;set priority to KerSchPr+task_id
 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
@@ -713,14 +702,14 @@ Kernel_Task_Create:
 		INC   R17                                         ;increment ntask        (  1 clock ) 
 		STS   KerBase+OFF_NTSK   , R17                    ;store ntask            (  2 clocks) 
 		
-		;set stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top 
+		;stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top 
 		MOV   R17                , R16                    ;load task_id           (  1 clock )
 		INC   R17                                         ;increment task_id      (  1 clock ) 
 		LDI   R18                , KER_STK_SZ             ;load stack size        (  1 clock ) 
 		MUL   R17                , R18                    ;multiply to get offset (  2 clocks) 
 		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
-		SBIW  R30                , 0x01                   ;KER_STK_SZ*(task_id+1)-1  (  2 clocks) 
+		SBIW  R30                , 0x01                   ;dec multiplied val     (  2 clocks) 
 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
 		LDI   R17                , lo8(KerStack)          ;load base addr low     (  1 clock ) 
 		LDI   R18                , hi8(KerStack)          ;load base addr high    (  1 clock ) 

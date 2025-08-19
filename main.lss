@@ -860,7 +860,7 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 ;;================================kernel task init starting=================================;; 
 Kernel_Task_Create:
-        ;func_ptr->R25:R24, task_id->R22, task_priority->R20
+        ;func_ptr->R25:R24, task_priority->R22
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
  4e0:	2d b6       	in	r2, 0x3d	; 61
@@ -872,12 +872,8 @@ Kernel_Task_Create:
  4e6:	5f 2e       	mov	r5, r31
         
 		;across this function, R16 will be used as task_id   
-		;;MOV   R16                , R22                    ;load task_id           (  1 clock )
 		LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
  4e8:	00 91 07 01 	lds	r16, 0x0107
-		;ADC   R31                , R16                    ;add offset to array    (  1 clock )
-		;LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
-		;ST    Z                  , R16                    ;update flag            (  2 clocks)
 		
 		;set priority to KerSchPr+task_id
 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
@@ -899,7 +895,7 @@ Kernel_Task_Create:
 		STS   KerBase+OFF_NTSK   , R17                    ;store ntask            (  2 clocks) 
  4fc:	10 93 08 01 	sts	0x0108, r17
 		
-		;set stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top 
+		;stack pointer for current task (KerStack + KER_STK_SZ*(ker_ind+1) - 1) ->stack top 
 		MOV   R17                , R16                    ;load task_id           (  1 clock )
  500:	10 2f       	mov	r17, r16
 		INC   R17                                         ;increment task_id      (  1 clock ) 
@@ -912,7 +908,7 @@ Kernel_Task_Create:
  508:	e0 2d       	mov	r30, r0
 		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
  50a:	f1 2d       	mov	r31, r1
-		SBIW  R30                , 0x01                   ;KER_STK_SZ*(task_id+1)-1  (  2 clocks) 
+		SBIW  R30                , 0x01                   ;dec multiplied val     (  2 clocks) 
  50c:	31 97       	sbiw	r30, 0x01	; 1
 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
  50e:	11 24       	eor	r1, r1
