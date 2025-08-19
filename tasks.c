@@ -133,16 +133,3 @@ void Tasks_Task8(void){
   }
 }
 
-void Tasks_Task9(void){
-  
-  Debug_Init(0);
-  uint16_t val = 260;
-  
-  while(1){
-    
-	Debug_Tx_Byte_Conf(9);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(44);
-	
-  }
-}

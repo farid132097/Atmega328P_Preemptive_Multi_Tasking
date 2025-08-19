@@ -18,7 +18,6 @@ int main(void) {
 	Kernel_SysTick_Reg_Init(0x03, 0x82);
 	
 	Kernel_Task_Create(Tasks_Task0,  0);
-	Kernel_Task_Create(Tasks_Task9,  0);
 	Kernel_Task_Create(Tasks_Task2,  0);
 	Kernel_Task_Create(Tasks_Task3,  0);
 	Kernel_Task_Create(Tasks_Task4,  0);
