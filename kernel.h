@@ -26,6 +26,7 @@ extern void      Kernel_SysTick_Reg_Init(uint8_t presclaer_reg, uint8_t reload_v
 extern uint64_t  Kernel_SysTick_Val_Get(void);
 extern uint64_t  Kernel_SysTick_Val_Safely_Get(void);
 extern uint8_t   Kernel_Interrupt_Sts_Get(void);
+extern void      Kernel_Init(void);
 extern void      Kernel_Task_Create(void (*func)(void), uint8_t priority);
 extern void      Kernel_Start_Tasks(void);
 extern void      Kernel_Task_Sleep(uint16_t val);

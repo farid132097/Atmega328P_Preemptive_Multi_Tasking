@@ -124,6 +124,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 .global  Kernel_SysTick_Val_Get
 .global  Kernel_SysTick_Val_Safely_Get
 .global  Kernel_Interrupt_Sts_Get
+.global  Kernel_Init
 .global  Kernel_Task_Create
 .global  Kernel_Start_Tasks
 .global  Kernel_Task_Sleep
@@ -556,6 +557,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;================================SysTick reg init starting=================================;; 
 Kernel_SysTick_Reg_Init:                                  ;total operation        ( 55 clocks) 
+        ;arg1 -> prescaler R24, arg2 -> reload val R22
         CLI                                               ;disable global int,    (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
 		LDI   R16                , 0x00                   ;set 0x00 to R16,       (  1 clock ) 
@@ -679,13 +681,13 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 ;;================================kernel task init starting=================================;; 
-Kernel_Task_Create:
+Kernel_Task_Create:                                       ;total operation        (130 clocks)
         ;func_ptr->R25:R24, task_priority->R22
         ;save main SP & Z pointer
         IN    R2                 , IOSPL                  ;save SPL of MSP        (  1 clock ) 
         IN    R3                 , IOSPH                  ;save SPH of MSP        (  1 clock ) 
-        MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
-		MOV   R5                 , R31                    ;save ZPH               (  2 clocks)
+        MOV   R4                 , R30                    ;save ZPL               (  1 clock ) 
+		MOV   R5                 , R31                    ;save ZPH               (  1 clock )
         
 		;across this function, R16 will be used as task_id   
 		LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
@@ -707,8 +709,8 @@ Kernel_Task_Create:
 		INC   R17                                         ;increment task_id      (  1 clock ) 
 		LDI   R18                , KER_STK_SZ             ;load stack size        (  1 clock ) 
 		MUL   R17                , R18                    ;multiply to get offset (  2 clocks) 
-		MOV   R30                , R0                     ;load multiplied low    (  2 clocks) 
-		MOV   R31                , R1                     ;load multiplied high   (  2 clocks) 
+		MOV   R30                , R0                     ;load multiplied low    (  1 clocks) 
+		MOV   R31                , R1                     ;load multiplied high   (  1 clocks) 
 		SBIW  R30                , 0x01                   ;dec multiplied val     (  2 clocks) 
 		CLR   R1                                          ;gcc expects cleared    (  1 clock ) 
 		LDI   R17                , lo8(KerStack)          ;load base addr low     (  1 clock ) 
@@ -718,11 +720,11 @@ Kernel_Task_Create:
 		OUT   IOSPL              , R30                    ;load SPL               (  1 clock ) 
         OUT   IOSPH              , R31                    ;load SPH               (  1 clock ) 
 		
-		
 		;function argument directly returns word address
 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
 		
+		;need to save global interrupt enabled in each tasks context
 		SEI                                               ;force enable interrupt (  1 clock ) 
 		
 		;push context to stack of this task
@@ -750,9 +752,8 @@ Kernel_Task_Create:
 		;load Main SP, restore Z pointer
 		OUT   IOSPL              , R2                     ;load SPL               (  1 clock ) 
         OUT   IOSPH              , R3                     ;load SPH               (  1 clock ) 
-		MOV   R30                , R4                     ;push ZPL               (  2 clocks) 
-		MOV   R31                , R5                     ;push ZPL               (  2 clocks) 
-		
+		MOV   R30                , R4                     ;push ZPL               (  1 clock ) 
+		MOV   R31                , R5                     ;push ZPL               (  1 clock ) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================kernel task init end===================================;; 
@@ -806,9 +807,67 @@ Kernel_Start_Tasks:
 
 
 
+;;===================================kernel task starting===================================;; 
+Kernel_Init:
+		;start executing from task0
+		;save ZP
+		MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
+		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
+		
+		;init timer for kernel 
+		LDI   R24                , 0x03                   ;set prescaler          (  1 clock ) 
+		LDI   R22                , 0x82                   ;set reload val         (  1 clock ) 
+		CALL  Kernel_SysTick_Reg_Init                     ;init timer             ( 55 clocks) 
+		
+		LDI   R24                , lo8(Kernel_Task_Idle)  ;load func addr low     (  1 clock )
+		LDI   R25                , hi8(Kernel_Task_Idle)  ;load func addr high    (  1 clock )
+		LSR   R25                                         ;right shift to divide  (  1 clock )
+		ROR   R24                                         ;rotate right th carry  (  1 clock )
+		CALL  Kernel_Task_Create                          ;init idle task         (130 clocks) 
+		
+		;clear task_id
+		LDI   R16                , 0x00                   ;load task_id           (  2 clocks) 
+		STS   KerBase+OFF_TID    , R16                    ;store task_id          (  2 clocks) 
+		
+		;load ZP with addr+offset
+		LDI   R30                , lo8(KerSP+0x00)        ;fetch ZPL KerSP->TID0  (  1 clock ) 
+		LDI   R31                , hi8(KerSP+0x00)        ;fetch ZPH KerSP->TID0  (  1 clock ) 
+		
+		;load TID0 task's SP
+		LD    R16                , Z+                     ;load val from Z, inc Z (  2 clocks) 
+		LD    R17                , Z                      ;load val from Z+1      (  2 clocks) 
+		
+		;set TID0 task's SP
+		OUT   IOSPL              , R16                    ;load SPL               (  1 clock ) 
+        OUT   IOSPH              , R17                    ;load SPH               (  1 clock ) 
+        
+        ;forcefully restore context, in ISR it will be stored automatically
+		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
+		
+		;restore ZP
+		MOV   R30                , R4                     ;restore ZPL            (  2 clocks) 
+		MOV   R31                , R5                     ;restore ZPL            (  2 clocks) 
+		
+		LDS   R16		         , KerBase+OFF_PRS        ;load prescaler         (  2 clocks) 
+		LDS   R17		         , KerBase+OFF_RLD        ;load reload val        (  2 clocks) 
+		STS   SRTCCR0B           , R16                    ;prescaler-> TCCR0B     (  2 clocks) 
+		STS   SRTCNT0            , R17                    ;reload val-> TCNT0     (  2 clocks) 
+		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
+		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
+		
+		;execute return to jump to task0, pushed while task init
+		RET                                               ;return from subroutine (  4 clocks) 
+;;======================================kernel task end=====================================;; 
+
+
+
+
+
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Idle:
     _IDLE_LOOP:
+	    LDI   R24 , 0
+	    CALL  Debug_Tx_Byte
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;=================================kernel task delay end====================================;; 
 
