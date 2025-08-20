@@ -53,42 +53,43 @@ Debug_Init:
 ;;=========================================Debug Tx=========================================;;
 Debug_Tx_Byte:
 		;write single byte to data register (Arg R24)
-		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
-		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
+		PUSH  R16                                         ;save reg               (  2 clocks)
+		STS   SRUDR0             , R24                    ;load val to UDR0,      (  2 clocks)
 		
     __UDRE0_CLEARED:
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
-		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,    (2 clocks)
-		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set, (2 clocks)
-		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
-        RET                                               ;return from subroutine,  (4 clocks) 
+		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks)
+		SBRS  R16                , 0x05                   ;skip if UDRE0 is set,  (  2 clocks)
+		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set(  2 clocks)
+		POP   R16                                         ;restore reg            (  2 clocks)
+        RET                                               ;return from subroutine,(  4 clocks) 
 
 
 ;;=========================================Debug Tx=========================================;;
-Debug_Tx_Byte_Conf:
+Debug_Tx_Byte_Conf:                                       ;untdetermined->loop    ( 23 clocks) 
         ;write 1 byte, (Arg R24), Args retained
-		STS   SRGPIOR0           , R16                    ;store R16 val,           (2 clocks)
-		STS   SRUDR0             , R24                    ;load val to UDR0,        (2 clocks)
+		PUSH  R16                                         ;save reg               (  2 clocks)
+		STS   SRUDR0             , R24                    ;load val to UDR0,      (  2 clocks)
 		
     __TXC0_CLEARED:
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
-		SBRS  R16                , 0x06                   ;skip if TXC0 is set,     (2 clocks)
-		RJMP  __TXC0_CLEARED                              ;wait until TXC0 is set,  (2 clocks)
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,      (2 clocks)
-		ORI   R16                , (1<<6)                 ;mask bit 6,              (1 clock )
-		STS   SRUCSR0A           , R16                    ;load val to UCSR0B,      (2 clocks)
-		LDS   R16                , SRGPIOR0               ;restore R16 val,         (2 clocks)
-        RET                                               ;return from subroutine,  (4 clocks) 
+		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks)
+		SBRS  R16                , 0x06                   ;skip if TXC0 is set,   (  2 clocks)
+		RJMP  __TXC0_CLEARED                              ;wait until TXC0 is set (  2 clocks)
+		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks)
+		ORI   R16                , (1<<6)                 ;mask bit 6,            (  1 clock )
+		STS   SRUCSR0A           , R16                    ;write reg with bit msk (  2 clocks)
+		POP   R16                                         ;restore reg            (  2 clocks)
+        RET                                               ;return from subroutine (  4 clocks) 
+
 
 ;;======================================Debug Tx Word=======================================;;
 Debug_Tx_Word_Conf:
         ;write 2 bytes, (Arg R24, R25), Args retained
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		STS   SRGPIOR0           , R24                    ;store R24 val,           (2 clocks)
-		MOV   R24                , R25                    ;copy R25 to R24          (1 clock )
+		PUSH  R24                                         ;save reg               (  2 clocks)
+		MOV   R24                , R25                    ;copy R25 to R24        (  1 clock )
 		CALL  Debug_Tx_Byte_Conf                          ;send via uart
-		LDS   R24                , SRGPIOR0               ;restore R24 val,         (2 clocks)
-        RET                                               ;return from subroutine,  (4 clocks) 
+		POP   R24                                         ;restore reg            (  2 clocks)
+        RET                                               ;return from subroutine (  4 clocks) 
 
 ;;=====================================Debug Tx DWord=======================================;;
 Debug_Tx_DWord_Conf:
