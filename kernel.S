@@ -480,8 +480,17 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 ;;==================================run scheduler starting==================================;; 
 .macro  KER_RUN_SCHEDULER                                 ;total 1.75uS @8MHz     ( 14 clocks) 
         LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
-		
+		LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+		LDI   R17                , 0x01                   ;start loop from 1      (  1 clock ) 
+		ADD   R30                , R17                    ;add offset to array    (  1 clock ) 
+		ADC   R31                , R1                     ;add carry to offset    (  1 clock ) 
+
     _CH_TASK_READY\@:
+        ;offset task status pos according to the task_id
+        LD    R17                , Z                      ;load KerSchSts+task_id (  2 clocks) 
+        
+	    
 	    ;decrease by 1, start with ntask-1
 	    DEC   R16                                         ;decrement              (  1 clock ) 
 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
@@ -827,7 +836,7 @@ Kernel_Init:
 		LDI   R25                , hi8(Kernel_Task_Idle)  ;load func addr high    (  1 clock )
 		LSR   R25                                         ;right shift to divide  (  1 clock )
 		ROR   R24                                         ;rotate right th carry  (  1 clock )
-		LDI   R22                , 0
+		LDI   R22                , 0xFF                   ;set max val
 		CALL  Kernel_Task_Create                          ;init idle task         (130 clocks) 
 		
 		;execute return to jump to task0, pushed while task init
