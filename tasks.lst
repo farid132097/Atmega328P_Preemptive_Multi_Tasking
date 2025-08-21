@@ -308,40 +308,55 @@
  332               	Tasks_Task0:
  333               	.LFB6:
  334               	.LM45:
- 335               	/* prologue: function */
- 336               	/* frame size = 0 */
- 337               	.LM46:
- 338 01ac 80E0      		ldi r24,lo8(0)
- 339 01ae 90E0      		ldi r25,hi8(0)
- 340 01b0 0E94 0000 		call Debug_Init
- 341               	.L26:
- 342               	.LM47:
- 343 01b4 80E0      		ldi r24,lo8(0)
- 344 01b6 0E94 0000 		call Debug_Tx_Byte_Conf
- 345               	.LM48:
- 346 01ba 82E0      		ldi r24,lo8(2)
- 347 01bc 90E0      		ldi r25,hi8(2)
- 348 01be 0E94 0000 		call Kernel_Task_Sleep
- 349 01c2 00C0      		rjmp .L26
- 350               	.LFE6:
- 440               	.Letext0:
+ 335 01ac 0F93      		push r16
+ 336 01ae 1F93      		push r17
+ 337 01b0 CF93      		push r28
+ 338 01b2 DF93      		push r29
+ 339               	/* prologue: function */
+ 340               	/* frame size = 0 */
+ 341               	.LM46:
+ 342 01b4 80E0      		ldi r24,lo8(0)
+ 343 01b6 90E0      		ldi r25,hi8(0)
+ 344 01b8 0E94 0000 		call Debug_Init
+ 345 01bc C0E5      		ldi r28,lo8(80)
+ 346 01be D0E0      		ldi r29,hi8(80)
+ 347               	.LVL16:
+ 348               	.L26:
+ 349               	.LM47:
+ 350 01c0 80E0      		ldi r24,lo8(0)
+ 351 01c2 0E94 0000 		call Debug_Tx_Byte_Conf
+ 352               	.LM48:
+ 353 01c6 8E01      		movw r16,r28
+ 354 01c8 0150      		subi r16,lo8(-(-1))
+ 355 01ca 1040      		sbci r17,hi8(-(-1))
+ 356               	.LVL17:
+ 357 01cc CE01      		movw r24,r28
+ 358 01ce 0E94 0000 		call Debug_Tx_Word_Conf
+ 359               	.LM49:
+ 360 01d2 82E0      		ldi r24,lo8(2)
+ 361 01d4 90E0      		ldi r25,hi8(2)
+ 362 01d6 0E94 0000 		call Kernel_Task_Sleep
+ 363 01da E801      		movw r28,r16
+ 364 01dc 00C0      		rjmp .L26
+ 365               	.LFE6:
+ 455               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:2      *ABS*:0000003f __SREG__
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:3      *ABS*:0000003e __SP_H__
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:4      *ABS*:0000003d __SP_L__
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:5      *ABS*:00000034 __CCP__
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:18     .text:00000000 Tasks_Task8
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:55     .text:00000032 Tasks_Task7
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:92     .text:00000064 Tasks_Task6
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:129    .text:00000096 Tasks_Task5
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:166    .text:000000c8 Tasks_Task4
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:203    .text:000000fa Tasks_Task3
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:240    .text:0000012c Tasks_Task2
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:286    .text:0000016c Tasks_Task1
-C:\Users\WALTON\AppData\Local\Temp/ccGK6jxX.s:332    .text:000001ac Tasks_Task0
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:2      *ABS*:0000003f __SREG__
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:3      *ABS*:0000003e __SP_H__
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:4      *ABS*:0000003d __SP_L__
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:5      *ABS*:00000034 __CCP__
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:18     .text:00000000 Tasks_Task8
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:55     .text:00000032 Tasks_Task7
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:92     .text:00000064 Tasks_Task6
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:129    .text:00000096 Tasks_Task5
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:166    .text:000000c8 Tasks_Task4
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:203    .text:000000fa Tasks_Task3
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:240    .text:0000012c Tasks_Task2
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:286    .text:0000016c Tasks_Task1
+C:\Users\WALTON\AppData\Local\Temp/ccsj8LVN.s:332    .text:000001ac Tasks_Task0
 
 UNDEFINED SYMBOLS
 Debug_Init

@@ -11,9 +11,11 @@
 void Tasks_Task0(void){
   
   Debug_Init(0);
-  
+  uint16_t val = 80;
+
   while(1){
     Debug_Tx_Byte_Conf(0);
+	  Debug_Tx_Word_Conf(val--);
     Kernel_Task_Sleep(2);
   }
 }
