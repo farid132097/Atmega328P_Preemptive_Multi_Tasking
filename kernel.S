@@ -729,9 +729,6 @@ Kernel_Task_Create:                                       ;total operation      
 	    PUSH  R24                                         ;push word addr low     (  2 clocks) 
 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
 		
-		;need to save global interrupt enabled in each tasks context
-		;SEI                                               ;force enable interrupt (  1 clock ) 
-		
 		;push context to stack of this task
 		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		
@@ -842,13 +839,11 @@ Kernel_Init:
 
 
 
-;;================================kernel task delay starting================================;; 
-Kernel_Task_Idle:
-    _IDLE_LOOP:
-	    LDI   R24 , 0xFF
-	    CALL  Debug_Tx_Byte
+;;=================================kernel idle task starting================================;; 
+Kernel_Task_Idle:                                         ;jumps to this function when idle
+    _IDLE_LOOP:                                           ;forever loop
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
-;;=================================kernel task delay end====================================;; 
+;;==================================kernel idle task end====================================;; 
 
 
 
