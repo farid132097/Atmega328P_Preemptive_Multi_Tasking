@@ -14,7 +14,7 @@ void Tasks_Task0(void){
   
   while(1){
     Debug_Tx_Byte_Conf(0);
-	Debug_Tx_Word_Conf(0);
+    Kernel_Task_Sleep(2);
   }
 }
 
@@ -27,9 +27,9 @@ void Tasks_Task1(void){
   while(1){
     
     PORTD ^= (1<<5);
-	Debug_Tx_Byte_Conf(1);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(10);
+	  Debug_Tx_Byte_Conf(1);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(5);
 	
   }
 }
@@ -43,9 +43,9 @@ void Tasks_Task2(void){
   while(1){
     
     PORTD ^= (1<<6);
-	Debug_Tx_Byte_Conf(2);
+	  Debug_Tx_Byte_Conf(2);
     Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(17);
+	  Kernel_Task_Sleep(17);
 	
   }
 }
@@ -57,9 +57,9 @@ void Tasks_Task3(void){
   
   while(1){
     
-	Debug_Tx_Byte_Conf(3);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(24);
+	  Debug_Tx_Byte_Conf(3);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(24);
 	
   }
 }
@@ -72,9 +72,9 @@ void Tasks_Task4(void){
   while(1){
     
 	
-	Debug_Tx_Byte_Conf(4);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(26);
+	  Debug_Tx_Byte_Conf(4);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(26);
 	
   }
 }
@@ -87,8 +87,8 @@ void Tasks_Task5(void){
   while(1){
     
     Debug_Tx_Byte_Conf(5);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(29);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(29);
 	
   }
 }
@@ -100,9 +100,9 @@ void Tasks_Task6(void){
   
   while(1){
     
-	Debug_Tx_Byte_Conf(6);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(31);
+	  Debug_Tx_Byte_Conf(6);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(31);
 	
   }
 }
@@ -114,9 +114,9 @@ void Tasks_Task7(void){
   
   while(1){
     
-	Debug_Tx_Byte_Conf(7);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(38);
+	  Debug_Tx_Byte_Conf(7);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(38);
 	
   }
 }
@@ -128,9 +128,9 @@ void Tasks_Task8(void){
   
   while(1){
     
-	Debug_Tx_Byte_Conf(8);
-	Debug_Tx_Word_Conf(val--);
-	Kernel_Task_Sleep(42);
+	  Debug_Tx_Byte_Conf(8);
+	  Debug_Tx_Word_Conf(val--);
+	  Kernel_Task_Sleep(42);
 	
   }
 }

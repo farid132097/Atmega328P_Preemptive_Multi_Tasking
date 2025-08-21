@@ -730,7 +730,7 @@ Kernel_Task_Create:                                       ;total operation      
 		PUSH  R25                                         ;push word addr high    (  2 clocks) 
 		
 		;need to save global interrupt enabled in each tasks context
-		SEI                                               ;force enable interrupt (  1 clock ) 
+		;SEI                                               ;force enable interrupt (  1 clock ) 
 		
 		;push context to stack of this task
 		KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
@@ -803,6 +803,9 @@ Kernel_Start_Tasks:
 		STS   SRTCNT0            , R17                    ;reload val-> TCNT0     (  2 clocks) 
 		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
 		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
+
+		;need to save global interrupt enabled in each tasks context
+		SEI                                               ;force enable interrupt (  1 clock ) 
 		
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
@@ -842,7 +845,7 @@ Kernel_Init:
 ;;================================kernel task delay starting================================;; 
 Kernel_Task_Idle:
     _IDLE_LOOP:
-	    LDI   R24 , 0
+	    LDI   R24 , 0xFF
 	    CALL  Debug_Tx_Byte
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;=================================kernel task delay end====================================;; 

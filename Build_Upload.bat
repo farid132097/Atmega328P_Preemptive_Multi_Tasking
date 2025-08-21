@@ -5,6 +5,3 @@ make all
 
 echo Uploading...
 make program
-
-
-PAUSE
