@@ -104,145 +104,124 @@
  120 0076 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
  121 007a 805F      		subi r24,lo8(-(16))
  122 007c 0E94 0000 		call Debug_Tx_Byte_Conf
- 123               	.LM21:
- 124 0080 8AE1      		ldi r24,lo8(26)
- 125 0082 90E0      		ldi r25,hi8(26)
- 126 0084 0E94 0000 		call Kernel_Task_Sleep
- 127 0088 00C0      		rjmp .L14
- 128               	.LFE10:
- 130               	.global	Tasks_Task3
- 132               	Tasks_Task3:
- 133               	.LFB9:
- 134               	.LM22:
- 135               	/* prologue: function */
- 136               	/* frame size = 0 */
- 137               	.LM23:
- 138 008a 80E0      		ldi r24,lo8(0)
- 139 008c 90E0      		ldi r25,hi8(0)
- 140 008e 0E94 0000 		call Debug_Init
- 141               	.L17:
- 142               	.LM24:
- 143 0092 83E0      		ldi r24,lo8(3)
- 144 0094 0E94 0000 		call Debug_Tx_Byte_Conf
- 145               	.LM25:
- 146 0098 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
- 147 009c 805F      		subi r24,lo8(-(16))
- 148 009e 0E94 0000 		call Debug_Tx_Byte_Conf
- 149               	.LM26:
- 150 00a2 88E1      		ldi r24,lo8(24)
- 151 00a4 90E0      		ldi r25,hi8(24)
- 152 00a6 0E94 0000 		call Kernel_Task_Sleep
- 153 00aa 00C0      		rjmp .L17
- 154               	.LFE9:
- 156               	.global	Tasks_Task2
- 158               	Tasks_Task2:
- 159               	.LFB8:
+ 123 0080 00C0      		rjmp .L14
+ 124               	.LFE10:
+ 126               	.global	Tasks_Task3
+ 128               	Tasks_Task3:
+ 129               	.LFB9:
+ 130               	.LM21:
+ 131               	/* prologue: function */
+ 132               	/* frame size = 0 */
+ 133               	.LM22:
+ 134 0082 80E0      		ldi r24,lo8(0)
+ 135 0084 90E0      		ldi r25,hi8(0)
+ 136 0086 0E94 0000 		call Debug_Init
+ 137               	.L17:
+ 138               	.LM23:
+ 139 008a 83E0      		ldi r24,lo8(3)
+ 140 008c 0E94 0000 		call Debug_Tx_Byte_Conf
+ 141               	.LM24:
+ 142 0090 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
+ 143 0094 805F      		subi r24,lo8(-(16))
+ 144 0096 0E94 0000 		call Debug_Tx_Byte_Conf
+ 145 009a 00C0      		rjmp .L17
+ 146               	.LFE9:
+ 148               	.global	Tasks_Task2
+ 150               	Tasks_Task2:
+ 151               	.LFB8:
+ 152               	.LM25:
+ 153 009c 1F93      		push r17
+ 154               	/* prologue: function */
+ 155               	/* frame size = 0 */
+ 156               	.LM26:
+ 157 009e 80E0      		ldi r24,lo8(0)
+ 158 00a0 90E0      		ldi r25,hi8(0)
+ 159 00a2 0E94 0000 		call Debug_Init
  160               	.LM27:
- 161 00ac 1F93      		push r17
- 162               	/* prologue: function */
- 163               	/* frame size = 0 */
- 164               	.LM28:
- 165 00ae 80E0      		ldi r24,lo8(0)
- 166 00b0 90E0      		ldi r25,hi8(0)
- 167 00b2 0E94 0000 		call Debug_Init
+ 161 00a6 569A      		sbi 42-32,6
+ 162               	.LM28:
+ 163 00a8 10E4      		ldi r17,lo8(64)
+ 164               	.L20:
+ 165 00aa 8BB1      		in r24,43-32
+ 166 00ac 8127      		eor r24,r17
+ 167 00ae 8BB9      		out 43-32,r24
  168               	.LM29:
- 169 00b6 569A      		sbi 42-32,6
- 170               	.LM30:
- 171 00b8 10E4      		ldi r17,lo8(64)
- 172               	.L20:
- 173 00ba 8BB1      		in r24,43-32
- 174 00bc 8127      		eor r24,r17
- 175 00be 8BB9      		out 43-32,r24
- 176               	.LM31:
- 177 00c0 82E0      		ldi r24,lo8(2)
- 178 00c2 0E94 0000 		call Debug_Tx_Byte_Conf
- 179               	.LM32:
- 180 00c6 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
- 181 00ca 805F      		subi r24,lo8(-(16))
- 182 00cc 0E94 0000 		call Debug_Tx_Byte_Conf
- 183               	.LM33:
- 184 00d0 81E1      		ldi r24,lo8(17)
- 185 00d2 90E0      		ldi r25,hi8(17)
- 186 00d4 0E94 0000 		call Kernel_Task_Sleep
- 187 00d8 00C0      		rjmp .L20
- 188               	.LFE8:
- 190               	.global	Tasks_Task1
- 192               	Tasks_Task1:
- 193               	.LFB7:
- 194               	.LM34:
- 195 00da 1F93      		push r17
- 196               	/* prologue: function */
- 197               	/* frame size = 0 */
+ 169 00b0 82E0      		ldi r24,lo8(2)
+ 170 00b2 0E94 0000 		call Debug_Tx_Byte_Conf
+ 171               	.LM30:
+ 172 00b6 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
+ 173 00ba 805F      		subi r24,lo8(-(16))
+ 174 00bc 0E94 0000 		call Debug_Tx_Byte_Conf
+ 175 00c0 00C0      		rjmp .L20
+ 176               	.LFE8:
+ 178               	.global	Tasks_Task1
+ 180               	Tasks_Task1:
+ 181               	.LFB7:
+ 182               	.LM31:
+ 183 00c2 1F93      		push r17
+ 184               	/* prologue: function */
+ 185               	/* frame size = 0 */
+ 186               	.LM32:
+ 187 00c4 80E0      		ldi r24,lo8(0)
+ 188 00c6 90E0      		ldi r25,hi8(0)
+ 189 00c8 0E94 0000 		call Debug_Init
+ 190               	.LM33:
+ 191 00cc 559A      		sbi 42-32,5
+ 192               	.LM34:
+ 193 00ce 10E2      		ldi r17,lo8(32)
+ 194               	.L23:
+ 195 00d0 8BB1      		in r24,43-32
+ 196 00d2 8127      		eor r24,r17
+ 197 00d4 8BB9      		out 43-32,r24
  198               	.LM35:
- 199 00dc 80E0      		ldi r24,lo8(0)
- 200 00de 90E0      		ldi r25,hi8(0)
- 201 00e0 0E94 0000 		call Debug_Init
- 202               	.LM36:
- 203 00e4 559A      		sbi 42-32,5
- 204               	.LM37:
- 205 00e6 10E2      		ldi r17,lo8(32)
- 206               	.L23:
- 207 00e8 8BB1      		in r24,43-32
- 208 00ea 8127      		eor r24,r17
- 209 00ec 8BB9      		out 43-32,r24
- 210               	.LM38:
- 211 00ee 81E0      		ldi r24,lo8(1)
- 212 00f0 0E94 0000 		call Debug_Tx_Byte_Conf
- 213               	.LM39:
- 214 00f4 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
- 215 00f8 805F      		subi r24,lo8(-(16))
- 216 00fa 0E94 0000 		call Debug_Tx_Byte_Conf
- 217               	.LM40:
- 218 00fe 85E0      		ldi r24,lo8(5)
- 219 0100 90E0      		ldi r25,hi8(5)
- 220 0102 0E94 0000 		call Kernel_Task_Sleep
- 221 0106 00C0      		rjmp .L23
- 222               	.LFE7:
- 224               	.global	Tasks_Task0
- 226               	Tasks_Task0:
- 227               	.LFB6:
- 228               	.LM41:
- 229               	/* prologue: function */
- 230               	/* frame size = 0 */
- 231               	.LM42:
- 232 0108 80E0      		ldi r24,lo8(0)
- 233 010a 90E0      		ldi r25,hi8(0)
- 234 010c 0E94 0000 		call Debug_Init
- 235               	.L26:
- 236               	.LM43:
- 237 0110 80E0      		ldi r24,lo8(0)
- 238 0112 0E94 0000 		call Debug_Tx_Byte_Conf
- 239               	.LM44:
- 240 0116 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
- 241 011a 805F      		subi r24,lo8(-(16))
- 242 011c 0E94 0000 		call Debug_Tx_Byte_Conf
- 243               	.LM45:
- 244 0120 81E0      		ldi r24,lo8(1)
- 245 0122 90E0      		ldi r25,hi8(1)
- 246 0124 0E94 0000 		call Kernel_Task_Sleep
- 247 0128 00C0      		rjmp .L26
- 248               	.LFE6:
- 338               	.Letext0:
+ 199 00d6 81E0      		ldi r24,lo8(1)
+ 200 00d8 0E94 0000 		call Debug_Tx_Byte_Conf
+ 201               	.LM36:
+ 202 00dc 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
+ 203 00e0 805F      		subi r24,lo8(-(16))
+ 204 00e2 0E94 0000 		call Debug_Tx_Byte_Conf
+ 205 00e6 00C0      		rjmp .L23
+ 206               	.LFE7:
+ 208               	.global	Tasks_Task0
+ 210               	Tasks_Task0:
+ 211               	.LFB6:
+ 212               	.LM37:
+ 213               	/* prologue: function */
+ 214               	/* frame size = 0 */
+ 215               	.LM38:
+ 216 00e8 80E0      		ldi r24,lo8(0)
+ 217 00ea 90E0      		ldi r25,hi8(0)
+ 218 00ec 0E94 0000 		call Debug_Init
+ 219               	.L26:
+ 220               	.LM39:
+ 221 00f0 80E0      		ldi r24,lo8(0)
+ 222 00f2 0E94 0000 		call Debug_Tx_Byte_Conf
+ 223               	.LM40:
+ 224 00f6 0E94 0000 		call Kernel_High_Prio_Task_ID_Get
+ 225 00fa 805F      		subi r24,lo8(-(16))
+ 226 00fc 0E94 0000 		call Debug_Tx_Byte_Conf
+ 227 0100 00C0      		rjmp .L26
+ 228               	.LFE6:
+ 318               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:18     .text:00000000 Tasks_Task8
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:40     .text:0000001a Tasks_Task7
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:62     .text:00000034 Tasks_Task6
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:84     .text:0000004e Tasks_Task5
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:106    .text:00000068 Tasks_Task4
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:132    .text:0000008a Tasks_Task3
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:158    .text:000000ac Tasks_Task2
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:192    .text:000000da Tasks_Task1
-C:\Users\farid\AppData\Local\Temp/ccwTp8oN.s:226    .text:00000108 Tasks_Task0
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:18     .text:00000000 Tasks_Task8
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:40     .text:0000001a Tasks_Task7
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:62     .text:00000034 Tasks_Task6
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:84     .text:0000004e Tasks_Task5
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:106    .text:00000068 Tasks_Task4
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:128    .text:00000082 Tasks_Task3
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:150    .text:0000009c Tasks_Task2
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:180    .text:000000c2 Tasks_Task1
+C:\Users\farid\AppData\Local\Temp/ccDFqoKk.s:210    .text:000000e8 Tasks_Task0
 
 UNDEFINED SYMBOLS
 Debug_Init
 Debug_Tx_Byte_Conf
 Kernel_High_Prio_Task_ID_Get
-Kernel_Task_Sleep

@@ -17,7 +17,7 @@ void Tasks_Task0(void){
 	  Debug_Tx_Byte_Conf(0);
 	  //Debug_Tx_Word_Conf(val--);
     Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-	  Kernel_Task_Sleep(1);
+	  //Kernel_Task_Sleep(2);
 	
   }
 }
@@ -34,7 +34,7 @@ void Tasks_Task1(void){
 	  Debug_Tx_Byte_Conf(1);
 	  //Debug_Tx_Word_Conf(val--);
     Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-	  Kernel_Task_Sleep(5);
+	  //Kernel_Task_Sleep(5);
 	
   }
 }
@@ -51,7 +51,7 @@ void Tasks_Task2(void){
 	  Debug_Tx_Byte_Conf(2);
     //Debug_Tx_Word_Conf(val--);
     Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-	  Kernel_Task_Sleep(17);
+	  //Kernel_Task_Sleep(17);
 	
   }
 }
@@ -66,7 +66,7 @@ void Tasks_Task3(void){
 	  Debug_Tx_Byte_Conf(3);
 	  //Debug_Tx_Word_Conf(val--);
     Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-	  Kernel_Task_Sleep(24);
+	  //Kernel_Task_Sleep(24);
 	
   }
 }
@@ -82,7 +82,7 @@ void Tasks_Task4(void){
 	  Debug_Tx_Byte_Conf(4);
 	  //Debug_Tx_Word_Conf(val--);
     Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-	  Kernel_Task_Sleep(26);
+	  //Kernel_Task_Sleep(26);
 	
   }
 }

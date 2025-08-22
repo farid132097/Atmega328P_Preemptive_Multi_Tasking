@@ -618,9 +618,9 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		
-		KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
-		;KER_LOAD_NEXT_TASK_ID
-		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
+		;KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
+		KER_LOAD_NEXT_TASK_ID
+		;KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
@@ -919,6 +919,8 @@ Kernel_Init:
 ;;=================================kernel idle task starting================================;; 
 Kernel_Task_Idle:                                         ;jumps to this function when idle
     _IDLE_LOOP:                                           ;forever loop
+	    LDI   R24, 0x23
+		CALL  Debug_Tx_Byte_Conf
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
