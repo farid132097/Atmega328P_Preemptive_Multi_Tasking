@@ -30,6 +30,7 @@
 .equ     OFF_RLD  ,       0x06    ;counter reload offset from KerBase
 .equ     OFF_TID  ,       0x07    ;task id offset from KerBase
 .equ     OFF_NTSK ,       0x08    ;ntask offset from KerBase
+.equ     OFF_PTID ,       0x09    ;priority task_id offset from KerBase
 ;;==================================define data offsets end=================================;; 
 
 
@@ -78,7 +79,7 @@
 .section   .bss
 
 .global    KerBase                 ;declare global space for kernel
-KerBase:   .skip 10                ;Tick(5), rld(1), task_id(1), ntask(1), prs(1), rsvd(1)
+KerBase:   .skip 10                ;Tick(5), prs(1), rld(1), task_id(1), ntask(1), ptid(1)
 
 .global    KerSP                   ;declare global space for stack pointers
 KerSP:     .skip KER_MX_NTSK*2     ;2 bytes for each task
@@ -131,6 +132,9 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 .global  Kernel_Task_Sleep
 .global  Kernel_Task_Sleep_Time_Get
 .global  Kernel_Task_Sts_Get
+.global  Kernel_Task_Prio_Get
+.global  Kernel_High_Prio_Task_ID_Get
+.global  Kernel_Abs_High_Prio_Task_ID_Get
 ;;================================define global functions end===============================;; 
 
 
@@ -426,6 +430,8 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 ;;===============================decrease timeout starting==================================;; 
 .macro  KER_DEC_SLP_TIMEOUT                               ;total 4.88uS @8MHz     ( 39 clocks) 
         LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
+		LDI   R19                , 0xFF                   ;for priority check     (  1 clock )
+		LDI   R21                , 0x00                   ;holds high prio tak_id (  1 clock )
 	 
 	_UPDATE_TASK_READY\@:
 		;start from ntask-1
@@ -464,12 +470,24 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		
 		;update flag as task is ready
 		LDI   R18                , TASK_READY             ;set TASK_READY         (  1 clock ) 
-		ST    Z                  , R18                    ;update flag            (  2 clocks)
+		ST    Z                  , R18                    ;update flag            (  2 clocks) 
+        
+		;find ram address for priority
+	    LDI   R30                , lo8(KerSchPr)          ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchPr)          ;fetch base pos high    (  1 clock ) 
+		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
+		ADC   R31                , R1                     ;add carry, R1 zero reg (  1 clock ) 
+        LD    R20                , Z                      ;load priority          (  2 clocks) 
+        CP    R20                , R19                    ;compare                (  1 clock ) 
+		BRSH  _LOOP\@                                     ;if R20>=R19, skip save (  2 clocks) 
+		MOV   R19                , R20                    ;assign R19 = R20       (  1 clock ) 
+		MOV   R21                , R16                    ;high prio task_id      (  1 clock ) 
 		
 	_LOOP\@:
 		;if task_id!=0, start again
-		CPI   R16                , 0x00                   ;compare with 0         (  1 clock )
-		BRNE  _UPDATE_TASK_READY\@                        ;if lc=0, run again     (  2 clocks)
+		CPI   R16                , 0x00                   ;compare with 0         (  1 clock ) 
+		BRNE  _UPDATE_TASK_READY\@                        ;if lc!=0, run again    (  2 clocks) 
+        STS   KerBase+OFF_PTID   , R21                    ;store high prio tak_id (  2 clocks) 
 .endm
 ;;=================================decrease timeout end=====================================;; 
 
@@ -477,20 +495,69 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 
+;;===============================decrease timeout starting==================================;; 
+.macro  KER_DEC_SLP_TIMEOUT_SLEEP                         ;total 4.88uS @8MHz     ( 39 clocks) 
+        LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
+		LDI   R19                , 0xFF                   ;for priority check     (  1 clock )
+		LDI   R21                , 0x00                   ;holds high prio tak_id (  1 clock )
+	 
+	_UPDATE_TASK_READY\@:
+		;start from ntask-1
+		DEC   R16                                         ;start from ntask-1     (  1 clock )
+		
+		;find ram address for sleep counter
+		MOV   R18                , R16                    ;load task_id           (  1 clocks)
+		LSL   R18                                         ;x2                     (  1 clock )
+		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock )
+        ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		ADC   R31                , R1                     ;add offset, zero reg   (  1 clock ) 
+		
+		;fetch current value from ram, if val=0, skip decrement
+        LD    R26                , Z+                     ;load val low byte      (  2 clocks) 
+		LD    R27                , Z                      ;load val high byte     (  2 clocks) 
+		MOV   R18                , R26                    ;copy                   (  1 clock ) 
+		OR    R18                , R27                    ;or high & low bytes    (  1 clock ) 
+		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
+		JMP   _LOOP\@                                     ;continue until lc=0    (  2 clocks) 
+        
+    _VAL_NULL\@:
+	    ;find ram address for status
+	    LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
+		ADC   R31                , R1                     ;add carry, R1 zero reg (  1 clock ) 
+		
+		;update flag as task is ready
+		LDI   R18                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+		ST    Z                  , R18                    ;update flag            (  2 clocks) 
+        
+		;find ram address for priority
+	    LDI   R30                , lo8(KerSchPr)          ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchPr)          ;fetch base pos high    (  1 clock ) 
+		ADD   R30                , R16                    ;add offset to array    (  1 clock ) 
+		ADC   R31                , R1                     ;add carry, R1 zero reg (  1 clock ) 
+        LD    R20                , Z                      ;load priority          (  2 clocks) 
+        CP    R20                , R19                    ;compare                (  1 clock ) 
+		BRSH  _LOOP\@                                     ;if R20>=R19, skip save (  2 clocks) 
+		MOV   R19                , R20                    ;assign R19 = R20       (  1 clock ) 
+		MOV   R21                , R16                    ;high prio task_id      (  1 clock ) 
+		
+	_LOOP\@:
+		;if task_id!=0, start again
+		CPI   R16                , 0x00                   ;compare with 0         (  1 clock ) 
+		BRNE  _UPDATE_TASK_READY\@                        ;if lc!=0, run again    (  2 clocks) 
+        STS   KerBase+OFF_PTID   , R21                    ;store high prio tak_id (  2 clocks) 
+.endm
+;;=================================decrease timeout end=====================================;; 
+
+
+
 ;;==================================run scheduler starting==================================;; 
 .macro  KER_RUN_SCHEDULER                                 ;total 1.75uS @8MHz     ( 14 clocks) 
         LDS   R16                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
-		LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
-		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-		LDI   R17                , 0x01                   ;start loop from 1      (  1 clock ) 
-		ADD   R30                , R17                    ;add offset to array    (  1 clock ) 
-		ADC   R31                , R1                     ;add carry to offset    (  1 clock ) 
-
+		
     _CH_TASK_READY\@:
-        ;offset task status pos according to the task_id
-        LD    R17                , Z                      ;load KerSchSts+task_id (  2 clocks) 
-        
-	    
 	    ;decrease by 1, start with ntask-1
 	    DEC   R16                                         ;decrement              (  1 clock ) 
 		MOV   R17                , R16                    ;copy                   (  1 clock ) 
@@ -517,7 +584,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		
 	_EXIT\@:
 .endm
-;;====================================run scheduler end=====================================;; 
+;;====================================run scheduler end=====================================;;  
 
 
 
@@ -525,7 +592,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;==============================load task id & sp starting==================================;; 
 .macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.75uS @8MHz     ( 14 clocks) 
-	    LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
+	    LDS   R16                , KerBase+OFF_TID       ;load task_id           (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   R30                , lo8(KerSP)             ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSP)             ;fetch base pos high    (  1 clock ) 
@@ -552,6 +619,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		
 		KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
+		;KER_LOAD_NEXT_TASK_ID
 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
@@ -593,7 +661,7 @@ Kernel_SysTick_Reg_Init:                                  ;total operation      
 		STS   KerBase+OFF_NTSK   , R16                    ;clear  KerBase[8]      (  2 clocks) 
 		
 		;reserved, not used
-        STS   KerBase+0x09       , R16                    ;clear  KerBase[9]      (  2 clocks) 
+        STS   KerBase+OFF_PTID   , R16                    ;clear  KerBase[9]      (  2 clocks) 
 		
 		;clear all timer registers
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
@@ -693,7 +761,7 @@ Kernel_Interrupt_Sts_Get:                                 ;total operation      
 
 
 
-;;================================kernel task init starting=================================;; 
+;;===============================kernel task create starting================================;; 
 Kernel_Task_Create:                                       ;total operation        (130 clocks) 
         ;func_ptr->R25:R24, task_priority->R22 
         ;save main SP & Z pointer 
@@ -710,7 +778,7 @@ Kernel_Task_Create:                                       ;total operation      
 		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
 		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
-		ST    Z                  , R20                    ;save priority          (  2 clocks) 
+		ST    Z                  , R22                    ;save priority          (  2 clocks) 
 		
 		;increment ntask
 		LDS   R17                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
@@ -766,13 +834,13 @@ Kernel_Task_Create:                                       ;total operation      
 		MOV   R31                , R5                     ;push ZPL               (  1 clock ) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
-;;===================================kernel task init end===================================;; 
+;;==================================kernel task create end==================================;; 
 
 
 
 
 
-;;===================================kernel task starting===================================;; 
+;;=================================kernel start tasks starting==============================;; 
 Kernel_Start_Tasks:
 		;start executing from task0
 		;save ZP
@@ -814,13 +882,13 @@ Kernel_Start_Tasks:
 		
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
-;;======================================kernel task end=====================================;; 
+;;==================================kernel start tasks end==================================;; 
 
 
 
 
 
-;;===================================kernel task starting===================================;; 
+;;===================================kernel init starting===================================;; 
 Kernel_Init:
 		;start executing from task0
 		;save ZP
@@ -839,9 +907,10 @@ Kernel_Init:
 		LDI   R22                , 0xFF                   ;set max val
 		CALL  Kernel_Task_Create                          ;init idle task         (130 clocks) 
 		
+
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
-;;======================================kernel task end=====================================;; 
+;;======================================kernel init end=====================================;; 
 
 
 
@@ -857,7 +926,7 @@ Kernel_Task_Idle:                                         ;jumps to this functio
 
 
 
-;;================================kernel task delay starting================================;; 
+;;================================kernel task sleep starting================================;; 
 Kernel_Task_Sleep:
         ;save current context
         KER_CONTEXT_SAVE_YEILD                            ;save context           ( 68 clocks) 
@@ -885,20 +954,21 @@ Kernel_Task_Sleep:
 		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
 		
 		;run scheduler, load next task sp, restore context
-		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks)
+		;KER_DEC_SLP_TIMEOUT_SLEEP 
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE_YEILD                         ;restore context        ( 67 clocks) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
-;;=================================kernel task delay end====================================;; 
+;;=================================kernel task sleep end====================================;; 
 
 
 
 
 
-;;================================kernel task delay starting================================;; 
+;;===========================kernel task sleep time get starting============================;; 
 Kernel_Task_Sleep_Time_Get:
-		;create next task wakeup time
+		;get remaining sleep time (ms), return R25:R24
 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
 		LSL   R16                                         ;x2                     (  1 clock ) 
 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
@@ -909,15 +979,15 @@ Kernel_Task_Sleep_Time_Get:
 		LD    R24                , Z+                     ;load sleep time        (  2 clocks) 
 		LD    R25                , Z                      ;load sleep time        (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
-;;=================================kernel task delay end====================================;;
+;;==============================kernel task sleep time get end===============================;;
 
 
 
 
 
-;;================================kernel task delay starting================================;; 
+;;===============================kernel task status starting================================;; 
 Kernel_Task_Sts_Get:
-		;create next task wakeup time
+		;get current task status : READY (0x01) / BLOCKED (0x00), R24
 		LDS   R16                , KerBase+OFF_TID        ;load tak_id            (  2 clocks) 
 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
@@ -926,7 +996,46 @@ Kernel_Task_Sts_Get:
 		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
 		LD    R24                , Z                      ;load sleep time        (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
-;;=================================kernel task delay end====================================;;
+;;=================================kernel task status end===================================;; 
+
+
+
+
+
+;;=============================kernel task priority get starting============================;; 
+Kernel_Task_Prio_Get:
+		;get priority of the task id, arg (task_id->R24), return R24
+		MOV   R16                , R24                    ;copy task_id           (  1 clock ) 
+		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
+		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
+		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
+		LD    R24                , Z                      ;load priority          (  2 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;================================kernel task priority get end==============================;; 
+
+
+
+
+
+;;===========================kernel high priority task id starting==========================;; 
+Kernel_High_Prio_Task_ID_Get:
+		;internal idle task id = 0, app task start from task id 1, return R24
+		LDS   R24                , KerBase+OFF_PTID       ;load priority tak_id   (  2 clocks) 
+		DEC   R24                                         ;decrement by 1         (  1 clock ) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;==============================kernel high priority task id end============================;; 
+
+
+
+
+
+;;=========================kernel abs high priority task id starting========================;; 
+Kernel_Abs_High_Prio_Task_ID_Get:
+		;get highest priority task id, return R24
+		LDS   R24                , KerBase+OFF_PTID       ;load priority tak_id   (  2 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;============================kernel abs high priority task id end==========================;; 
 
 
 
