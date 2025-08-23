@@ -15,7 +15,10 @@
 int main(void) {
     
 	Kernel_Init();
+
+	//Kernel_SysTick_Reg_Init(0x03, 0x82);
 	
+	//Kernel_Task_Create(Kernel_Task_Idle,  5);
 	Kernel_Task_Create(Tasks_Task0,  4);
 	Kernel_Task_Create(Tasks_Task1,  0);
 	Kernel_Task_Create(Tasks_Task2,  1);
