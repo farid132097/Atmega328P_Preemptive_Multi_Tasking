@@ -37,6 +37,8 @@ extern uint8_t   Kernel_Task_Prio_Get(uint8_t task_id);
 extern uint8_t   Kernel_High_Prio_Task_ID_Get(void);
 extern uint8_t   Kernel_Abs_High_Prio_Task_ID_Get(void);
 
+
+
 #endif
 
 #endif

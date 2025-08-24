@@ -312,7 +312,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;==============================load next task id starting==================================;; 
 .macro  KER_LOAD_NEXT_TASK_ID                             ;total 1.63uS @8MHz     ( 13 clocks) 
-		MOV   R16                , R2                     ;copy task_id           (  1 clock ) 
+		LDS   R16                , KerBase+OFF_TID        ;fetch task_id          (  2 clocks) 
 		INC   R16                                         ;increment task_id      (  1 clock ) 
 		LDS   R17                , KerBase+OFF_NTSK       ;load ntask             (  2 clocks) 
 	_MOD_CONT\@:                                          ;use local label
@@ -322,7 +322,6 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		RJMP  _MOD_CONT\@                                 ;go to loop start       (  2 clocks) 
 	_MOD_DONE\@:                                          ;use local label
 	    STS   KerBase+OFF_TID    , R16                    ;save task_id%ntask     (  2 clocks) 
-		MOV   R2                 , R16                    ;copy task_id           (  1 clock ) 
 .endm
 ;;=================================load next task id end====================================;; 
 
@@ -331,9 +330,10 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 ;;==============================increment tick counter starting=============================;; 
-.macro  KER_TICK_INCREMENT                                ;total 3.13uS @8MHz     ( 25 clocks) 
+.macro  KER_TICK_INCREMENT                                ;total 3.25uS @8MHz     ( 26 clocks) 
 		LDS   R16                , KerBase+OFF_TICK0      ;load Byte0             (  2 clocks) 
-		INC   R16                                         ;add 1 with Byte0       (  1 clock ) 
+		LDI   R17                , 0x01                   ;set reg value 1        (  1 clock ) 
+		ADD   R16                , R17                    ;add 1 with Byte0       (  1 clock ) 
 		STS   KerBase+OFF_TICK0  , R16                    ;set Byte0              (  2 clocks) 
 		LDS   R16                , KerBase+OFF_TICK1      ;load Byte1             (  2 clocks) 
 		ADC   R16                , R1                     ;add carry with Byte1   (  1 clock ) 
@@ -356,7 +356,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;==============================load task id & sp starting==================================;; 
 .macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.5uS @8MHz      ( 12 clocks) 
-		MOV   R16                , R2                     ;copy task_id           (  1 clock ) 
+		LDS   R16                , KerBase+OFF_TID        ;fetch task_id          (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   ZL                 , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
@@ -380,7 +380,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
-		;KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
+		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
         
 		
 		;KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
@@ -428,10 +428,7 @@ Kernel_SysTick_Reg_Init:                                  ;total 6.0uS @8MHz    
 		STS   SROCR0B            , R16                    ;clear OCR0B            (  2 clocks) 
 		STS   SRTCNT0            , R16                    ;clear TCNT0            (  2 clocks) 
 		
-		;store prescaler value
 		STS   KerBase+OFF_PRS    , R24                    ;KerBase[5] prescaler   (  2 clocks) 
-        
-		;store reload value
 		STS   KerBase+OFF_RLD    , R22                    ;KerBase[6] reload val  (  2 clocks) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
