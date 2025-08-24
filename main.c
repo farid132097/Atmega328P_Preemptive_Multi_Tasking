@@ -14,6 +14,7 @@
 
 int main(void) {
     
+
 	Kernel_Init();
 
 	//Kernel_SysTick_Reg_Init(0x03, 0x82);
@@ -25,6 +26,8 @@ int main(void) {
 	Kernel_Task_Create(Tasks_Task3,  2);
 	Kernel_Task_Create(Tasks_Task4,  3);
 	
+    //Kernel_Task_Idle();
+
 	//Kernel_Task_Create(Tasks_Task6,  3);
 	//Kernel_Task_Create(Tasks_Task7,  1);
 	//Kernel_Task_Create(Tasks_Task8,  7);
@@ -38,12 +41,14 @@ int main(void) {
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(4));
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(5));
     */
-
+    
+	//DDRD |= (1<<5);
+	//PORTD ^= (1<<5);
 	Kernel_Start_Tasks();
 	
 	
     while(1){
 		
-     
+        
     }
 }
