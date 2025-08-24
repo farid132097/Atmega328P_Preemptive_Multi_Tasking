@@ -9,21 +9,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   2 .stab         00000930  00000000  00000000  0000054c  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      0000006d  00000000  00000000  00000e7c  2**0
+  3 .stabstr      0000006e  00000000  00000000  00000e7c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000040  00000000  00000000  00000ee9  2**0
+  4 .debug_aranges 00000040  00000000  00000000  00000eea  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 000000bd  00000000  00000000  00000f29  2**0
+  5 .debug_pubnames 000000bd  00000000  00000000  00000f2a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   0000021f  00000000  00000000  00000fe6  2**0
+  6 .debug_info   0000021f  00000000  00000000  00000fe7  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000000b1  00000000  00000000  00001205  2**0
+  7 .debug_abbrev 000000b1  00000000  00000000  00001206  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000212  00000000  00000000  000012b6  2**0
+  8 .debug_line   00000212  00000000  00000000  000012b7  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  000000c0  00000000  00000000  000014c8  2**2
+  9 .debug_frame  000000c0  00000000  00000000  000014cc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000117  00000000  00000000  00001588  2**0
+ 10 .debug_str    00000116  00000000  00000000  0000158c  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -775,9 +775,9 @@ Kernel_Start_Tasks:
 Kernel_Init:
 		;start executing from task0
 		;save ZP
-		MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
+		MOV   R4                 , ZL                     ;save ZPL               (  2 clocks) 
  3dc:	4e 2e       	mov	r4, r30
-		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
+		MOV   R5                 , ZH                     ;save ZPH               (  2 clocks) 
  3de:	5f 2e       	mov	r5, r31
 		
 		;init timer for kernel 
@@ -827,13 +827,13 @@ Kernel_Task_Prio_Get:
 		;get priority of the task id, arg (task_id->R24), return R24
 		MOV   R16                , R24                    ;copy task_id           (  1 clock ) 
  400:	08 2f       	mov	r16, r24
-		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
+		LDI   ZL                 , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
  402:	e8 e2       	ldi	r30, 0x28	; 40
-		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
  404:	f1 e0       	ldi	r31, 0x01	; 1
-		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
  406:	e0 0f       	add	r30, r16
-		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
+		ADC   ZH                 , R1                     ;add high byte+carry    (  1 clock ) 
  408:	f1 1d       	adc	r31, r1
 		LD    R24                , Z                      ;load priority          (  2 clocks) 
  40a:	80 81       	ld	r24, Z

@@ -1091,8 +1091,8 @@
  539               	Kernel_Init:
  540               			;start executing from task0
  541               			;save ZP
- 542:kernel.S      **** 		MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
- 543:kernel.S      **** 		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
+ 542:kernel.S      **** 		MOV   R4                 , ZL                     ;save ZPL               (  2 clocks) 
+ 543:kernel.S      **** 		MOV   R5                 , ZH                     ;save ZPH               (  2 clocks) 
  544               			
  545               			;init timer for kernel 
  546:kernel.S      **** 		LDI   R24                , 0x03                   ;set prescaler          (  1 clock ) 
@@ -1131,10 +1131,10 @@
  579               	Kernel_Task_Prio_Get:
  580               			;get priority of the task id, arg (task_id->R24), return R24
  581:kernel.S      **** 		MOV   R16                , R24                    ;copy task_id           (  1 clock ) 
- 582:kernel.S      **** 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
- 583:kernel.S      **** 		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
- 584:kernel.S      **** 		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
- 585:kernel.S      **** 		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
+ 582:kernel.S      **** 		LDI   ZL                 , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
+ 583:kernel.S      **** 		LDI   ZH                 , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
+ 584:kernel.S      **** 		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
+ 585:kernel.S      **** 		ADC   ZH                 , R1                     ;add high byte+carry    (  1 clock ) 
  586:kernel.S      **** 		LD    R24                , Z                      ;load priority          (  2 clocks) 
  587:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
  588               	;;================================kernel task priority get end==============================;; 

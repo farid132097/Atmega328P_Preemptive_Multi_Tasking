@@ -375,7 +375,7 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 ;;================================SysTick reg init starting=================================;; 
 Kernel_SysTick_Reg_Init:                                  ;total operation        ( 48 clocks) 
         ;arg1 -> prescaler R24, arg2 -> reload val R22
-        CLI                                               ;disable global int     (  1 clock )
+        CLI                                               ;disable global int     (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
 		LDI   R16                , 0x00                   ;set 0x00 to R16        (  1 clock ) 
 		
@@ -435,8 +435,8 @@ Kernel_Task_Create:                                       ;total operation      
 		ADC   ZH                 , R1                     ;add high byte+carry    (  1 clock ) 
 		ST    Z                  , R22                    ;save priority          (  2 clocks) 
 		
-		;stack pointer for current task (KerStack + KER_STK_SZ*(task_id+1) - 1) ->stack top 
-		MOV   R17                , R16                    ;load task_id           (  1 clock )
+		;stack pointer for current task (KerStack + KER_STK_SZ*(task_id+1) - 1) ->stack top    
+		MOV   R17                , R16                    ;load task_id           (  1 clock ) 
 		INC   R17                                         ;increment task_id      (  1 clock ) 
 		LDI   R18                , KER_STK_SZ             ;load stack size        (  1 clock ) 
 		MUL   R17                , R18                    ;multiply to get offset (  2 clocks) 
@@ -525,7 +525,7 @@ Kernel_Start_Tasks:
 		MOV   ZL                 , R4                     ;restore ZPL            (  2 clocks) 
 		MOV   ZH                 , R5                     ;restore ZPL            (  2 clocks) 
 		
-		KER_TIMER_INIT                                    ;init timer, int enable ( 12 clocks)
+		KER_TIMER_INIT                                    ;init timer, int enable ( 12 clocks) 
 		
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
@@ -539,18 +539,18 @@ Kernel_Start_Tasks:
 Kernel_Init:
 		;start executing from task0
 		;save ZP
-		MOV   R4                 , R30                    ;save ZPL               (  2 clocks) 
-		MOV   R5                 , R31                    ;save ZPH               (  2 clocks) 
+		MOV   R4                 , ZL                     ;save ZPL               (  2 clocks) 
+		MOV   R5                 , ZH                     ;save ZPH               (  2 clocks) 
 		
 		;init timer for kernel 
 		LDI   R24                , 0x03                   ;set prescaler          (  1 clock ) 
 		LDI   R22                , 0x82                   ;set reload val         (  1 clock ) 
 		CALL  Kernel_SysTick_Reg_Init                     ;init timer             ( 55 clocks) 
 		
-		LDI   R24                , lo8(Kernel_Task_Idle)  ;load func addr low     (  1 clock )
-		LDI   R25                , hi8(Kernel_Task_Idle)  ;load func addr high    (  1 clock )
-		LSR   R25                                         ;right shift to divide  (  1 clock )
-		ROR   R24                                         ;rotate right th carry  (  1 clock )
+		LDI   R24                , lo8(Kernel_Task_Idle)  ;load func addr low     (  1 clock ) 
+		LDI   R25                , hi8(Kernel_Task_Idle)  ;load func addr high    (  1 clock ) 
+		LSR   R25                                         ;right shift to divide  (  1 clock ) 
+		ROR   R24                                         ;rotate right th carry  (  1 clock ) 
 		LDI   R22                , 0xFF                   ;set max val
 		CALL  Kernel_Task_Create                          ;init idle task         (130 clocks) 
 		
@@ -579,10 +579,10 @@ Kernel_Task_Idle:                                         ;jumps to this functio
 Kernel_Task_Prio_Get:
 		;get priority of the task id, arg (task_id->R24), return R24
 		MOV   R16                , R24                    ;copy task_id           (  1 clock ) 
-		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
-		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
-		ADC   R31                , R1                     ;add high byte+carry    (  1 clock ) 
+		LDI   ZL                 , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
+		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
+		ADC   ZH                 , R1                     ;add high byte+carry    (  1 clock ) 
 		LD    R24                , Z                      ;load priority          (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;================================kernel task priority get end==============================;; 
