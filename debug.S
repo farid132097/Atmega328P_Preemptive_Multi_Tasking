@@ -85,7 +85,6 @@ Debug_Tx_Byte:                                            ;total 2.00uS+LT @8MHz
 ;;================================debug tx confirm starting=================================;;
 Debug_Tx_Byte_Conf:                                       ;total 2.63uS+LT @8MHz  ( 21 clocks)
         ;write 1 byte, (Arg R24), Arg retained
-		PUSH  R16                                         ;save reg               (  2 clocks)
 		STS   SRUDR0             , R24                    ;load val to UDR0       (  2 clocks)
 		
     __TXC0_CLEARED:                                       ;undefined loop wrt ck
@@ -95,7 +94,6 @@ Debug_Tx_Byte_Conf:                                       ;total 2.63uS+LT @8MHz
 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16     (  2 clocks)
 		ORI   R16                , (1<<6)                 ;mask bit 6             (  1 clock )
 		STS   SRUCSR0A           , R16                    ;write reg with bit msk (  2 clocks)
-		POP   R16                                         ;restore reg            (  2 clocks)
         RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================debug tx confirm end===================================;;
 

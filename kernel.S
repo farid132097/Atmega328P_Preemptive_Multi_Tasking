@@ -84,6 +84,9 @@ KerBase:   .skip 10                ;Tick(5), prs(1), rld(1), task_id(1), ntask(1
 .global    KerPSP                  ;declare global space for process stack pointers
 KerPSP:    .skip KER_MX_NTSK*2     ;2 bytes for each task
 
+.global    KerMSP                  ;declare global space for main stack pointers
+KerMSP:    .skip 6                 ;2 bytes for each functions, 2 nested functions
+
 .global    KerSchSts               ;declare global space for scheduler status
 KerSchSts: .skip KER_MX_NTSK*1     ;status(1)
 
@@ -292,17 +295,17 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;===============================save current task sp starting==============================;; 
 .macro  KER_SAVE_CURR_TASK_SP                             ;total 1.75uS @8MHz     ( 14 clocks) 
-        LDS   R2                 , KerBase+OFF_TID        ;fetch task_id          (  2 clocks) 
-		IN    R3                 , IOSPL                  ;fetch SPL0             (  1 clock ) 
-		IN    R4                 , IOSPH                  ;fetch SPH0             (  1 clock ) 
-		MOV   R16                , R2                     ;copy task_id           (  1 clock ) 
-		LSL   R16                                         ;left shift to multiply (  1 clock ) 
+		IN    R16                , IOSPL                  ;fetch SPL0             (  1 clock ) 
+		IN    R17                , IOSPH                  ;fetch SPH0             (  1 clock ) 
+		LDS   R18                , KerBase+OFF_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
 		LDI   ZL                 , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
-		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
-		ADC   ZH                 , R1                     ;add carry, R1 zero reg (  1 clock ) 
-		ST    Z+                 , R3                     ;store SPL at ZP        (  2 clocks) 
-		ST    z                  , R4                     ;store SPH ZP+1         (  2 clocks) 
+		ADD   ZL                 , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   ZH                 , R18                    ;add carry, R1 zero reg (  1 clock ) 
+		ST    Z+                 , R16                    ;store SPL at ZP        (  2 clocks) 
+		ST    z                  , R17                    ;store SPH ZP+1         (  2 clocks) 
 .endm
 ;;================================save current task sp end==================================;; 
 
@@ -330,23 +333,24 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 ;;==============================increment tick counter starting=============================;; 
-.macro  KER_TICK_INCREMENT                                ;total 3.25uS @8MHz     ( 26 clocks) 
+.macro  KER_TICK_INCREMENT                                ;total 3.38uS @8MHz     ( 27 clocks) 
 		LDS   R16                , KerBase+OFF_TICK0      ;load Byte0             (  2 clocks) 
-		LDI   R17                , 0x01                   ;set reg value 1        (  1 clock ) 
-		ADD   R16                , R17                    ;add 1 with Byte0       (  1 clock ) 
-		STS   KerBase+OFF_TICK0  , R16                    ;set Byte0              (  2 clocks) 
-		LDS   R16                , KerBase+OFF_TICK1      ;load Byte1             (  2 clocks) 
-		ADC   R16                , R1                     ;add carry with Byte1   (  1 clock ) 
-		STS   KerBase+OFF_TICK1  , R16                    ;set Byte1              (  2 clocks) 
-		LDS   R16                , KerBase+OFF_TICK2      ;load Byte2             (  2 clocks) 
-		ADC   R16                , R1                     ;add carry with Byte2   (  1 clock ) 
-		STS   KerBase+OFF_TICK2  , R16                    ;set Byte2              (  2 clocks) 
-		LDS   R16                , KerBase+OFF_TICK3      ;load Byte3             (  2 clocks) 
-		ADC   R16                , R1                     ;add carry with Byte3   (  1 clock ) 
-		STS   KerBase+OFF_TICK3  , R16                    ;set Byte3              (  2 clocks) 
-		LDS   R16                , KerBase+OFF_TICK4      ;load Byte4             (  2 clocks) 
-		ADC   R16                , R1                     ;add carry with Byte4   (  1 clock ) 
-		STS   KerBase+OFF_TICK4  , R16                    ;set Byte4              (  2 clocks) 
+        LDS   R17                , KerBase+OFF_TICK1      ;load Byte1             (  2 clocks) 
+		LDS   R18                , KerBase+OFF_TICK2      ;load Byte2             (  2 clocks) 
+		LDS   R19                , KerBase+OFF_TICK3      ;load Byte3             (  2 clocks) 
+		LDS   R20                , KerBase+OFF_TICK4      ;load Byte4             (  2 clocks) 
+		LDI   R21                , 0x01                   ;set reg value 1        (  1 clock ) 
+        ADD   R16                , R21                    ;add 1 with Byte0       (  1 clock ) 
+		LDI   R21                , 0x00                   ;clear for carry prop   (  1 clock ) 
+        ADC   R17                , R21                    ;add if carry           (  1 clock ) 
+		ADC   R18                , R21                    ;add if carry           (  1 clock ) 
+		ADC   R19                , R21                    ;add if carry           (  1 clock ) 
+		ADC   R20                , R21                    ;add if carry           (  1 clock ) 
+        STS   KerBase+OFF_TICK0  , R16                    ;set Byte0              (  2 clocks) 
+        STS   KerBase+OFF_TICK1  , R17                    ;set Byte1              (  2 clocks) 
+		STS   KerBase+OFF_TICK2  , R18                    ;set Byte2              (  2 clocks) 
+		STS   KerBase+OFF_TICK3  , R19                    ;set Byte3              (  2 clocks) 
+		STS   KerBase+OFF_TICK4  , R20                    ;set Byte4              (  2 clocks) 
 .endm
 ;;=================================increment tick counter end===============================;; 
 
@@ -355,13 +359,14 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 
 ;;==============================load task id & sp starting==================================;; 
-.macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.5uS @8MHz      ( 12 clocks) 
+.macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.75uS @8MHz     ( 14 clocks) 
 		LDS   R16                , KerBase+OFF_TID        ;fetch task_id          (  2 clocks) 
 		LSL   R16                                         ;left shift to multiply (  1 clock ) 
 		LDI   ZL                 , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
 		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
-		ADC   ZH                 , R1                     ;add carry if any       (  1 clock ) 
+		LDI   R16                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
 		LD    R16                , Z+                     ;load SPL at ZP         (  2 clocks) 
 		LD    R17                , Z                      ;load SPH at ZP         (  2 clocks) 
 		OUT   IOSPL              , R16                    ;load SPL0              (  1 clock ) 
@@ -403,7 +408,6 @@ Kernel_SysTick_Reg_Init:                                  ;total 6.0uS @8MHz    
         CLI                                               ;disable global int     (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
 		LDI   R16                , 0x00                   ;set 0x00 to R16        (  1 clock ) 
-		CLR   R1                                          ;gcc expects            (  1 clock ) 
 		
 		;clear tick counter
 		STS   KerBase+OFF_TICK0  , R16                    ;clear  KerBase[0]      (  2 clocks) 
@@ -450,12 +454,13 @@ Kernel_Task_Create:                                       ;total operation      
 		
 		;across this function, R16 will be used as task_id 
 		LDS   R16                , KerBase+OFF_TID        ;load task_id           (  2 clocks) 
+		LDI   R17                , 0x00                   ;clear reg              (  1 clock ) 
 		
 		;set priority to KerSchPr+task_id
 		LDI   ZL                 , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
 		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
-		ADC   ZH                 , R1                     ;add high byte+carry    (  1 clock ) 
+		ADC   ZH                 , R17                    ;add high byte+carry    (  1 clock ) 
 		ST    Z                  , R22                    ;save priority          (  2 clocks) 
 		
 		;stack pointer for current task (KerStack + KER_STK_SZ*(task_id+1) - 1) ->stack top    
@@ -537,20 +542,20 @@ Kernel_Start_Tasks:
 		LD    R16                , Z+                     ;load val from Z, inc Z (  2 clocks) 
 		LD    R17                , Z                      ;load val from Z+1      (  2 clocks) 
 		
-		;set task_id=0 task's SP
+        ;set task_id=0 task's SP
 		OUT   IOSPL              , R16                    ;load SPL               (  1 clock ) 
         OUT   IOSPH              , R17                    ;load SPH               (  1 clock ) 
         
         ;forcefully restore context, in ISR it will be stored automatically
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
-		
+
 		;restore ZP
 		MOV   ZL                 , R4                     ;restore ZPL            (  2 clocks) 
 		MOV   ZH                 , R5                     ;restore ZPL            (  2 clocks) 
 		
 		;config timer for system tick
 		KER_TIMER_INIT                                    ;init timer, int enable ( 12 clocks) 
-		
+        
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;==================================kernel start tasks end==================================;; 
@@ -562,6 +567,7 @@ Kernel_Start_Tasks:
 ;;===================================kernel init starting===================================;; 
 Kernel_Init:
 		;save necessary registers and MSP
+		CLR   R1                                          ;gcc expects            (  1 clock ) 
 		IN    R16                , IOSPL                  ;load main SPL          (  1 clock ) 
 		IN    R17                , IOSPH                  ;load main SPH          (  1 clock ) 
 		PUSH  R16                                         ;save main SPL          (  2 clocks)
