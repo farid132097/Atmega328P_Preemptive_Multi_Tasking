@@ -382,14 +382,12 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;================================push msp & zp starting====================================;; 
 .macro  KER_PUSH_MSP_ZP                                   ;total 1.75uS @8MHz     ( 14 clocks) 
-		LDI   XL                 , lo8(KerSSZ+OFM_MSPI)   ;load addr low          (  1 clock ) 
-		LDI   XH                 , hi8(KerSSZ+OFM_MSPI)   ;load addr high         (  1 clock ) 
-		LD    R16                , X+                     ;load pointer low       (  2 clocks) 
-		LD    R17                , X                      ;load pointer low       (  2 clocks) 
-        MOV   XL                 , R16                    ;copy                   (  1 clock ) 
-		MOV   XH                 , R17                    ;copy                   (  1 clock ) 
-		ST    X+                 , IOSPL                  ;store main SPL         (  2 clocks) 
-        ST    X+                 , IOSPH                  ;store main SPH         (  2 clocks) 
+        LDS   XL                 , KerSSZ+OFM_MSPI+0      ;load val low           (  2 clocks) 
+		LDS   XH                 , KerSSZ+OFM_MSPI+1      ;load val high          (  2 clocks) 
+		IN    R16                , IOSPL                  ;copy                   (  1 clock ) 
+		IN    R17                , IOSPH                  ;copy                   (  1 clock ) 
+		ST    X+                 , R16                    ;store main SPL         (  2 clocks) 
+        ST    X+                 , R17                    ;store main SPH         (  2 clocks) 
 		ST    X+                 , ZL                     ;store main ZL          (  2 clocks) 
 		ST    X+                 , ZH                     ;store main ZH          (  2 clocks) 
 		STS   KerSSZ+OFM_MSPI+0  , XL                     ;store new index        (  2 clocks) 
@@ -411,8 +409,8 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		MOV   XH                 , R17                    ;copy                   (  1 clock ) 
 		LD    ZH                 , -X                     ;load ZH                (  2 clocks) 
 		LD    ZL                 , -X                     ;load ZH                (  2 clocks) 
-		LD    IOSPH              , -X                     ;load main SPH          (  2 clocks) 
-		LD    IOSPL              , -X                     ;load main SPL          (  2 clocks) 
+		LD    SRSPH              , -X                     ;load main SPH          (  2 clocks) 
+		LD    SRSPL              , -X                     ;load main SPL          (  2 clocks) 
 .endm
 ;;====================================pop msp & zp end======================================;; 
 
@@ -452,7 +450,7 @@ Kernel_SysTick_Reg_Init:                                  ;total 6.0uS @8MHz    
 		
 		;clear reg
 		LDI   R16                , 0x00                   ;set 0x00 to R16        (  1 clock )
-
+        
 		;clear tick counter
 		STS   KerBase+OFB_TICK0  , R16                    ;clear  KerBase[0]      (  2 clocks) 
 		STS   KerBase+OFB_TICK1  , R16                    ;clear  KerBase[1]      (  2 clocks) 
@@ -620,12 +618,7 @@ Kernel_Init:
 		STS   KerSSZ+OFM_MSPI+1  , R17                    ;set mspi to stack top  (  2 clocks) 
         
 		;save necessary registers and MSP
-		IN    R16                , IOSPL                  ;load main SPL          (  1 clock ) 
-		IN    R17                , IOSPH                  ;load main SPH          (  1 clock ) 
-		PUSH  R16                                         ;save main SPL          (  2 clocks) 
-		PUSH  R17                                         ;save main SPH          (  2 clocks) 
-		PUSH  ZL                                          ;save ZPL               (  2 clocks) 
-		PUSH  ZH                                          ;save ZPH               (  2 clocks) 
+		KER_PUSH_MSP_ZP
 
 		;init timer for kernel 
 		LDI   R24                , 0x03                   ;set prescaler          (  1 clock ) 
@@ -641,12 +634,7 @@ Kernel_Init:
 		CALL  Kernel_Task_Create                          ;init idle task         (130 clocks) 
 		
 		;restore necessary registers and MSP
-		POP   ZH                                          ;restore ZPL            (  2 clocks) 
-		POP   ZL                                          ;restore ZPH            (  2 clocks) 
-		POP   R17                                         ;load main SPH          (  1 clock ) 
-		POP   R16                                         ;load main SPH          (  1 clock ) 
-		OUT   IOSPL              , R16                    ;save main SPL          (  1 clock ) 
-		OUT   IOSPH              , R17                    ;save main SPL          (  1 clock ) 
+		;KER_POP_MSP_ZP
 
 		;execute return to jump to task0, pushed while task init
 		RET                                               ;return from subroutine (  4 clocks) 
