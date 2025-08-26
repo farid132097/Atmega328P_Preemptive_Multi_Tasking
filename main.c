@@ -31,7 +31,7 @@ int main(void) {
 	//Kernel_Task_Create(Tasks_Task7,  1);
 	//Kernel_Task_Create(Tasks_Task8,  7);
 	
-    /*
+    
     Debug_Init(0);
     Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(0));
     Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(1));
@@ -39,7 +39,8 @@ int main(void) {
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(3));
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(4));
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(5));
-    */
+    Debug_Tx_Byte_Conf(Kernel_High_Prio_Task_ID_Get());
+	Debug_Tx_Byte_Conf(Kernel_Abs_High_Prio_Task_ID_Get());
     
 	//DDRD |= (1<<5);
 	//PORTD ^= (1<<5);
