@@ -382,16 +382,18 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 
 ;;================================push msp & zp starting====================================;; 
 .macro  KER_PUSH_MSP_ZP                                   ;total 1.75uS @8MHz     ( 14 clocks) 
-		LDI   R16                , lo8(KerSSZ+OFM_MSPI)   ;load addr low          (  1 clock ) 
+		LDI   XL                 , lo8(KerSSZ+OFM_MSPI)   ;load addr low          (  1 clock ) 
 		LDI   XH                 , hi8(KerSSZ+OFM_MSPI)   ;load addr high         (  1 clock ) 
-		LD    YL                 , X+                     ;load pointer low       (  2 clocks) 
-		LD    YH                 , X                      ;load pointer low       (  2 clocks) 
-		ST    Y+                 , IOSPL                  ;store main SPL         (  2 clocks) 
-		ST    Y+                 , IOSPH                  ;store main SPH         (  2 clocks) 
-		ST    Y+                 , ZL                     ;store main SPL         (  2 clocks) 
-		ST    Y+                 , ZH                     ;store main SPL         (  2 clocks) 
-		STS   KerSSZ+OFM_MSPI+0  , YL                     ;store new index        (  2 clocks) 
-		STS   KerSSZ+OFM_MSPI    , YH                     ;store new index        (  2 clocks) 
+		LD    R16                , X+                     ;load pointer low       (  2 clocks) 
+		LD    R17                , X                      ;load pointer low       (  2 clocks) 
+        MOV   XL                 , R16                    ;copy                   (  1 clock ) 
+		MOV   XH                 , R17                    ;copy                   (  1 clock ) 
+		ST    X+                 , IOSPL                  ;store main SPL         (  2 clocks) 
+        ST    X+                 , IOSPH                  ;store main SPH         (  2 clocks) 
+		ST    X+                 , ZL                     ;store main ZL          (  2 clocks) 
+		ST    X+                 , ZH                     ;store main ZH          (  2 clocks) 
+		STS   KerSSZ+OFM_MSPI+0  , XL                     ;store new index        (  2 clocks) 
+		STS   KerSSZ+OFM_MSPI+1  , XH                     ;store new index        (  2 clocks) 
 .endm
 ;;===================================push msp & zp end======================================;; 
 
@@ -403,8 +405,14 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 .macro  KER_POP_MSP_ZP                                    ;total 1.75uS @8MHz     ( 14 clocks) 
 		LDI   XL                 , lo8(KerSSZ+OFM_MSPI)   ;load addr low          (  1 clock ) 
 		LDI   XH                 , hi8(KerSSZ+OFM_MSPI)   ;load addr high         (  1 clock ) 
-		LD    YL                 , X+                     ;load pointer low       (  2 clocks) 
-		LD    YH                 , X                      ;load pointer low       (  2 clocks) 
+		LD    R16                , X+                     ;load pointer low       (  2 clocks) 
+		LD    R17                , X                      ;load pointer low       (  2 clocks) 
+		MOV   XL                 , R16                    ;copy                   (  1 clock ) 
+		MOV   XH                 , R17                    ;copy                   (  1 clock ) 
+		LD    ZH                 , -X                     ;load ZH                (  2 clocks) 
+		LD    ZL                 , -X                     ;load ZH                (  2 clocks) 
+		LD    IOSPH              , -X                     ;load main SPH          (  2 clocks) 
+		LD    IOSPL              , -X                     ;load main SPL          (  2 clocks) 
 .endm
 ;;====================================pop msp & zp end======================================;; 
 
@@ -441,11 +449,9 @@ Kernel_SysTick_Reg_Init:                                  ;total 6.0uS @8MHz    
         ;arg1 -> prescaler R24, arg2 -> reload val R22
         CLI                                               ;disable global int     (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
-		LDI   R16                , 0x00                   ;set 0x00 to R16        (  1 clock ) 
 		
-		;main stack pointer index set to stack top (0 -> KerMSPZP+OFM_MSPS)
-        STS   KerSSZ+OFM_MSPI+0  , lo8(KerSSZ+OFM_MSPS)   ;set mspi to stack top  (  2 clocks) 
-		STS   KerSSZ+OFM_MSPI+1  , hi8(KerSSZ+OFM_MSPS)   ;set mspi to stack top  (  2 clocks) 
+		;clear reg
+		LDI   R16                , 0x00                   ;set 0x00 to R16        (  1 clock )
 
 		;clear tick counter
 		STS   KerBase+OFB_TICK0  , R16                    ;clear  KerBase[0]      (  2 clocks) 
@@ -606,10 +612,18 @@ Kernel_Start_Tasks:
 Kernel_Init:
 		;save necessary registers and MSP
 		CLR   R1                                          ;gcc expects            (  1 clock ) 
+
+        ;store stack top (for MSP) addr to KerSSZ+OFM_MSPI0:1
+		LDI   R16                , lo8(KerSSZ+OFM_MSPS)   ;load low address       (  1 clock ) 
+		LDI   R17                , hi8(KerSSZ+OFM_MSPS)   ;load high address      (  1 clock )
+        STS   KerSSZ+OFM_MSPI+0  , R16                    ;set mspi to stack top  (  2 clocks) 
+		STS   KerSSZ+OFM_MSPI+1  , R17                    ;set mspi to stack top  (  2 clocks) 
+        
+		;save necessary registers and MSP
 		IN    R16                , IOSPL                  ;load main SPL          (  1 clock ) 
 		IN    R17                , IOSPH                  ;load main SPH          (  1 clock ) 
-		PUSH  R16                                         ;save main SPL          (  2 clocks)
-		PUSH  R17                                         ;save main SPH          (  2 clocks)
+		PUSH  R16                                         ;save main SPL          (  2 clocks) 
+		PUSH  R17                                         ;save main SPH          (  2 clocks) 
 		PUSH  ZL                                          ;save ZPL               (  2 clocks) 
 		PUSH  ZH                                          ;save ZPH               (  2 clocks) 
 
