@@ -12,12 +12,14 @@ void Tasks_Task0(void){
   
   uint16_t val = 80;
   
+  
   while(1){
     
 	  Debug_Tx_Byte_Conf(0);
 	  //Debug_Tx_Word_Conf(val--);
     Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-	  //Kernel_Task_Sleep(2);
+    Debug_Tx_Byte_Conf(Kernel_Task_Sleep_Time_Get());
+	  //Kernel_Task_Sleep(100);
 	
   }
 }

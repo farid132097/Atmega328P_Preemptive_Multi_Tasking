@@ -39,6 +39,8 @@ int main(void) {
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(3));
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(4));
 	Debug_Tx_Byte_Conf(Kernel_Task_Prio_Get(5));
+	
+	Debug_Tx_Byte_Conf(Kernel_NTask_Get());
     Debug_Tx_Byte_Conf(Kernel_High_Prio_Task_ID_Get());
 	Debug_Tx_Byte_Conf(Kernel_Abs_High_Prio_Task_ID_Get());
     
