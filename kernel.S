@@ -450,50 +450,50 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;unsafe access registers : None
 .macro  KER_DEC_SLP_TIMEOUT                               ;total 4.75uS @8MHz     ( 38 clocks) 
         LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		;LSL   R16                                         ;x2                     (  1 clock ) 
-		;LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
-		;LDI   ZH                 , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
-		;ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
-		;LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
-		;ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+		LSL   R16                                         ;x2                     (  1 clock ) 
+		LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
+		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
+		LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
+		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
 
 		;fetch current value from ram, if val=0, skip decrement
-        ;LD    R16                , Z+                     ;load val low byte      (  2 clocks) 
-		;LD    R17                , Z                      ;load val high byte     (  2 clocks) 
-		;MOV   R18                , R16                    ;copy                   (  1 clock ) 
-		;OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
-		;BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
+        LD    R16                , Z+                     ;load val low byte      (  2 clocks) 
+		LD    R17                , Z                      ;load val high byte     (  2 clocks) 
+		MOV   R18                , R16                    ;copy                   (  1 clock ) 
+		OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
+		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
 
 		;R17:R16 contains 16 bit sleep timer val, decrease val by 1
-		;LDI   R18                , 0x01                   ;set val 1              (  1 clock ) 
-        ;SUB   R16                , R18                    ;subtract low byte      (  1 clock ) 
-		;LDI   R18                , 0x00                   ;clear                  (  1 clock ) 
-		;SBC   R17                , R18                    ;subtract carry if any  (  1 clock ) 
+		LDI   R18                , 0x01                   ;set val 1              (  1 clock ) 
+        SUB   R16                , R18                    ;subtract low byte      (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear                  (  1 clock ) 
+		SBC   R17                , R18                    ;subtract carry if any  (  1 clock ) 
         
 		;store new value
-		;ST    Z                  , R17                    ;store high byte        (  2 clocks) 
-		;ST    -Z                 , R16                    ;store low byte         (  2 clocks) 
-		;MOV   R18                , R16                    ;copy                   (  1 clock ) 
-		;OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
-		;BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
+		ST    Z                  , R17                    ;store high byte        (  2 clocks) 
+		ST    -Z                 , R16                    ;store low byte         (  2 clocks) 
+		MOV   R18                , R16                    ;copy                   (  1 clock ) 
+		OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
+		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
 
 	_VAL_NULL\@:
 	    ;find ram address for status
-		;LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-	    ;LDI   ZL                 , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
-		;LDI   ZH                 , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-		;ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
-		;LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
-		;ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+		LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+	    LDI   ZL                 , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
+		LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
+		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
 		
 		;update flag as task is ready
-		;LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
-		;ST    Z                  , R16                    ;update flag            (  2 clocks) 
-		;LDI   R19                , TASK_READY             ;use as return val      (  1 clock )
-		;RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks)
+		LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+		ST    Z                  , R16                    ;update flag            (  2 clocks) 
+		LDI   R19                , TASK_READY             ;use as return val      (  1 clock )
+		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks)
 
     _VAL_NOT_NULL\@:
-	    ;LDI   R19                , TASK_BLOCK             ;use as return val      (  1 clock ) 
+	    LDI   R19                , TASK_BLOCK             ;use as return val      (  1 clock ) 
 
     _EXIT_SLP_TIME\@:
 .endm
@@ -538,11 +538,11 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
-		;KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
+		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		
 		;KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
-		;KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
 		KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks)
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
@@ -758,7 +758,7 @@ Kernel_Task_Idle:                                         ;total 0.5uS @8MHz    
         CALL  Debug_Init                                  ;debug init
     _IDLE_LOOP:                                           ;forever loop
 	    LDI   R24                , 0x23
-		CALL  Debug_Tx_Byte_Conf
+		CALL  Debug_Tx_Byte      
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
