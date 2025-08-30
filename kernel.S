@@ -9,11 +9,11 @@
 
 
 ;;============================define user address or macro starting=========================;; 
-.equ     KER_TR ,         1000    ;TickRate in Hz, only defined, not calculated
-.equ     KER_PRS,         0x03    ;For prescaler 64, manually select
-.equ     KER_RLD,         0x82    ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
-.equ     KER_STK_SZ,      128     ;stack size in bytes for each task
-.equ     KER_MX_NTSK,     10      ;max number of tasks
+.equ     KER_TR ,         1000                            ;TickRate in Hz, only defined, not calculated
+.equ     KER_PRS,         0x03                            ;For prescaler 64, manually select
+.equ     KER_RLD,         0x82                            ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
+.equ     KER_STK_SZ,      128                             ;stack size in bytes for each task
+.equ     KER_MX_NTSK,     10                              ;max number of tasks
 ;;==============================define user address or macro end============================;; 
 
 
@@ -21,18 +21,18 @@
 
 
 ;;===============================define data offsets starting===============================;; 
-.equ     OFB_TICK0,       0x00    ;tick count byte0 offset from KerBase
-.equ     OFB_TICK1,       0x01    ;tick count byte1 offset from KerBase
-.equ     OFB_TICK2,       0x02    ;tick count byte2 offset from KerBase
-.equ     OFB_TICK3,       0x03    ;tick count byte3 offset from KerBase
-.equ     OFB_TICK4,       0x04    ;tick count byte4 offset from KerBase
-.equ     OFB_PRS  ,       0x05    ;counter prescaler offset from KerBase
-.equ     OFB_RLD  ,       0x06    ;counter reload offset from KerBase
-.equ     OFB_TID  ,       0x07    ;task id offset from KerBase
-.equ     OFB_NTSK ,       0x08    ;ntask offset from KerBase
-.equ     OFB_PTID ,       0x09    ;priority task_id offset from KerBase
-.equ     OFM_MSPI ,       0x00    ;main stack pointer index field offset from MSPZP
-.equ     OFM_MSPS ,       0x02    ;main stack pointer starting offset from MSPZP
+.equ     OFB_TICK0,       0x00                            ;tick count byte0 offset from KerBase
+.equ     OFB_TICK1,       0x01                            ;tick count byte1 offset from KerBase
+.equ     OFB_TICK2,       0x02                            ;tick count byte2 offset from KerBase
+.equ     OFB_TICK3,       0x03                            ;tick count byte3 offset from KerBase
+.equ     OFB_TICK4,       0x04                            ;tick count byte4 offset from KerBase
+.equ     OFB_PRS  ,       0x05                            ;counter prescaler offset from KerBase
+.equ     OFB_RLD  ,       0x06                            ;counter reload offset from KerBase
+.equ     OFB_TID  ,       0x07                            ;task id offset from KerBase
+.equ     OFB_NTSK ,       0x08                            ;ntask offset from KerBase
+.equ     OFB_PTID ,       0x09                            ;priority task_id offset from KerBase
+.equ     OFM_MSPI ,       0x00                            ;main stack pointer index field offset from MSPZP
+.equ     OFM_MSPS ,       0x02                            ;main stack pointer starting offset from MSPZP
 ;;==================================define data offsets end=================================;; 
 
 
@@ -40,8 +40,8 @@
 
 
 ;;===============================define system macro starting===============================;; 
-.equ     TASK_READY,      0x01    ;bit 0 in system status reg
-.equ     TASK_BLOCK,      0x00    ;bit 0 in system status reg
+.equ     TASK_READY,      0x01                            ;bit 0 in system status reg
+.equ     TASK_BLOCK,      0x00                            ;bit 0 in system status reg
 ;;==================================define system macro end=================================;; 
 
 
@@ -49,28 +49,28 @@
 
 
 ;;===========================define hardware reg address starting===========================;; 
-.equ     SRSREG  ,        0x5F    ;manually defined SREG in SRAM
-.equ     SRSPH   ,        0x5E    ;manually defined SPH in SRAM
-.equ     SRSPL   ,        0x5D    ;manually defined SPL in SRAM
+.equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM
+.equ     SRSPH   ,        0x5E                            ;manually defined SPH in SRAM
+.equ     SRSPL   ,        0x5D                            ;manually defined SPL in SRAM
 
-.equ     SRTIMSK0,        0x6E    ;manually defined TIMSK0 in SRAM
-.equ     SROCR0B ,        0x48    ;manually defined OCR0B in SRAM
-.equ     SROCR0A ,        0x47    ;manually defined OCR0A in SRAM
-.equ     SRTCNT0 ,        0x46    ;manually defined TCNT0 in SRAM
-.equ     SRTCCR0B,        0x45    ;manually defined TCCR0B in SRAM
-.equ     SRTCCR0A,        0x44    ;manually defined TCCR0A in SRAM
-.equ     SRTIFR0 ,        0x35    ;manually defined TIFR0 in SRAM
+.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM
+.equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM
+.equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM
+.equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM
+.equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM
+.equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM
+.equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM
 
-.equ     IOOCR0B ,        0x28    ;manually defined OCR0B in IO
-.equ     IOOCR0A ,        0x27    ;manually defined OCR0A in IO
-.equ     IOTCNT0 ,        0x26    ;manually defined TCNT0 in IO
-.equ     IOTCCR0B,        0x25    ;manually defined TCCR0B in IO
-.equ     IOTCCR0A,        0x24    ;manually defined TCCR0A in IO
-.equ     IOTIFR0 ,        0x15    ;manually defined TIFR0 in IO
+.equ     IOOCR0B ,        0x28                            ;manually defined OCR0B in IO
+.equ     IOOCR0A ,        0x27                            ;manually defined OCR0A in IO
+.equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO
+.equ     IOTCCR0B,        0x25                            ;manually defined TCCR0B in IO
+.equ     IOTCCR0A,        0x24                            ;manually defined TCCR0A in IO
+.equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO
 
-.equ     IOSREG  ,        0x3F    ;manually defined SREG in IO
-.equ     IOSPH   ,        0x3E    ;manually defined SPH in IO
-.equ     IOSPL   ,        0x3D    ;manually defined SPL in IO
+.equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO
+.equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO
+.equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO
 ;;==============================define hardware reg address end=============================;; 
 
 
@@ -80,26 +80,26 @@
 ;;=============================define global variables starting=============================;; 
 .section   .bss
 
-.global    KerBase                 ;declare global space for kernel
-KerBase:   .skip 10                ;Tick(5), prs(1), rld(1), task_id(1), ntask(1), ptid(1)
+.global    KerBase                                        ;declare global space for kernel
+KerBase:   .skip 10                                       ;see offset section
 
-.global    KerPSP                  ;declare global space for process stack pointers
-KerPSP:    .skip KER_MX_NTSK*2     ;2 bytes for each task
+.global    KerPSP                                         ;space for process stack pointers
+KerPSP:    .skip KER_MX_NTSK*2                            ;2 bytes for each task
 
-.global    KerSSZ                  ;declare global space for stack for main stack pointers
-KerSSZ:    .skip 14                ;stack_ptr(2), MSPZP0(4), MSPZP1(4)...
+.global    KerSSZ                                         ;stack for main stack pointers
+KerSSZ:    .skip 14                                       ;stack_ptr(2), MSPZPn(4)
 
-.global    KerSchSts               ;declare global space for scheduler status
-KerSchSts: .skip KER_MX_NTSK*1     ;status(1)
+.global    KerSchSts                                      ;space for scheduler status
+KerSchSts: .skip KER_MX_NTSK*1                            ;status(1)
 
-.global    KerSchPr                ;declare global space for scheduler priority
-KerSchPr:  .skip KER_MX_NTSK*1     ;priority(1)
+.global    KerSchPr                                       ;space for scheduler priority
+KerSchPr:  .skip KER_MX_NTSK*1                            ;priority(1)
 
-.global    KerSchSlp               ;declare global space for task sleep
-KerSchSlp: .skip KER_MX_NTSK*2     ;timing(2)
+.global    KerSchSlp                                      ;space for task sleep
+KerSchSlp: .skip KER_MX_NTSK*2                            ;timing(2)
 
-.global    KerStack                ;declare global space for stack
-KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
+.global    KerStack                                       ;space for stack
+KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for each task
 ;;==============================define global variables end=================================;; 
 
 
@@ -323,8 +323,8 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 		ADD   ZL                 , R18                    ;add offset to array    (  1 clock ) 
 		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
 		ADC   ZH                 , R18                    ;add carry, R1 zero reg (  1 clock ) 
-		ST    Z+                 , R16                    ;store SPL at ZP        (  2 clocks) 
-		ST    z                  , R17                    ;store SPH ZP+1         (  2 clocks) 
+		STD   Z+0                , R16                    ;store SPL at ZP+0      (  2 clocks) 
+		STD   Z+1                , R17                    ;store SPH at ZP+1      (  2 clocks) 
 .endm
 ;;================================save current task sp end==================================;; 
 
@@ -449,8 +449,8 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 ;used registers          : R16, R17, R18, R19, R30, R31
 ;unsafe access registers : None
 .macro  KER_DEC_SLP_TIMEOUT                               ;total 4.75uS @8MHz     ( 38 clocks) 
-        LDS   R22                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		LSL   R22                                         ;x2                     (  1 clock ) 
+        LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		;LSL   R16                                         ;x2                     (  1 clock ) 
 		;LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
 		;LDI   ZH                 , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
 		;ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
@@ -507,16 +507,24 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
 ;argurments : no args
 ;returns    : R22->highest priority task_id, R23->ntask
 .macro  KER_RUN_SCHEDULER                                 ;total 4.88uS @8MHz     ( 39 clocks) 
-		LDI   R20                , 0x01                   ;min priority val       (  1 clock ) 
-		LDI   R21                , 0x00                   ;holds high prio tak_id (  1 clock ) 
-		LDS   R22                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
-        LDS   R21                , KerBase+OFB_TID        ;load ntask             (  2 clocks) 
+		;LDI   R20                , 0x01                   ;min priority val       (  1 clock ) 
+		;LDI   R21                , 0x00                   ;holds high prio tak_id (  1 clock ) 
+		;LDS   R22                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
+		;DEC   R22
+		;MOV   R23                , R22                    ;load ntask             (  2 clocks) 
+        ;LDS   R21                , KerBase+OFB_TID        ;load ntask             (  2 clocks) 
+		LDI    R20                , 0x00                   ;start from 0          (  1 clock )
+		LDS    R21                , KerBase+OFB_NTSK       ;load ntask            (  2 clocks) 
 	_LOOP\@:
-		DEC   R22                                         ;start from ntask-1     (  1 clock ) 
 		;STS   KerBase+OFB_TID    , R22                    ;store task id          (  2 clocks) 
-		KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
-        BREQ  _LOOP\@                                     ;if task_id!=0, again   (  2 clocks) 
+		;KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
+		;TST   R22
+        
+		INC    R20                                         ;increment by 1        (  1 clock ) 
+		CP     R20                , R21                    ;compare with ntask    (  2 clocks) 
+		BRLO   _LOOP\@                                     ;if task_id<ntask      (  2 clocks)   
 		;STS   KerBase+OFB_TID    , R21                    ;store task id          (  2 clocks) 
+		;MOV   R22                , R23                    ;load ntask             (  2 clocks) 
 .endm
 ;;===================================run scheduler end======================================;; 
 
@@ -529,14 +537,12 @@ KerStack:  .skip KER_STK_SZ*10     ;KER_STK_SZ bytes for each task
     __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
-		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
-        
+		;KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
+        KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		
 		;KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
-		;KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks)
-		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
+		;KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
 		KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks)
 	    
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 

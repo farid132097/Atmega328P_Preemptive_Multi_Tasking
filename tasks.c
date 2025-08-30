@@ -17,8 +17,8 @@ void Tasks_Task0(void){
     
 	  Debug_Tx_Byte_Conf(0);
 	  //Debug_Tx_Word_Conf(val--);
-    Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
-    Debug_Tx_Byte_Conf(Kernel_Task_Sleep_Time_Get());
+    Debug_Tx_Byte(0x10+Kernel_High_Prio_Task_ID_Get());
+    Debug_Tx_Byte(Kernel_Task_Sleep_Time_Get());
 	  //Kernel_Task_Sleep(100);
 	
   }
@@ -33,9 +33,9 @@ void Tasks_Task1(void){
   while(1){
     
     PORTD ^= (1<<5);
-	  Debug_Tx_Byte_Conf(1);
+	  Debug_Tx_Byte(1);
 	  //Debug_Tx_Word_Conf(val--);
-    Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
+    Debug_Tx_Byte(0x10+Kernel_High_Prio_Task_ID_Get());
 	  //Kernel_Task_Sleep(5);
 	
   }
@@ -50,9 +50,9 @@ void Tasks_Task2(void){
   while(1){
     
     PORTD ^= (1<<6);
-	  Debug_Tx_Byte_Conf(2);
+	  Debug_Tx_Byte(2);
     //Debug_Tx_Word_Conf(val--);
-    Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
+    Debug_Tx_Byte(0x10+Kernel_High_Prio_Task_ID_Get());
 	  //Kernel_Task_Sleep(17);
 	
   }
@@ -65,9 +65,9 @@ void Tasks_Task3(void){
   
   while(1){
     
-	  Debug_Tx_Byte_Conf(3);
+	  Debug_Tx_Byte(3);
 	  //Debug_Tx_Word_Conf(val--);
-    Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
+    Debug_Tx_Byte(0x10+Kernel_High_Prio_Task_ID_Get());
 	  //Kernel_Task_Sleep(24);
 	
   }
@@ -81,9 +81,9 @@ void Tasks_Task4(void){
   while(1){
     
 	
-	  Debug_Tx_Byte_Conf(4);
+	  Debug_Tx_Byte(4);
 	  //Debug_Tx_Word_Conf(val--);
-    Debug_Tx_Byte_Conf(0x10+Kernel_High_Prio_Task_ID_Get());
+    Debug_Tx_Byte(0x10+Kernel_High_Prio_Task_ID_Get());
 	  //Kernel_Task_Sleep(26);
 	
   }
