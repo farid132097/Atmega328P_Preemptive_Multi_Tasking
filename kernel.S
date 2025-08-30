@@ -507,24 +507,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;argurments : no args
 ;returns    : R22->highest priority task_id, R23->ntask
 .macro  KER_RUN_SCHEDULER                                 ;total 4.88uS @8MHz     ( 39 clocks) 
-		;LDI   R20                , 0x01                   ;min priority val       (  1 clock ) 
-		;LDI   R21                , 0x00                   ;holds high prio tak_id (  1 clock ) 
-		;LDS   R22                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
-		;DEC   R22
-		;MOV   R23                , R22                    ;load ntask             (  2 clocks) 
-        ;LDS   R21                , KerBase+OFB_TID        ;load ntask             (  2 clocks) 
-		LDI    R20                , 0x00                   ;start from 0          (  1 clock )
-		LDS    R21                , KerBase+OFB_NTSK       ;load ntask            (  2 clocks) 
+		LDI    R20                , 0x00                  ;start from 0           (  1 clock )
+		LDS    R21                , KerBase+OFB_NTSK      ;load ntask             (  2 clocks) 
+		LDS    R22                , KerBase+OFB_TID       ;load current task_id   (  2 clocks)
 	_LOOP\@:
-		;STS   KerBase+OFB_TID    , R22                    ;store task id          (  2 clocks) 
-		;KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
-		;TST   R22
-        
-		INC    R20                                         ;increment by 1        (  1 clock ) 
-		CP     R20                , R21                    ;compare with ntask    (  2 clocks) 
-		BRLO   _LOOP\@                                     ;if task_id<ntask      (  2 clocks)   
-		;STS   KerBase+OFB_TID    , R21                    ;store task id          (  2 clocks) 
-		;MOV   R22                , R23                    ;load ntask             (  2 clocks) 
+		STS   KerBase+OFB_TID     , R20                   ;store task id          (  2 clocks) 
+		KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
+		INC    R20                                        ;increment by 1         (  1 clock ) 
+		CP     R20                , R21                   ;compare with ntask     (  2 clocks) 
+		BRLO   _LOOP\@                                    ;if task_id<ntask       (  2 clocks)   
+		STS   KerBase+OFB_TID     , R22                   ;store task id          (  2 clocks) 
 .endm
 ;;===================================run scheduler end======================================;; 
 
@@ -541,7 +533,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
         KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		
-		;KER_DEC_SLP_TIMEOUT                               ;decrement of sleep time
 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
 		KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks)
 	    
