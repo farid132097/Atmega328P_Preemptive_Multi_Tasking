@@ -498,11 +498,11 @@
   67               	
   68               	;;====================================debug tx starting=====================================;; 
   69               	Debug_Tx_Byte:                                            ;total 2.00uS+LT @8MHz  ( 16 clocks) 
-  70               			;write single byte to data register (Arg R24)
+  70               			;write single byte to data register (Arg R24)                                          
   71:debug.S       **** 		PUSH  R16                                         ;save reg               (  2 clocks) 
   72:debug.S       **** 		STS   SRUDR0             , R24                    ;load val to UDR0       (  2 clocks) 
-  73               	
-  74               	    __UDRE0_CLEARED:                                      ;undefined loop wrt ck
+  73               	                                                                                               
+  74               	    __UDRE0_CLEARED:                                      ;undefined loop wrt ck               
   75:debug.S       **** 		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16     (  2 clocks) 
   76:debug.S       **** 		SBRS  R16                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
   77:debug.S       **** 		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set(  2 clocks) 
@@ -516,12 +516,12 @@
   85               	
   86               	;;==================================debug tx word starting==================================;; 
   87               	Debug_Tx_Word:                                            ;total 2.00uS+LT @8MHz  ( 16 clocks) 
-  88               			;write 2 bytes, (Arg R24, R25), Args retained 
-  89:debug.S       **** 		CALL  Debug_Tx_Byte                               ;send via uart          ( 21 clocks)
-  90:debug.S       **** 		PUSH  R24                                         ;save reg               (  2 clocks)
-  91:debug.S       **** 		MOV   R24                , R25                    ;copy R25 to R24        (  1 clock )
-  92:debug.S       **** 		CALL  Debug_Tx_Byte                               ;send via uart          ( 21 clocks)
-  93:debug.S       **** 		POP   R24                                         ;restore reg            (  2 clocks)
+  88               			;write 2 bytes, (Arg R24, R25), Args retained                                          
+  89:debug.S       **** 		PUSH  R24                                         ;save reg               (  2 clocks) 
+  90:debug.S       **** 		MOV   R24                , R25                    ;copy reg               (  1 clock ) 
+  91:debug.S       **** 		CALL  Debug_Tx_Byte                               ;send via uart          ( 21 clocks) 
+  92:debug.S       ****         POP   R24                                         ;restore reg            (  2 clocks) 
+  93:debug.S       **** 		CALL  Debug_Tx_Byte                               ;send via uart          ( 21 clocks) 
   94:debug.S       ****         RET                                               ;return from subroutine (  4 clocks) 
   95               	;;====================================debug tx word end=====================================;; 
   96               	
