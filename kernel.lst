@@ -1004,7 +1004,7 @@
  448               	
  449               	
  450               	;;===============================decrease timeout starting==================================;; 
- 451               	;used registers          : R16, R17, R18, R24, R30, R31, returns R24 as task ready/blocked     
+ 451               	;used registers          : R16, R17, R18, R24, R30, R31, arg R24[0->ISR,1->Thrd], returns R24  
  452               	;unsafe access registers : None                                                                
  453               	.macro  KER_DEC_SLP_TIMEOUT                               ;total 4.75uS @8MHz     ( 38 clocks) 
  454               	        LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
@@ -1014,126 +1014,126 @@
  458               			ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
  459               			LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
  460               			ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
- 461               	
+ 461               	        
  462               			;fetch current value from ram, if val=0, skip decrement
  463               	        LD    R16                , Z+                     ;load val low byte      (  2 clocks) 
  464               			LD    R17                , Z                      ;load val high byte     (  2 clocks) 
  465               			MOV   R18                , R16                    ;copy                   (  1 clock ) 
  466               			OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
  467               			BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
- 468               	
- 469               			;R17:R16 contains 16 bit sleep timer val, decrease val by 1
- 470               			LDI   R18                , 0x01                   ;set val 1              (  1 clock ) 
- 471               	        SUB   R16                , R18                    ;subtract low byte      (  1 clock ) 
- 472               			LDI   R18                , 0x00                   ;clear                  (  1 clock ) 
- 473               			SBC   R17                , R18                    ;subtract carry if any  (  1 clock ) 
- 474               	        
- 475               			;store new value
- 476               			ST    Z                  , R17                    ;store high byte        (  2 clocks) 
- 477               			ST    -Z                 , R16                    ;store low byte         (  2 clocks) 
- 478               			MOV   R18                , R16                    ;copy                   (  1 clock ) 
- 479               			OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
- 480               			BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
- 481               	
- 482               		_VAL_NULL\@:
- 483               		    ;find ram address for status
- 484               			LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
- 485               		    LDI   ZL                 , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
- 486               			LDI   ZH                 , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
- 487               			ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
- 488               			LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
- 489               			ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
- 490               			
- 491               			;update flag as task is ready
- 492               			LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
- 493               			ST    Z                  , R16                    ;update flag            (  2 clocks) 
- 494               			LDI   R24                , TASK_READY             ;use as return val      (  1 clock ) 
- 495               			RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
- 496               	
- 497               	    _VAL_NOT_NULL\@:
- 498               		    LDI   R24                , TASK_BLOCK             ;use as return val      (  1 clock ) 
- 499               	
- 500               	    _EXIT_SLP_TIME\@:
- 501               	.endm
- 502               	;;=================================decrease timeout end=====================================;; 
+ 468               	        
+ 469               	        ;CPI   R24                , 0x01                   ;if arg=1, thrd mode    (  1 clock ) 
+ 470               			;CPI    R24                , TASK_READY            ;compare                (  1 clock ) 
+ 471               			;BREQ  _VAL_NOT_NULL\@                             ;no need to dec val     (  2 clocks) 
+ 472               	        
+ 473               			;R17:R16 contains 16 bit sleep timer val, decrease val by 1
+ 474               			LDI   R18                , 0x01                   ;set val 1              (  1 clock ) 
+ 475               	        SUB   R16                , R18                    ;subtract low byte      (  1 clock ) 
+ 476               			LDI   R18                , 0x00                   ;clear                  (  1 clock ) 
+ 477               			SBC   R17                , R18                    ;subtract carry if any  (  1 clock ) 
+ 478               	        
+ 479               			;store new value
+ 480               			ST    Z                  , R17                    ;store high byte        (  2 clocks) 
+ 481               			ST    -Z                 , R16                    ;store low byte         (  2 clocks) 
+ 482               			MOV   R18                , R16                    ;copy                   (  1 clock ) 
+ 483               			OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
+ 484               			BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
+ 485               	
+ 486               		_VAL_NULL\@:
+ 487               		    ;find ram address for status
+ 488               			LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+ 489               		    LDI   ZL                 , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+ 490               			LDI   ZH                 , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+ 491               			ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
+ 492               			LDI   R16                , 0x00                   ;clear                  (  1 clock ) 
+ 493               			ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+ 494               			
+ 495               			;update flag as task is ready
+ 496               			LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+ 497               			ST    Z                  , R16                    ;update flag            (  2 clocks) 
+ 498               			LDI   R24                , TASK_READY             ;use as return val      (  1 clock ) 
+ 499               			RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
+ 500               	
+ 501               	    _VAL_NOT_NULL\@:
+ 502               		    LDI   R24                , TASK_BLOCK             ;use as return val      (  1 clock ) 
  503               	
- 504               	
- 505               	
- 506               	
+ 504               	    _EXIT_SLP_TIME\@:
+ 505               	.endm
+ 506               	;;=================================decrease timeout end=====================================;; 
  507               	
- 508               	;;===========================current task priority starting=================================;; 
- 509               	;used registers          : R16, R24, R30, R31, returns R24 as current task priority            
- 510               	;unsafe access registers : None                                                                
- 511               	.macro  KER_CURR_TASK_PRIO                                ;total 1.13uS @8MHz     (  9 clocks) 
- 512               			LDI    ZL                 , lo8(KerSchPr)         ;load low addr          (  1 clock ) 
- 513               			LDI    ZH                 , hi8(KerSchPr)         ;load high addr         (  1 clock ) 
- 514               			LDI    R16                , 0x00                  ;clear reg, for carry   (  1 clock ) 
- 515               			LDS    R24                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
- 516               	        ADD    ZL                 , R24                   ;add low addr           (  1 clock ) 
- 517               			ADC    ZH                 , R16                   ;add carry if any       (  1 clock ) 
- 518               			LD     R24                , Z                     ;load current tid prio  (  2 clocks) 
- 519               	.endm                                                                                          
- 520               	;;==============================current task priority end===================================;; 
- 521               	
- 522               	
- 523               	
- 524               	
+ 508               	
+ 509               	
+ 510               	
+ 511               	
+ 512               	;;===========================current task priority starting=================================;; 
+ 513               	;used registers          : R16, R24, R30, R31, returns R24 as current task priority            
+ 514               	;unsafe access registers : None                                                                
+ 515               	.macro  KER_CURR_TASK_PRIO                                ;total 1.13uS @8MHz     (  9 clocks) 
+ 516               			LDI    ZL                 , lo8(KerSchPr)         ;load low addr          (  1 clock ) 
+ 517               			LDI    ZH                 , hi8(KerSchPr)         ;load high addr         (  1 clock ) 
+ 518               			LDI    R16                , 0x00                  ;clear reg, for carry   (  1 clock ) 
+ 519               			LDS    R24                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
+ 520               	        ADD    ZL                 , R24                   ;add low addr           (  1 clock ) 
+ 521               			ADC    ZH                 , R16                   ;add carry if any       (  1 clock ) 
+ 522               			LD     R24                , Z                     ;load current tid prio  (  2 clocks) 
+ 523               	.endm                                                                                          
+ 524               	;;==============================current task priority end===================================;; 
  525               	
- 526               	;;================================run scheduler starting====================================;; 
- 527               	;used registers          : R16, R24, R30, R31, returns R24 as current task priority            
- 528               	;unsafe access registers : None       
- 529               	.macro  KER_RUN_SCHEDULER                                 ;total 4.88uS @8MHz     ( 39 clocks) 
- 530               			LDI    R16                , 0xFF                  ;set 0xff               (  1 clock ) 
- 531               			STS    KerBase+OFB_LPR    , R16                   ;lowest priority        (  2 clocks) 
- 532               			LDI    R16                , 0x00                  ;start from 0           (  1 clock ) 
- 533               			STS    KerBase+OFB_PTID   , R16                   ;highest prio tid=0     (  2 clocks) 
- 534               	
- 535               			LDS    R25                , KerBase+OFB_TID       ;for test only          (  2 clocks) ;;;;;;;;;;
- 536               		_LOOP\@:                                                                                   
- 537               		    ;store task id to run from KER_DEC_SLP_TIMEOUT                                         
- 538               			STS    KerBase+OFB_TID    , R16                   ;store task id          (  2 clocks) 
- 539               	        ;sleep time decrement, update ready/blocked status                                     
- 540               			KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
- 541               	        CPI    R24                , TASK_READY            ;compare                (  1 clock ) 
- 542               	        BRNE   _NEXT_TASK\@                               ;skip if task not ready (  2 clocks) 
- 543               	        ;calculate current task priority
- 544               			KER_CURR_TASK_PRIO                                ;get task prio ->R24    (  9 clocks) 
- 545               	        ;compare current task priority with lowest priority so far                             
- 546               			LDS    R16                , KerBase+OFB_LPR       ;load lowest priority   (  2 clocks) 
- 547               			CP     R24                , R16                   ;compare                (  1 clock ) 
- 548               			BRSH   _NEXT_TASK\@                               ;if prio>=lowest prio   (  2 clocks) 
- 549               			;found new lowest priority                                                             
- 550               			STS    KerBase+OFB_LPR    , R24                   ;save lowest priority   (  2 clocks) 
- 551               			LDS    R16                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
- 552               			STS    KerBase+OFB_PTID   , R16                   ;save lowest priority   (  2 clocks) 
- 553               	
- 554               	    _NEXT_TASK\@:
- 555               		    LDS    R16                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
- 556               			INC    R16                                        ;increment by 1         (  1 clock ) 
- 557               			LDS    R17                , KerBase+OFB_NTSK      ;load ntask             (  2 clocks) 
- 558               			CP     R16                , R17                   ;compare with ntask     (  2 clocks) 
- 559               			BRLO   _LOOP\@                                    ;if task_id<ntask       (  2 clocks) 
- 560               			STS    KerBase+OFB_TID    , R25                   ;for test only          (  2 clocks) ;;;;;;;;;;
- 561               	        LDS    R16                , KerBase+OFB_PTID      ;load high prio task id (  2 clocks) 
- 562               			STS    KerBase+OFB_TID    , R16                   ;for test only          (  2 clocks) ;;;;;;;;;;
- 563               			;STS   KerBase+OFB_PTID    , R18
- 564               	.endm                                                                                          
- 565               	;;===================================run scheduler end======================================;; 
- 566               	
+ 526               	
+ 527               	
+ 528               	
+ 529               	
+ 530               	;;================================run scheduler starting====================================;; 
+ 531               	;used registers          : R16, R24, R30, R31, returns R24 as current task priority            
+ 532               	;unsafe access registers : None       
+ 533               	.macro  KER_RUN_SCHEDULER                                 ;total 4.88uS @8MHz     ( 39 clocks) 
+ 534               			LDI    R16                , 0xFF                  ;set 0xff               (  1 clock ) 
+ 535               			STS    KerBase+OFB_LPR    , R16                   ;lowest priority        (  2 clocks) 
+ 536               			LDI    R16                , 0x00                  ;start from 0           (  1 clock ) 
+ 537               			STS    KerBase+OFB_PTID   , R16                   ;highest prio tid=0     (  2 clocks) 
+ 538               		_LOOP\@:                                                                                   
+ 539               		    ;store task id to run from KER_DEC_SLP_TIMEOUT                                         
+ 540               			STS    KerBase+OFB_TID    , R16                   ;store task id          (  2 clocks) 
+ 541               	        ;sleep time decrement, update ready/blocked status                                     
+ 542               			LDI    R24                , 0x00                  ;isr mode, dec slp val  (  1 clock ) 
+ 543               			KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
+ 544               	        CPI    R24                , TASK_READY            ;compare                (  1 clock ) 
+ 545               	        BRNE   _NEXT_TASK\@                               ;skip if task not ready (  2 clocks) 
+ 546               	        ;calculate current task priority
+ 547               			KER_CURR_TASK_PRIO                                ;get task prio ->R24    (  9 clocks) 
+ 548               	        ;compare current task priority with lowest priority so far                             
+ 549               			LDS    R16                , KerBase+OFB_LPR       ;load lowest priority   (  2 clocks) 
+ 550               			CP     R24                , R16                   ;compare                (  1 clock ) 
+ 551               			BRSH   _NEXT_TASK\@                               ;if prio>=lowest prio   (  2 clocks) 
+ 552               			;found new lowest priority                                                             
+ 553               			STS    KerBase+OFB_LPR    , R24                   ;save lowest priority   (  2 clocks) 
+ 554               			LDS    R16                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
+ 555               			STS    KerBase+OFB_PTID   , R16                   ;save lowest priority   (  2 clocks) 
+ 556               	
+ 557               	    _NEXT_TASK\@:
+ 558               		    LDS    R16                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
+ 559               			INC    R16                                        ;increment by 1         (  1 clock ) 
+ 560               			LDS    R17                , KerBase+OFB_NTSK      ;load ntask             (  2 clocks) 
+ 561               			CP     R16                , R17                   ;compare with ntask     (  2 clocks) 
+ 562               			BRLO   _LOOP\@                                    ;if task_id<ntask       (  2 clocks) 
+ 563               	        LDS    R16                , KerBase+OFB_PTID      ;load high prio task id (  2 clocks) 
+ 564               			STS    KerBase+OFB_TID    , R16                   ;for test only          (  2 clocks)
+ 565               	.endm                                                                                          
+ 566               	;;===================================run scheduler end======================================;; 
  567               	
  568               	
  569               	
  570               	
- 571               	;;=================================ISR execution starting===================================;; 
- 572               	.global  __vector_16                                                                           
- 573               	    __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
- 574:kernel.S      **** 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
- 575:kernel.S      ****         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
- 576:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
- 577:kernel.S      **** 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
- 578:kernel.S      **** 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
- 579:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
- 580               			;KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks) 
+ 571               	
+ 572               	;;=================================ISR execution starting===================================;; 
+ 573               	.global  __vector_16                                                                           
+ 574               	    __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
+ 575:kernel.S      **** 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
+ 576:kernel.S      ****         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
+ 577:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+ 578:kernel.S      **** 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
+ 579:kernel.S      **** 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
+ 580:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
  581:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
  582:kernel.S      **** 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
  583:kernel.S      **** 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
@@ -1536,26 +1536,26 @@ DEFINED SYMBOLS
             kernel.S:97     .bss:00000038 KerSchPr
             kernel.S:100    .bss:00000042 KerSchSlp
             kernel.S:103    .bss:00000056 KerStack
-            kernel.S:573    .text:00000000 __vector_16
-            kernel.S:592    .text:00000198 Kernel_SysTick_Reg_Init
-            kernel.S:755    .text:00000378 Kernel_Init
-            kernel.S:638    .text:00000226 Kernel_Task_Create
-            kernel.S:714    .text:00000308 Kernel_Start_Tasks
-            kernel.S:791    .text:000003d6 Kernel_Task_Idle
-            kernel.S:805    .text:000003e6 Kernel_Task_Sleep
-            kernel.S:846    .text:0000040c Kernel_Task_Sleep_Time_Get
-            kernel.S:865    .text:00000420 Kernel_Task_Status_Get
-            kernel.S:882    .text:00000430 Kernel_NTask_Get
-            kernel.S:892    .text:00000436 Kernel_Task_Prio_Get
-            kernel.S:908    .text:00000444 Kernel_Lowest_Prio_Get
-            kernel.S:919    .text:0000044a Kernel_High_Prio_Task_ID_Get
-            kernel.S:931    .text:00000452 Kernel_Abs_High_Prio_Task_ID_Get
-            kernel.S:579    .text:000000ae _LOOP5
-            kernel.S:579    .text:000000de _VAL_NULL6
-            kernel.S:579    .text:000000f4 _VAL_NOT_NULL6
-            kernel.S:579    .text:000000f6 _EXIT_SLP_TIME6
-            kernel.S:579    .text:0000011e _NEXT_TASK5
-            kernel.S:795    .text:000003de _IDLE_LOOP
+            kernel.S:574    .text:00000000 __vector_16
+            kernel.S:592    .text:00000192 Kernel_SysTick_Reg_Init
+            kernel.S:755    .text:00000372 Kernel_Init
+            kernel.S:638    .text:00000220 Kernel_Task_Create
+            kernel.S:714    .text:00000302 Kernel_Start_Tasks
+            kernel.S:791    .text:000003d0 Kernel_Task_Idle
+            kernel.S:805    .text:000003e0 Kernel_Task_Sleep
+            kernel.S:846    .text:00000406 Kernel_Task_Sleep_Time_Get
+            kernel.S:865    .text:0000041a Kernel_Task_Status_Get
+            kernel.S:882    .text:0000042a Kernel_NTask_Get
+            kernel.S:892    .text:00000430 Kernel_Task_Prio_Get
+            kernel.S:908    .text:0000043e Kernel_Lowest_Prio_Get
+            kernel.S:919    .text:00000444 Kernel_High_Prio_Task_ID_Get
+            kernel.S:931    .text:0000044c Kernel_Abs_High_Prio_Task_ID_Get
+            kernel.S:580    .text:000000aa _LOOP5
+            kernel.S:580    .text:000000dc _VAL_NULL6
+            kernel.S:580    .text:000000f2 _VAL_NOT_NULL6
+            kernel.S:580    .text:000000f4 _EXIT_SLP_TIME6
+            kernel.S:580    .text:0000011c _NEXT_TASK5
+            kernel.S:795    .text:000003d8 _IDLE_LOOP
 
 UNDEFINED SYMBOLS
 Kernel_SysTick_Val_Get
