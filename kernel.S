@@ -507,16 +507,42 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;argurments : no args                                                                          
 ;returns    : R22->highest priority task_id, R23->ntask                                        
 .macro  KER_RUN_SCHEDULER                                 ;total 4.88uS @8MHz     ( 39 clocks) 
-		LDI    R20                , 0x00                  ;start from 0           (  1 clock ) 
-		LDS    R21                , KerBase+OFB_NTSK      ;load ntask             (  2 clocks) 
-		LDS    R22                , KerBase+OFB_TID       ;load current task_id   (  2 clocks) 
+		LDI    R16                , 0x00                  ;start from 0           (  1 clock ) 
+		LDS    R17                , KerBase+OFB_NTSK      ;load ntask             (  2 clocks) 
+		LDS    R25                , KerBase+OFB_TID       ;load current task_id   (  2 clocks) 
+		LDI    R20                , 0xFF                  ;priority->from lowest  (  1 clock ) 
+		LDI    R21                , 0x00                  ;high prio task id      (  1 clock ) 
+		LDI    R22                , 0x00                  ;to add carry           (  1 clock ) 
+		LDI    R23                , 0x00                  ;temp reg               (  1 clock ) 
 	_LOOP\@:                                                                                   
-		STS   KerBase+OFB_TID     , R20                   ;store task id          (  2 clocks) 
-		KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
-		INC    R20                                        ;increment by 1         (  1 clock ) 
-		CP     R20                , R21                   ;compare with ntask     (  2 clocks) 
+	    ;store task id to run from KER_DEC_SLP_TIMEOUT                                         
+		STS    KerBase+OFB_TID    , R16                   ;store task id          (  2 clocks) 
+        ;sleep time decrement, update ready/blocked status                                     
+		;KER_DEC_SLP_TIMEOUT                               ;update return vars     ( 49 clocks) 
+        ;CPI    R19                , TASK_READY            ;compare                (  1 clock ) 
+        BRNE   _NEXT_TASK\@                               ;skip if task not ready (  2 clocks) 
+        ;calculate current task priority
+		;LDS    R23                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
+		;LDI    ZL                 , lo8(KerSchPr)         ;load low addr          (  1 clock ) 
+		;LDI    ZH                 , hi8(KerSchPr)         ;load high addr         (  1 clock ) 
+        ;ADD    ZL                 , R23                   ;add low addr           (  1 clock ) 
+		;ADC    ZH                 , R22                   ;add carry if any       (  1 clock ) 
+		;LD     R23                , Z                     ;load current tid prio  (  2 clocks) 
+        ;compare current task priority with lowest priority so far                             
+		;CP     R23                , R20                   ;compare                (  1 clock ) 
+		;BRSH   _NEXT_TASK\@                               ;if prio>=lowest prio   (  2 clocks) 
+		;found new lowest priority                                                             
+
+        
+	    
+
+    _NEXT_TASK\@:
+	    LDS    R16                , KerBase+OFB_TID       ;load task id           (  2 clocks)
+		INC    R16                                        ;increment by 1         (  1 clock ) 
+		CP     R16                , R17                   ;compare with ntask     (  2 clocks) 
 		BRLO   _LOOP\@                                    ;if task_id<ntask       (  2 clocks) 
-		STS   KerBase+OFB_TID     , R22                   ;store task id          (  2 clocks) 
+		STS   KerBase+OFB_TID     , R25                   ;store task id          (  2 clocks) 
+		;STS   KerBase+OFB_PTID    , R18
 .endm                                                                                          
 ;;===================================run scheduler end======================================;; 
 
@@ -525,21 +551,17 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;=================================ISR execution starting===================================;; 
-.global  __vector_16
+.global  __vector_16                                                                           
     __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
-		
 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
-		KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks)
-	    
+		KER_LOAD_NEXT_TASK_ID                             ;load next task_id      ( 13 clocks) 
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
-
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
 ;;====================================ISR execution end=====================================;; 
