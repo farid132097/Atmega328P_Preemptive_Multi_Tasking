@@ -14,9 +14,9 @@
  * with SRAM mapped address requires higher clock cycle to execute.
  */
 #ifdef   KER_DBG_ENABLE
-#define  KER_DBG_DDR     0x04   //DDRB IO address
-#define  KER_DBG_PORT    0x05   //PORTB IO address
-#define  KER_DBG_PIN     0x01   //PORTB1 pin
+#define  KER_DBG_DDR     0x0A   //DDRD IO address
+#define  KER_DBG_PORT    0x0B   //PORTD IO address
+#define  KER_DBG_PIN     0x02   //PORTD2 pin
 #endif
 
 #ifndef __ASSEMBLER__           //Only accessible via C
@@ -35,6 +35,7 @@ extern uint16_t  Kernel_Task_Sleep_Time_Get(uint8_t task_id);
 extern uint8_t   Kernel_Task_Status_Get(uint8_t task_id);
 extern uint8_t   Kernel_NTask_Get(void);
 extern uint8_t   Kernel_Task_Prio_Get(uint8_t task_id);
+extern uint8_t   Kernel_Lowest_Prio_Get(void);
 extern uint8_t   Kernel_High_Prio_Task_ID_Get(void);
 extern uint8_t   Kernel_Abs_High_Prio_Task_ID_Get(void);
 
