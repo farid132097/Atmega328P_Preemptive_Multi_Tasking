@@ -312,6 +312,37 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
+;;=========================calculate offset addr in words starting==========================;; 
+;used registers          : R16, R30, R31, args {R30, R31}, returns {R30, R31} wrt OFB_TID      
+;unsafe access registers : R16                                                                 
+.macro  KER_CALC_ADDR_OFF_WORD                            ;total 0.75uS @8MHz     (  6 clocks) 
+        LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R16                                         ;left shift to multiply (  1 clock ) 
+		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
+		LDI   R16                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+.endm                                                                                          
+;;=============================calculate offset addr in words end===========================;; 
+
+
+
+
+
+;;=========================calculate offset addr in bytes starting==========================;; 
+;used registers          : R16, R30, R31, args {R30, R31}, returns {R30, R31} wrt OFB_TID      
+;unsafe access registers : R16                                                                 
+.macro  KER_CALC_ADDR_OFF_BYTES                           ;total 1.75uS @8MHz     ( 14 clocks) 
+        LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
+		LDI   R16                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+.endm                                                                                          
+;;=============================calculate offset addr in bytes end===========================;; 
+
+
+
+
+
 ;;===============================save current task sp starting==============================;; 
 ;used registers          : R16, R17, R18, R30, R31
 ;unsafe access registers : None
@@ -467,7 +498,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
         
         ;CPI   R24                , 0x01                   ;if arg=1, thrd mode    (  1 clock ) 
-		;CPI    R24                , TASK_READY            ;compare                (  1 clock ) 
 		;BREQ  _VAL_NOT_NULL\@                             ;no need to dec val     (  2 clocks) 
         
 		;R17:R16 contains 16 bit sleep timer val, decrease val by 1
