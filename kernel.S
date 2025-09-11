@@ -418,8 +418,8 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDI   ZL                 , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
 		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
-		LD    R16                , Z+                     ;load SPL at ZP         (  2 clocks) 
-		LD    R17                , Z                      ;load SPH at ZP         (  2 clocks) 
+		LDD   R16                , Z+0                    ;load SPL at ZP         (  2 clocks) 
+		LDD   R17                , Z+1                    ;load SPH at ZP         (  2 clocks) 
 		OUT   IOSPL              , R16                    ;load SPL0              (  1 clock ) 
 		OUT   IOSPH              , R17                    ;load SPH0              (  1 clock ) 
 .endm                                                                                          
@@ -509,9 +509,8 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
         KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
 		
 		;update flag as task is ready
-		LDI   R16                , TASK_READY             ;set TASK_READY         (  1 clock ) 
-		ST    Z                  , R16                    ;update flag            (  2 clocks) 
-		LDI   R24                , TASK_READY             ;use as return val      (  1 clock ) 
+		LDI   R24                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+		ST    Z                  , R24                    ;update flag            (  2 clocks) 
 		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
 
     _VAL_NOT_NULL\@:
@@ -529,13 +528,13 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;used registers          : R16, R24, R30, R31, returns R24 as current task priority            
 ;unsafe access registers : None                                                                
 .macro  KER_CURR_TASK_PRIO                                ;total 1.13uS @8MHz     (  9 clocks) 
-		LDI    ZL                 , lo8(KerSchPr)         ;load low addr          (  1 clock ) 
-		LDI    ZH                 , hi8(KerSchPr)         ;load high addr         (  1 clock ) 
-		LDI    R16                , 0x00                  ;clear reg, for carry   (  1 clock ) 
-		LDS    R24                , KerBase+OFB_TID       ;load task id           (  2 clocks) 
-        ADD    ZL                 , R24                   ;add low addr           (  1 clock ) 
-		ADC    ZH                 , R16                   ;add carry if any       (  1 clock ) 
-		LD     R24                , Z                     ;load current tid prio  (  2 clocks) 
+		LDI    ZL                , lo8(KerSchPr)          ;load low addr          (  1 clock ) 
+		LDI    ZH                , hi8(KerSchPr)          ;load high addr         (  1 clock ) 
+		LDI    R16               , 0x00                   ;clear reg, for carry   (  1 clock ) 
+		LDS    R24               , KerBase+OFB_TID        ;load task id           (  2 clocks) 
+        ADD    ZL                , R24                    ;add low addr           (  1 clock ) 
+		ADC    ZH                , R16                    ;add carry if any       (  1 clock ) 
+		LD     R24               , Z                      ;load current tid prio  (  2 clocks) 
 .endm                                                                                          
 ;;==============================current task priority end===================================;; 
 
