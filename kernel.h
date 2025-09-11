@@ -16,7 +16,7 @@
 #ifdef   KER_DBG_ENABLE
 #define  KER_DBG_DDR     0x0A   //DDRD IO address
 #define  KER_DBG_PORT    0x0B   //PORTD IO address
-#define  KER_DBG_PIN     0x02   //PORTD2 pin
+#define  KER_DBG_PIN     0x05   //PORTD5 pin
 #endif
 
 #ifndef __ASSEMBLER__           //Only accessible via C
