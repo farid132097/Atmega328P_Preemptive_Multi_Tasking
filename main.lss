@@ -1205,10 +1205,10 @@ Kernel_Task_Idle:                                         ;total 0.5uS @8MHz    
  786:	e0 0f       	add	r30, r16
  788:	00 e0       	ldi	r16, 0x00	; 0
  78a:	f0 1f       	adc	r31, r16
-		ST    Z+                 , R24                    ;save sleep time        (  2 clocks) 
- 78c:	81 93       	st	Z+, r24
-		ST    Z                  , R25                    ;save sleep time        (  2 clocks) 
- 78e:	90 83       	st	Z, r25
+		STD   Z+0                , R24                    ;save sleep time low    (  2 clocks) 
+ 78c:	80 83       	st	Z, r24
+		STD   Z+1                , R25                    ;save sleep time high   (  2 clocks) 
+ 78e:	91 83       	std	Z+1, r25	; 0x01
 		
 		;update task scheduler status as blocked
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
@@ -1222,7 +1222,7 @@ Kernel_Task_Idle:                                         ;total 0.5uS @8MHz    
  79c:	f0 1f       	adc	r31, r16
         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
  79e:	00 e0       	ldi	r16, 0x00	; 0
-		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
+		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
  7a0:	00 83       	st	Z, r16
 		;LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
 		;KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks)

@@ -832,15 +832,15 @@ Kernel_Task_Sleep:
 		LDI   ZL                 , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_WORD                            ;offset calc            (  6 clocks)
-		ST    Z+                 , R24                    ;save sleep time        (  2 clocks) 
-		ST    Z                  , R25                    ;save sleep time        (  2 clocks) 
+		STD   Z+0                , R24                    ;save sleep time low    (  2 clocks) 
+		STD   Z+1                , R25                    ;save sleep time high   (  2 clocks) 
 		
 		;update task scheduler status as blocked
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks)
         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
-		ST    Z                  , R16                    ;save block flag        (  2 clocks) 
+		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 
 		;SEI
 		;run scheduler, load next task sp, restore context
