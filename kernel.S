@@ -9,9 +9,9 @@
 
 
 ;;============================define user address or macro starting=========================;; 
-.equ     KER_TR ,         1000                            ;TickRate in Hz, only defined, not calculated
+.equ     KER_TR ,         1000                            ;TickRate in Hz, not calculated
 .equ     KER_PRS,         0x03                            ;For prescaler 64, manually select
-.equ     KER_RLD,         0x82                            ;KER_RLD = 0xFF-(F_CPU/KER_PRS/KER_TR), check overflow
+.equ     KER_RLD,         0x82                            ;KER_RLD=0xFF-(F_CPU/KER_PRS/KER_TR)
 .equ     KER_STK_SZ,      128                             ;stack size in bytes for each task
 .equ     KER_MX_NTSK,     10                              ;max number of tasks
 ;;==============================define user address or macro end============================;; 
@@ -26,15 +26,17 @@
 .equ     OFB_TICK2,       0x02                            ;tick count byte2 offset from KerBase
 .equ     OFB_TICK3,       0x03                            ;tick count byte3 offset from KerBase
 .equ     OFB_TICK4,       0x04                            ;tick count byte4 offset from KerBase
-.equ     OFB_PRS  ,       0x05                            ;counter prescaler offset from KerBase
-.equ     OFB_RLD  ,       0x06                            ;counter reload offset from KerBase
-.equ     OFB_TID  ,       0x07                            ;task id offset from KerBase
-.equ     OFB_NTSK ,       0x08                            ;ntask offset from KerBase
-.equ     OFB_LPR  ,       0x09                            ;lowest priority offset from KerBase
-.equ     OFB_PTID ,       0x0A                            ;priority task_id offset from KerBase
-.equ     OFB_SCH_MODE,    0x0B                            ;scheduler mode offset from KerBase
-.equ     OFM_MSPI ,       0x00                            ;main stack pointer index field offset from MSPZP
-.equ     OFM_MSPS ,       0x02                            ;main stack pointer starting offset from MSPZP
+.equ     OFB_PRS  ,       0x05                            ;prescaler offset from KerBase       
+.equ     OFB_RLD  ,       0x06                            ;counter reload offset from KerBase  
+.equ     OFB_TID  ,       0x07                            ;task id offset from KerBase         
+.equ     OFB_NTSK ,       0x08                            ;ntask offset from KerBase           
+.equ     OFB_LPR  ,       0x09                            ;lowest priority offset from KerBase 
+.equ     OFB_PTID ,       0x0A                            ;prio task_id offset from KerBase    
+.equ     OFB_UTC  ,       0x0B                            ;usage tick cnt offset from KerBase  
+.equ     OFB_UATC ,       0x0C                            ;active tick cnt offset from KerBase 
+.equ     OFB_USAGE,       0x0D                            ;cpu usage offset from KerBase       
+.equ     OFM_MSPI ,       0x00                            ;msp index field offset from MSPZP   
+.equ     OFM_MSPS ,       0x02                            ;msp starting offset from MSPZP      
 ;;==================================define data offsets end=================================;; 
 
 
@@ -53,28 +55,25 @@
 
 
 ;;===========================define hardware reg address starting===========================;; 
-.equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM
-.equ     SRSPH   ,        0x5E                            ;manually defined SPH in SRAM
-.equ     SRSPL   ,        0x5D                            ;manually defined SPL in SRAM
-
-.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM
-.equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM
-.equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM
-.equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM
-.equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM
-.equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM
-.equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM
-
-.equ     IOOCR0B ,        0x28                            ;manually defined OCR0B in IO
-.equ     IOOCR0A ,        0x27                            ;manually defined OCR0A in IO
-.equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO
-.equ     IOTCCR0B,        0x25                            ;manually defined TCCR0B in IO
-.equ     IOTCCR0A,        0x24                            ;manually defined TCCR0A in IO
-.equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO
-
-.equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO
-.equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO
-.equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO
+.equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM       
+.equ     SRSPH   ,        0x5E                            ;manually defined SPH in SRAM        
+.equ     SRSPL   ,        0x5D                            ;manually defined SPL in SRAM        
+.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
+.equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM      
+.equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM      
+.equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM      
+.equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM     
+.equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM     
+.equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
+.equ     IOOCR0B ,        0x28                            ;manually defined OCR0B in IO        
+.equ     IOOCR0A ,        0x27                            ;manually defined OCR0A in IO        
+.equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO        
+.equ     IOTCCR0B,        0x25                            ;manually defined TCCR0B in IO       
+.equ     IOTCCR0A,        0x24                            ;manually defined TCCR0A in IO       
+.equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO        
+.equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
+.equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO          
+.equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO          
 ;;==============================define hardware reg address end=============================;; 
 
 
@@ -85,7 +84,7 @@
 .section   .bss
 
 .global    KerBase                                        ;declare global space for kernel
-KerBase:   .skip 12                                       ;see offset section
+KerBase:   .skip 14                                       ;see offset section
 
 .global    KerPSP                                         ;space for process stack pointers
 KerPSP:    .skip KER_MX_NTSK*2                            ;2 bytes for each task
@@ -146,6 +145,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .global  Kernel_Lowest_Prio_Get
 .global  Kernel_High_Prio_Task_ID_Get
 .global  Kernel_Abs_High_Prio_Task_ID_Get
+.global  Kernel_CPU_Usage_Get
 ;;================================define global functions end===============================;; 
 
 
@@ -686,6 +686,36 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
+;;================================calc cpu usage starting===================================;; 
+;used registers          : R16, R17                                                            
+;unsafe access registers : None                                                                
+.macro  KER_CPU_USAGE                                     ;total 3.25uS @8MHz     ( 26 clocks) 
+        ;check if current target task is idle task or not                                      
+        LDS    R16               , KerBase+OFB_TID        ;load target task_id    (  2 clocks) 
+		TST    R16                                        ;check if idle task     (  1 clock ) 
+		BREQ   _KER_USG_TICK\@                            ;task_id=idle, skip     (  2 clocks) 
+		LDS    R16               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
+		INC    R16                                        ;inc active tick cnt    (  1 clock ) 
+		STS    KerBase+OFB_UATC  , R16                    ;store new val          (  2 clocks) 
+	_KER_USG_TICK\@:                                                                           
+		LDS    R16               , KerBase+OFB_UTC        ;load usage tick cnt    (  2 clocks) 
+		INC    R16                                        ;increment tick cnt     (  1 clock ) 
+		CPI    R16               , 100                    ;compare with 100       (  1 clock ) 
+		BRLO   _KER_USG_UTC_SV\@                          ;val<100, save new val  (  2 clocks) 
+		LDI    R16               , 0x00                   ;val>=100, roll back    (  1 clock ) 
+		LDS    R17               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
+		STS    KerBase+OFB_USAGE , R17                    ;store usage            (  2 clocks) 
+		LDI    R17               , 0x00                   ;clear reg              (  1 clock ) 
+		STS    KerBase+OFB_UATC  , R17                    ;clear active tick cnt  (  2 clocks) 
+	_KER_USG_UTC_SV\@:                                                                         
+		STS    KerBase+OFB_UTC   , R16                    ;store new val          (  2 clocks) 
+.endm                                                                                          
+;;===================================calc cpu usage end=====================================;; 
+
+
+
+
+
 ;;=================================ISR execution starting===================================;; 
 .global  __vector_16                                                                           
     __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
@@ -696,6 +726,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
+		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks)
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
@@ -725,7 +756,11 @@ Kernel_SysTick_Reg_Init:                                  ;total 10.5uS @8MHz   
 		STS   KerBase+OFB_RLD    , R16                    ;clear  KerBase[6]      (  2 clocks) 
 		STS   KerBase+OFB_TID    , R16                    ;clear  KerBase[7]      (  2 clocks) 
 		STS   KerBase+OFB_NTSK   , R16                    ;clear  KerBase[8]      (  2 clocks) 
-        STS   KerBase+OFB_PTID   , R16                    ;clear  KerBase[9]      (  2 clocks) 
+		STS   KerBase+OFB_LPR    , R16                    ;clear  KerBase[9]      (  2 clocks) 
+        STS   KerBase+OFB_PTID   , R16                    ;clear  KerBase[10]     (  2 clocks) 
+		STS   KerBase+OFB_UTC    , R16                    ;clear  KerBase[11]     (  2 clocks) 
+		STS   KerBase+OFB_UATC   , R16                    ;clear  KerBase[12]     (  2 clocks) 
+		STS   KerBase+OFB_USAGE  , R16                    ;clear  KerBase[13]     (  2 clocks) 
 		;clear all timer registers                                                             
 		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
 		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
@@ -867,12 +902,12 @@ Kernel_Init:                                              ;total 37.00uS @8MHz  
 
 ;;=================================kernel idle task starting================================;; 
 Kernel_Task_Idle:                                         ;total 0.5uS @8MHz      (  4 clocks) 
-        LDI   R25                , 0x00                   ;set UBRRH              (  1 clock ) 
-        LDI   R24                , 0x00                   ;set UBRRL              (  1 clock ) 
-        CALL  Debug_Init                                  ;debug init             ( 19 clocks) 
+        ;LDI   R25                , 0x00                   ;set UBRRH              (  1 clock ) 
+        ;LDI   R24                , 0x00                   ;set UBRRL              (  1 clock ) 
+        ;CALL  Debug_Init                                  ;debug init             ( 19 clocks) 
     _IDLE_LOOP:                                           ;forever loop                        
-	    LDI   R24                , 0x23                   ;load val               (  1 clock ) 
-		CALL  Debug_Tx_Byte                                                                    
+	    ;LDI   R24                , 0x23                   ;load val               (  1 clock ) 
+		;CALL  Debug_Tx_Byte                                                                    
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
@@ -1000,4 +1035,16 @@ Kernel_Abs_High_Prio_Task_ID_Get:
 		LDS   R24                , KerBase+OFB_PTID       ;load priority tak_id   (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;============================kernel abs high priority task id end==========================;; 
+
+
+
+
+
+;;================================kernel cpu usage get starting=============================;; 
+Kernel_CPU_Usage_Get:                                                                          
+		;get cpu usage, return R24                                                             
+		LDS   R24                , KerBase+OFB_USAGE      ;load cpu usage         (  2 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;==================================kernel cpu usage get end================================;; 
+
 

@@ -21,6 +21,7 @@ void Tasks_Task1(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(1));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(10);
     
   }
@@ -41,6 +42,7 @@ void Tasks_Task2(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(2));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(20);
 	
   }
@@ -61,6 +63,7 @@ void Tasks_Task3(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(3));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(30);
 	
   }
@@ -81,6 +84,7 @@ void Tasks_Task4(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(4));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(40);
 	
   }
@@ -101,6 +105,7 @@ void Tasks_Task5(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(5));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(50);
 	
   }
@@ -117,6 +122,7 @@ void Tasks_Task6(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(6));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(60);
 	
   }
@@ -133,6 +139,7 @@ void Tasks_Task7(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(7));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(70);
 	
   }
@@ -149,6 +156,7 @@ void Tasks_Task8(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(8));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(80);
 	
   }
@@ -165,6 +173,7 @@ void Tasks_Task9(void){
     Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(9));
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
+    Debug_Tx_Byte(Kernel_CPU_Usage_Get());
     Kernel_Task_Sleep(90);
 	
   }
