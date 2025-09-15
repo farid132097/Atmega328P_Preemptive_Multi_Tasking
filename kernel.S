@@ -474,7 +474,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-;;===============================decrease timeout starting==================================;; 
+;;============================sleep timeout management starting=============================;; 
 ;used registers          : R16, R17, R18, R24, R30, R31, arg R24[0->ISR,1->Thrd], returns R24  
 ;unsafe access registers : None                                                                
 .macro  KER_SLP_TIME_MGNT                                 ;total 4.75uS @8MHz     ( 38 clocks) 
@@ -521,7 +521,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
     _EXIT_SLP_TIME\@:
 .endm                                                                                          
-;;=================================decrease timeout end=====================================;; 
+;;============================sleep timeout management end==================================;; 
 
 
 
@@ -825,29 +825,29 @@ Kernel_Task_Idle:                                         ;total 0.5uS @8MHz    
 ;;================================kernel task sleep starting================================;; 
 Kernel_Task_Sleep:
         ;save current context
-        ;KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
-		;KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks)
+        KER_CONTEXT_SAVE                                  ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks)
 		;CLI
 		;create next task wakeup time (args R25:R24)
 		LDI   ZL                 , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_WORD                            ;offset calc            (  6 clocks)
+		KER_CALC_ADDR_OFF_WORD                            ;offset calc            (  6 clocks) 
 		STD   Z+0                , R24                    ;save sleep time low    (  2 clocks) 
 		STD   Z+1                , R25                    ;save sleep time high   (  2 clocks) 
 		
 		;update task scheduler status as blocked
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks)
+		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
         LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 
 		;SEI
 		;run scheduler, load next task sp, restore context
-		;LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
-		;KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks)
-		;KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
-		;KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
+		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks)
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE                               ;restore context        ( 67 clocks) 
 		
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task sleep end====================================;; 
