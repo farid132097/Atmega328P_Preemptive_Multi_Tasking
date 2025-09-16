@@ -1139,7 +1139,7 @@
  582               	;;============================sleep timeout management starting=============================;; 
  583               	;used registers          : R16, R17, R18, R24, R30, R31, arg R24[0->ISR,1->Thrd], returns R24  
  584               	;unsafe access registers : None                                                                
- 585               	.macro  KER_SLP_TIME_MGNT                                 ;total 4.75uS @8MHz     ( 38 clocks) 
+ 585               	.macro  KER_SLP_TIME_MGNT                                 ;total 5.50uS @8MHz     ( 44 clocks) 
  586               			LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
  587               			LDI   ZH                 , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
  588               			KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
@@ -1181,7 +1181,7 @@
  624               	
  625               	
  626               	
- 627               	;;===========================current task priority starting=================================;; 
+ 627               	;;============================current task priority starting================================;; 
  628               	;used registers          : R16, R24, R30, R31, returns R24 as current task priority            
  629               	;unsafe access registers : None                                                                
  630               	.macro  KER_CURR_TASK_PRIO                                ;total 1.13uS @8MHz     (  9 clocks) 
@@ -1202,7 +1202,7 @@
  645               	;;================================run scheduler starting====================================;; 
  646               	;used registers          : R16, R24, R25, R30, R31, arg[R24->sch mode], ret none               
  647               	;unsafe access registers : None                                                                
- 648               	.macro  KER_RUN_SCHEDULER                                 ;total 4.88uS @8MHz     ( 39 clocks) 
+ 648               	.macro  KER_RUN_SCHEDULER                                 ;total 11.5uS @8MHz     ( 92 clocks) 
  649               			LDI    R16               , 0xFF                   ;set 0xff               (  1 clock ) 
  650               			STS    KerBase+OFB_LPR   , R16                    ;lowest priority        (  2 clocks) 
  651               			LDI    R16               , 0x00                   ;start from 0           (  1 clock ) 
@@ -1213,7 +1213,7 @@
  656               			STS    KerBase+OFB_TID   , R16                    ;store task id          (  2 clocks) 
  657               	        ;sleep time decrement, update ready/blocked status                                     
  658               			MOV    R24               , R25                    ;restore sch mode       (  1 clock ) 
- 659               			KER_SLP_TIME_MGNT                                 ;update return vars     ( 49 clocks) 
+ 659               			KER_SLP_TIME_MGNT                                 ;update return vars     ( 44 clocks) 
  660               	        CPI    R24               , TASK_READY             ;compare                (  1 clock ) 
  661               	        BRNE   _KER_SCH_NEXT\@                            ;skip if task not ready (  2 clocks) 
  662               			KER_CURR_TASK_PRIO                                ;get task prio ->R24    (  9 clocks) 
@@ -1275,15 +1275,15 @@
  718               	
  719               	;;=================================ISR execution starting===================================;; 
  720               	.global  __vector_16                                                                           
- 721               	    __vector_16:                                          ;total 26.13uS @8MHz    (211 clocks) 
+ 721               	    __vector_16:                                          ;total 40.00uS @8MHz    (320 clocks) 
  722:kernel.S      **** 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
  723:kernel.S      ****         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
  724:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
  725:kernel.S      **** 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
- 726:kernel.S      **** 		KER_TICK_INCREMENT                                ;increment tick counter ( 27 clocks) 
+ 726:kernel.S      **** 		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
  727:kernel.S      **** 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
- 728:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
- 729:kernel.S      **** 		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks)
+ 728:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 92 clocks) 
+ 729:kernel.S      **** 		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
  730:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
  731:kernel.S      **** 		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
  732:kernel.S      **** 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
@@ -1295,7 +1295,7 @@
  738               	
  739               	
  740               	;;================================SysTick reg init starting=================================;; 
- 741               	Kernel_SysTick_Reg_Init:                                  ;total 10.5uS @8MHz     ( 84 clocks) 
+ 741               	Kernel_SysTick_Reg_Init:                                  ;total 11.5uS @8MHz     ( 92 clocks) 
  742               	        ;arg1 -> prescaler R24, arg2 -> reload val R22                                         
  743:kernel.S      ****         CLI                                               ;disable global int     (  1 clock ) 
  744:kernel.S      **** 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
@@ -1338,7 +1338,7 @@
  781               	
  782               	
  783               	;;===============================kernel task create starting================================;; 
- 784               	Kernel_Task_Create:                                       ;total 19.86uS @8MHz    (162 clocks) 
+ 784               	Kernel_Task_Create:                                       ;total 20.38uS @8MHz    (163 clocks) 
  785               	        ;func_ptr->R25:R24, task_priority->R22                                                 
  786:kernel.S      ****         KER_PUSH_MSP_ZP                                   ;push MSP and ZP        ( 18 clocks) 
  787               			;across this function, R16 will be used as task_id                                     
@@ -1402,7 +1402,7 @@
  845               	
  846               	
  847               	;;=================================kernel start tasks starting==============================;; 
- 848               	Kernel_Start_Tasks:                                       ;total 12.88uS @8MHz    (103 clocks) 
+ 848               	Kernel_Start_Tasks:                                       ;total 11.38uS @8MHz    ( 91 clocks) 
  849               			;clear task_id                                                                         
  850:kernel.S      **** 		LDI   R16                , 0x00                   ;load task_id           (  2 clocks) 
  851:kernel.S      **** 		STS   KerBase+OFB_TID    , R16                    ;store task_id          (  2 clocks) 
@@ -1428,7 +1428,7 @@
  871               	
  872               	
  873               	;;===================================kernel init starting===================================;; 
- 874               	Kernel_Init:                                              ;total 37.00uS @8MHz    (296 clocks) 
+ 874               	Kernel_Init:                                              ;total 38.63uS @8MHz    (309 clocks) 
  875               			;save necessary registers and MSP                                                      
  876:kernel.S      **** 		CLR   R1                                          ;gcc expects            (  1 clock ) 
  877               	        ;store stack top (for MSP) addr to KerSSZ+OFM_MSPI0:1                                  
@@ -1440,14 +1440,14 @@
  883               			;init timer for kernel                                                                 
  884:kernel.S      **** 		LDI   R24                , 0x03                   ;set prescaler          (  1 clock ) 
  885:kernel.S      **** 		LDI   R22                , 0x82                   ;set reload val         (  1 clock ) 
- 886:kernel.S      **** 		CALL  Kernel_SysTick_Reg_Init                     ;init timer             ( 84 clocks) 
+ 886:kernel.S      **** 		CALL  Kernel_SysTick_Reg_Init                     ;init timer             ( 92 clocks) 
  887               			;create idle task at task_id 0, priority 0xFF (lowest)                                 
  888:kernel.S      **** 		LDI   R24                , lo8(Kernel_Task_Idle)  ;load func addr low     (  1 clock ) 
  889:kernel.S      **** 		LDI   R25                , hi8(Kernel_Task_Idle)  ;load func addr high    (  1 clock ) 
  890:kernel.S      **** 		LSR   R25                                         ;right shift to divide  (  1 clock ) 
  891:kernel.S      **** 		ROR   R24                                         ;rotate right th carry  (  1 clock ) 
  892:kernel.S      **** 		LDI   R22                , 0xFF                   ;set max val            (  1 clock ) 
- 893:kernel.S      **** 		CALL  Kernel_Task_Create                          ;init idle task         (159 clocks) 
+ 893:kernel.S      **** 		CALL  Kernel_Task_Create                          ;init idle task         (163 clocks) 
  894:kernel.S      **** 		KER_POP_MSP_ZP                                    ;pop MSP and ZP         ( 18 clocks) 
  895               			;execute return to jump to task0, pushed while task init                               
  896:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
@@ -1473,7 +1473,7 @@
  916               	
  917               	
  918               	;;================================kernel task sleep starting================================;; 
- 919               	Kernel_Task_Sleep:                                                                             
+ 919               	Kernel_Task_Sleep:                                        ;total 35.5uS @8MHz     (284 clocks) 
  920               	        ;save current context                                                                  
  921:kernel.S      ****         KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
  922:kernel.S      **** 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
@@ -1491,7 +1491,7 @@
  934:kernel.S      **** 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
  935               			;run scheduler, load next task sp, restore context                                     
  936:kernel.S      **** 		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
- 937:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 14 clocks) 
+ 937:kernel.S      **** 		KER_RUN_SCHEDULER                                 ;run scheduler          ( 92 clocks) 
  938:kernel.S      **** 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
  939:kernel.S      **** 		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
  940:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
@@ -1502,7 +1502,7 @@
  945               	
  946               	
  947               	;;===========================kernel task sleep time get starting============================;; 
- 948               	Kernel_Task_Sleep_Time_Get:                                                                    
+ 948               	Kernel_Task_Sleep_Time_Get:                               ;total 1.88uS @8MHz     ( 15 clocks) 
  949               			;get remaining sleep time (ms), arg R24, return R25:R24                                
  950:kernel.S      **** 		MOV   R16                , R24                    ;copy                   (  1 clock ) 
  951:kernel.S      **** 		LSL   R16                                         ;x2                     (  1 clock ) 
@@ -1521,7 +1521,7 @@
  964               	
  965               	
  966               	;;==============================kernel task status get starting=============================;; 
- 967               	Kernel_Task_Status_Get:                                                                        
+ 967               	Kernel_Task_Status_Get:                                   ;total 1.50uS @8MHz     ( 12 clocks) 
  968               			;get task status ->ready/blocked, arg R24, return R24                                  
  969:kernel.S      **** 		MOV   R16                , R24                    ;copy                   (  1 clock ) 
  970:kernel.S      **** 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
@@ -1575,7 +1575,7 @@
  1018               	
  1019               	
  1020               	;;===========================kernel high priority task id starting==========================;; 
- 1021               	Kernel_High_Prio_Task_ID_Get:                                                                  
+ 1021               	Kernel_High_Prio_Task_ID_Get:                             ;total 0.88uS @8MHz     (  7 clocks) 
  1022               			;internal idle task id = 0, app task start from task id 1, return R24                  
 1023:kernel.S      **** 		LDS   R24                , KerBase+OFB_PTID       ;load priority tak_id   (  2 clocks) 
 1024:kernel.S      **** 		DEC   R24                                         ;decrement by 1         (  1 clock ) 
@@ -1587,7 +1587,7 @@
  1030               	
  1031               	
  1032               	;;=========================kernel abs high priority task id starting========================;; 
- 1033               	Kernel_Abs_High_Prio_Task_ID_Get:                                                              
+ 1033               	Kernel_Abs_High_Prio_Task_ID_Get:                         ;total 0.75uS @8MHz     (  6 clocks) 
  1034               			;get highest priority task id, return R24                                              
 1035:kernel.S      **** 		LDS   R24                , KerBase+OFB_PTID       ;load priority tak_id   (  2 clocks) 
 1036:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
@@ -1598,7 +1598,7 @@
  1041               	
  1042               	
  1043               	;;================================kernel cpu usage get starting=============================;; 
- 1044               	Kernel_CPU_Usage_Get:                                                                          
+ 1044               	Kernel_CPU_Usage_Get:                                     ;total 0.75uS @8MHz     (  6 clocks) 
  1045               			;get cpu usage, return R24                                                             
 1046:kernel.S      **** 		LDS   R24                , KerBase+OFB_USAGE      ;load cpu usage         (  2 clocks) 
 1047:kernel.S      **** 		RET                                               ;return from subroutine (  4 clocks) 
