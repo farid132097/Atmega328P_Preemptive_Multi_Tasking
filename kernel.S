@@ -902,12 +902,12 @@ Kernel_Init:                                              ;total 38.63uS @8MHz  
 
 ;;=================================kernel idle task starting================================;; 
 Kernel_Task_Idle:                                         ;total 0.5uS @8MHz      (  4 clocks) 
-        ;LDI   R25                , 0x00                   ;set UBRRH              (  1 clock ) 
-        ;LDI   R24                , 0x00                   ;set UBRRL              (  1 clock ) 
-        ;CALL  Debug_Init                                  ;debug init             ( 19 clocks) 
+       ;LDI   R25                , 0x00                   ;set UBRRH              (  1 clock ) 
+       ;LDI   R24                , 0x00                   ;set UBRRL              (  1 clock ) 
+       ;CALL  Debug_Init                                  ;debug init             ( 19 clocks) 
     _IDLE_LOOP:                                           ;forever loop                        
-	    ;LDI   R24                , 0x23                   ;load val               (  1 clock ) 
-		;CALL  Debug_Tx_Byte                                                                    
+	   ;LDI   R24                , 0x23                   ;load val               (  1 clock ) 
+	   ;CALL  Debug_Tx_Byte                                                                    
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
