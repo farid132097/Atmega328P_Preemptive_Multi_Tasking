@@ -314,37 +314,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-;;==============================context save handler starting===============================;; 
-;used registers          : R0~R31                                                              
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : None                                                                
-.macro  KER_CONTEXT_SAVE_HANDLER                          ;total 8.5uS @8MHz      ( 68 clocks) 
-        KER_SAVE_R0_SREG                                  ;save r0, sreg          (  5 clocks) 
-        KER_SAVE_R1_R31                                   ;save r1~r31            ( 63 clocks) 
-.endm                                                                                          
-;;=================================context save handler end=================================;; 
-
-
-
-
-
-;;===============================context save thread starting===============================;; 
-;used registers          : R0~R31                                                              
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : None                                                                
-.macro  KER_CONTEXT_SAVE_THREAD                           ;total 8.63uS @8MHz     ( 69 clocks) 
-        KER_SAVE_R0_CLI_SREG                              ;save r0, sreg          (  6 clocks) 
-        KER_SAVE_R1_R31                                   ;save r1~r31            ( 63 clocks) 
-.endm                                                                                          
-;;==================================context save thread end=================================;; 
-
-
-
-
-
-
 ;;================================restore r0 & sreg starting================================;; 
 ;used registers          : R0                                                                  
 ;arg registers           : None                                                                
@@ -422,6 +391,36 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
+;;==============================context save handler starting===============================;; 
+;used registers          : R0~R31                                                              
+;arg registers           : None                                                                
+;return registers        : None                                                                
+;unsafe access registers : None                                                                
+.macro  KER_CONTEXT_SAVE_HANDLER                          ;total 8.5uS @8MHz      ( 68 clocks) 
+        KER_SAVE_R0_SREG                                  ;save r0, sreg          (  5 clocks) 
+        KER_SAVE_R1_R31                                   ;save r1~r31            ( 63 clocks) 
+.endm                                                                                          
+;;=================================context save handler end=================================;; 
+
+
+
+
+
+;;===============================context save thread starting===============================;; 
+;used registers          : R0~R31                                                              
+;arg registers           : None                                                                
+;return registers        : None                                                                
+;unsafe access registers : None                                                                
+.macro  KER_CONTEXT_SAVE_THREAD                           ;total 8.63uS @8MHz     ( 69 clocks) 
+        KER_SAVE_R0_CLI_SREG                              ;save r0, sreg          (  6 clocks) 
+        KER_SAVE_R1_R31                                   ;save r1~r31            ( 63 clocks) 
+.endm                                                                                          
+;;==================================context save thread end=================================;; 
+
+
+
+
+
 ;;=============================context restore handler starting=============================;; 
 ;used registers          : R0~R31                                                              
 ;arg registers           : None                                                                
@@ -447,6 +446,20 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_RESTORE_R0_SREG_SEI                           ;restore r0, sreg       (  6 clocks) 
 .endm                                                                                          
 ;;================================context restore thread end================================;; 
+
+
+
+
+
+;;==============================fetch current task id starting==============================;; 
+;used registers          : R20                                                                 
+;arg registers           : None                                                                
+;return registers        : R20 (Current task id)                                               
+;unsafe access registers : R20                                                                 
+.macro  KER_FETCH_CURR_TID                                ;total 0.25uS @8MHz     (  2 clocks) 
+        LDS   R20                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+.endm                                                                                          
+;;================================fetch current task id end=================================;; 
 
 
 
@@ -775,6 +788,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
     __vector_16:                                          ;total 40.00uS @8MHz    (320 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
+		KER_FETCH_CURR_TID                                ;load curr tid in R20   (  2 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
