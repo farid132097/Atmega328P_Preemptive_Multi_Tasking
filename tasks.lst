@@ -354,67 +354,191 @@
  378               	Tasks_Task1:
  379               	.LFB6:
  380               	.LM73:
- 381 0260 1F93      		push r17
- 382               	/* prologue: function */
- 383               	/* frame size = 0 */
- 384               	.LM74:
- 385 0262 399A      		sbi 39-32,1
- 386               	.LM75:
- 387 0264 80E0      		ldi r24,lo8(0)
- 388 0266 90E0      		ldi r25,hi8(0)
- 389 0268 0E94 0000 		call Debug_Init
- 390               	.LM76:
- 391 026c 12E0      		ldi r17,lo8(2)
- 392               	.L26:
- 393 026e 88B1      		in r24,40-32
- 394 0270 8127      		eor r24,r17
- 395 0272 88B9      		out 40-32,r24
- 396               	.LM77:
- 397 0274 0E94 0000 		call Kernel_CPU_Usage_Get
- 398 0278 6AE0      		ldi r22,lo8(10)
- 399 027a 0E94 0000 		call __udivmodqi4
- 400 027e 805D      		subi r24,lo8(-(48))
- 401 0280 0E94 0000 		call Debug_Tx_Byte
- 402               	.LM78:
- 403 0284 0E94 0000 		call Kernel_CPU_Usage_Get
- 404 0288 6AE0      		ldi r22,lo8(10)
- 405 028a 0E94 0000 		call __udivmodqi4
- 406 028e 892F      		mov r24,r25
- 407 0290 805D      		subi r24,lo8(-(48))
- 408 0292 0E94 0000 		call Debug_Tx_Byte
- 409               	.LM79:
- 410 0296 85E2      		ldi r24,lo8(37)
- 411 0298 0E94 0000 		call Debug_Tx_Byte
- 412               	.LM80:
- 413 029c 8DE0      		ldi r24,lo8(13)
- 414 029e 0E94 0000 		call Debug_Tx_Byte
- 415               	.LM81:
- 416 02a2 8AE0      		ldi r24,lo8(10)
- 417 02a4 0E94 0000 		call Debug_Tx_Byte
- 418               	.LM82:
- 419 02a8 8AE0      		ldi r24,lo8(10)
- 420 02aa 90E0      		ldi r25,hi8(10)
- 421 02ac 0E94 0000 		call Kernel_Task_Sleep
- 422 02b0 00C0      		rjmp .L26
- 423               	.LFE6:
- 513               	.Letext0:
+ 381 0260 AF92      		push r10
+ 382 0262 BF92      		push r11
+ 383 0264 CF92      		push r12
+ 384 0266 DF92      		push r13
+ 385 0268 EF92      		push r14
+ 386 026a FF92      		push r15
+ 387 026c 0F93      		push r16
+ 388 026e 1F93      		push r17
+ 389               	/* prologue: function */
+ 390               	/* frame size = 0 */
+ 391               	.LM74:
+ 392 0270 399A      		sbi 39-32,1
+ 393               	.LM75:
+ 394 0272 80E0      		ldi r24,lo8(0)
+ 395 0274 90E0      		ldi r25,hi8(0)
+ 396 0276 0E94 0000 		call Debug_Init
+ 397               	.LM76:
+ 398 027a 1092 7C00 		sts 124,__zero_reg__
+ 399               	.LM77:
+ 400 027e 1092 7A00 		sts 122,__zero_reg__
+ 401               	.LM78:
+ 402 0282 8091 7C00 		lds r24,124
+ 403 0286 8E64      		ori r24,lo8(78)
+ 404 0288 8093 7C00 		sts 124,r24
+ 405               	.LM79:
+ 406 028c 8091 7A00 		lds r24,122
+ 407 0290 8560      		ori r24,lo8(5)
+ 408 0292 8093 7A00 		sts 122,r24
+ 409               	.LM80:
+ 410 0296 8091 7A00 		lds r24,122
+ 411 029a 8068      		ori r24,lo8(-128)
+ 412 029c 8093 7A00 		sts 122,r24
+ 413               	.LM81:
+ 414 02a0 85E0      		ldi r24,lo8(5)
+ 415 02a2 90E0      		ldi r25,hi8(5)
+ 416 02a4 0E94 0000 		call Kernel_Task_Sleep
+ 417               	.LM82:
+ 418 02a8 82E0      		ldi r24,lo8(2)
+ 419 02aa A82E      		mov r10,r24
+ 420               	.L27:
+ 421 02ac 88B1      		in r24,40-32
+ 422 02ae 8A25      		eor r24,r10
+ 423 02b0 88B9      		out 40-32,r24
+ 424               	.LM83:
+ 425 02b2 8091 7A00 		lds r24,122
+ 426 02b6 8064      		ori r24,lo8(64)
+ 427 02b8 8093 7A00 		sts 122,r24
+ 428               	.L26:
+ 429               	.LM84:
+ 430 02bc 8091 7A00 		lds r24,122
+ 431 02c0 84FF      		sbrs r24,4
+ 432 02c2 00C0      		rjmp .L26
+ 433               	.LM85:
+ 434 02c4 2091 7800 		lds r18,120
+ 435 02c8 3091 7900 		lds r19,(120)+1
+ 436               	.LM86:
+ 437 02cc 8091 7A00 		lds r24,122
+ 438 02d0 8061      		ori r24,lo8(16)
+ 439 02d2 8093 7A00 		sts 122,r24
+ 440               	.LM87:
+ 441 02d6 40E0      		ldi r20,lo8(0)
+ 442 02d8 50E0      		ldi r21,hi8(0)
+ 443 02da 60E0      		ldi r22,lo8(1126400)
+ 444 02dc 70E3      		ldi r23,hi8(1126400)
+ 445 02de 81E1      		ldi r24,hlo8(1126400)
+ 446 02e0 90E0      		ldi r25,hhi8(1126400)
+ 447 02e2 0E94 0000 		call __udivmodsi4
+ 448 02e6 122F      		mov r17,r18
+ 449 02e8 E32E      		mov r14,r19
+ 450 02ea D42E      		mov r13,r20
+ 451 02ec C52E      		mov r12,r21
+ 452               	.LM88:
+ 453 02ee 622F      		mov r22,r18
+ 454 02f0 732F      		mov r23,r19
+ 455 02f2 842F      		mov r24,r20
+ 456 02f4 952F      		mov r25,r21
+ 457 02f6 28EE      		ldi r18,lo8(1000)
+ 458 02f8 33E0      		ldi r19,hi8(1000)
+ 459 02fa 40E0      		ldi r20,hlo8(1000)
+ 460 02fc 50E0      		ldi r21,hhi8(1000)
+ 461 02fe 0E94 0000 		call __udivmodsi4
+ 462 0302 CA01      		movw r24,r20
+ 463 0304 B901      		movw r22,r18
+ 464 0306 2AE0      		ldi r18,lo8(10)
+ 465 0308 30E0      		ldi r19,hi8(10)
+ 466 030a 40E0      		ldi r20,hlo8(10)
+ 467 030c 50E0      		ldi r21,hhi8(10)
+ 468 030e 0E94 0000 		call __udivmodsi4
+ 469 0312 B62E      		mov r11,r22
+ 470               	.LM89:
+ 471 0314 612F      		mov r22,r17
+ 472 0316 7E2D      		mov r23,r14
+ 473 0318 8D2D      		mov r24,r13
+ 474 031a 9C2D      		mov r25,r12
+ 475 031c 24E6      		ldi r18,lo8(100)
+ 476 031e 30E0      		ldi r19,hi8(100)
+ 477 0320 40E0      		ldi r20,hlo8(100)
+ 478 0322 50E0      		ldi r21,hhi8(100)
+ 479 0324 0E94 0000 		call __udivmodsi4
+ 480 0328 CA01      		movw r24,r20
+ 481 032a B901      		movw r22,r18
+ 482 032c 2AE0      		ldi r18,lo8(10)
+ 483 032e 30E0      		ldi r19,hi8(10)
+ 484 0330 40E0      		ldi r20,hlo8(10)
+ 485 0332 50E0      		ldi r21,hhi8(10)
+ 486 0334 0E94 0000 		call __udivmodsi4
+ 487 0338 F62E      		mov r15,r22
+ 488 033a 80E3      		ldi r24,lo8(48)
+ 489 033c F80E      		add r15,r24
+ 490               	.LM90:
+ 491 033e 612F      		mov r22,r17
+ 492 0340 7E2D      		mov r23,r14
+ 493 0342 8D2D      		mov r24,r13
+ 494 0344 9C2D      		mov r25,r12
+ 495 0346 2AE0      		ldi r18,lo8(10)
+ 496 0348 30E0      		ldi r19,hi8(10)
+ 497 034a 40E0      		ldi r20,hlo8(10)
+ 498 034c 50E0      		ldi r21,hhi8(10)
+ 499 034e 0E94 0000 		call __udivmodsi4
+ 500 0352 CA01      		movw r24,r20
+ 501 0354 B901      		movw r22,r18
+ 502 0356 2AE0      		ldi r18,lo8(10)
+ 503 0358 30E0      		ldi r19,hi8(10)
+ 504 035a 40E0      		ldi r20,hlo8(10)
+ 505 035c 50E0      		ldi r21,hhi8(10)
+ 506 035e 0E94 0000 		call __udivmodsi4
+ 507 0362 062F      		mov r16,r22
+ 508 0364 005D      		subi r16,lo8(-(48))
+ 509               	.LM91:
+ 510 0366 612F      		mov r22,r17
+ 511 0368 7E2D      		mov r23,r14
+ 512 036a 8D2D      		mov r24,r13
+ 513 036c 9C2D      		mov r25,r12
+ 514 036e 2AE0      		ldi r18,lo8(10)
+ 515 0370 30E0      		ldi r19,hi8(10)
+ 516 0372 40E0      		ldi r20,hlo8(10)
+ 517 0374 50E0      		ldi r21,hhi8(10)
+ 518 0376 0E94 0000 		call __udivmodsi4
+ 519 037a 162F      		mov r17,r22
+ 520 037c 105D      		subi r17,lo8(-(48))
+ 521               	.LBB2:
+ 522               	.LM92:
+ 523 037e 8B2D      		mov r24,r11
+ 524 0380 805D      		subi r24,lo8(-(48))
+ 525 0382 0E94 0000 		call Debug_Tx_Byte
+ 526 0386 8F2D      		mov r24,r15
+ 527 0388 0E94 0000 		call Debug_Tx_Byte
+ 528 038c 802F      		mov r24,r16
+ 529 038e 0E94 0000 		call Debug_Tx_Byte
+ 530 0392 812F      		mov r24,r17
+ 531 0394 0E94 0000 		call Debug_Tx_Byte
+ 532               	.LBE2:
+ 533               	.LM93:
+ 534 0398 85E2      		ldi r24,lo8(37)
+ 535 039a 0E94 0000 		call Debug_Tx_Byte
+ 536               	.LM94:
+ 537 039e 8DE0      		ldi r24,lo8(13)
+ 538 03a0 0E94 0000 		call Debug_Tx_Byte
+ 539               	.LM95:
+ 540 03a4 8AE0      		ldi r24,lo8(10)
+ 541 03a6 0E94 0000 		call Debug_Tx_Byte
+ 542               	.LM96:
+ 543 03aa 8AE0      		ldi r24,lo8(10)
+ 544 03ac 90E0      		ldi r25,hi8(10)
+ 545 03ae 0E94 0000 		call Kernel_Task_Sleep
+ 546 03b2 00C0      		rjmp .L27
+ 547               	.LFE6:
+ 637               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:18     .text:00000000 Tasks_Task9
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:59     .text:00000046 Tasks_Task8
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:100    .text:0000008c Tasks_Task7
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:141    .text:000000d2 Tasks_Task6
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:182    .text:00000118 Tasks_Task5
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:231    .text:0000016a Tasks_Task4
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:280    .text:000001bc Tasks_Task3
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:329    .text:0000020e Tasks_Task2
-C:\Users\farid\AppData\Local\Temp/cc0in6US.s:378    .text:00000260 Tasks_Task1
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:18     .text:00000000 Tasks_Task9
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:59     .text:00000046 Tasks_Task8
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:100    .text:0000008c Tasks_Task7
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:141    .text:000000d2 Tasks_Task6
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:182    .text:00000118 Tasks_Task5
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:231    .text:0000016a Tasks_Task4
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:280    .text:000001bc Tasks_Task3
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:329    .text:0000020e Tasks_Task2
+C:\Users\farid\AppData\Local\Temp/ccWoeSyN.s:378    .text:00000260 Tasks_Task1
 
 UNDEFINED SYMBOLS
 Debug_Init
@@ -422,3 +546,4 @@ Kernel_CPU_Usage_Get
 __udivmodqi4
 Debug_Tx_Byte
 Kernel_Task_Sleep
+__udivmodsi4

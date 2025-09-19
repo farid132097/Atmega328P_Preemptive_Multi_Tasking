@@ -13,8 +13,8 @@ int main(void) {
     
 	Kernel_Init();
 
-	Kernel_Task_Create(Tasks_Task1,  3);
-	Kernel_Task_Create(Tasks_Task2,  0);
+	Kernel_Task_Create(Tasks_Task1,  0);
+	Kernel_Task_Create(Tasks_Task2,  3);
 	Kernel_Task_Create(Tasks_Task3,  2);
 	Kernel_Task_Create(Tasks_Task4,  1);
 	Kernel_Task_Create(Tasks_Task5,  4);

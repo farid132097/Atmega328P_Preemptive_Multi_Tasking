@@ -8,23 +8,39 @@
 
 void Tasks_Task1(void){
   
-  DDRC |= (1<<1);
+  uint32_t vcc=0, temp;
+  uint8_t  val[4];
 
+  DDRC |= (1<<1);
   Debug_Init(0);
+
+  ADMUX  =0x00;
+  ADCSRA =0x00;
+  ADMUX |=(1<<REFS0)|(1<<MUX1) |(1<<MUX2) |(1<<MUX3);
+  ADCSRA|=(1<<ADPS0)|(1<<ADPS2);
+  ADCSRA|=(1<<ADEN) ;
+  Kernel_Task_Sleep(5);
   
   while(1){
     
     PORTC ^= (1<<1);
+    
+    ADCSRA |= (1<<ADSC);
+    while((ADCSRA & (1<<ADIF))==0);
+    vcc = ADCW;
+    ADCSRA |= (1<<ADIF);
+    temp  = 1126400; //1024*1100
+    temp /= vcc;
+    vcc   = temp;
 
-	  /*Debug_Tx_Byte(1);
-    Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
-    Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(1));
-    Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
-    Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
-    Debug_Tx_Byte('\r');
-    Debug_Tx_Byte('\n');*/
-    Debug_Tx_Byte( (Kernel_CPU_Usage_Get()/10) + 48);
-    Debug_Tx_Byte( (Kernel_CPU_Usage_Get()%10) + 48);
+    val[0] = (vcc/1000)%10 + 48;
+    val[1] = (vcc/100)%10 + 48;
+    val[2] = (vcc/10)%10 + 48;
+    val[3] = (vcc/1)%10 + 48;
+    
+    for(uint8_t i=0;i<4;i++){
+      Debug_Tx_Byte( val[i] );
+    }
     Debug_Tx_Byte('%');
     Debug_Tx_Byte('\r');
     Debug_Tx_Byte('\n');
