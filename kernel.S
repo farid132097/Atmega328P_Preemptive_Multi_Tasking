@@ -803,8 +803,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
     __vector_16:                                          ;total 40.00uS @8MHz    (320 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
-		KER_FETCH_CURR_TID                                ;load task id           (  2 clocks) 
-		KER_FETCH_NTASK                                   ;load ntask             (  2 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
 		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
