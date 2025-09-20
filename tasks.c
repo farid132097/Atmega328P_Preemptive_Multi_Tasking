@@ -9,7 +9,13 @@
 void Tasks_Task1(void){
   
   uint32_t vcc=0, temp;
-  uint8_t  val[4];
+  uint8_t  val[10];
+  val[0]='v';
+  val[1]='d';
+  val[2]='d';
+  val[3]=' ';
+  val[8]='\r';
+  val[9]='\n';
 
   DDRC |= (1<<1);
   Debug_Init(0);
@@ -33,17 +39,14 @@ void Tasks_Task1(void){
     temp /= vcc;
     vcc   = temp;
 
-    val[0] = (vcc/1000)%10 + 48;
-    val[1] = (vcc/100)%10 + 48;
-    val[2] = (vcc/10)%10 + 48;
-    val[3] = (vcc/1)%10 + 48;
+    val[4] = (vcc/1000)%10 + 48;
+    val[5] = (vcc/100)%10 + 48;
+    val[6] = (vcc/10)%10 + 48;
+    val[7] = (vcc/1)%10 + 48;
     
-    for(uint8_t i=0;i<4;i++){
+    for(uint8_t i=0;i<10;i++){
       Debug_Tx_Byte( val[i] );
     }
-    Debug_Tx_Byte('%');
-    Debug_Tx_Byte('\r');
-    Debug_Tx_Byte('\n');
     Kernel_Task_Sleep(10);
     
   }
