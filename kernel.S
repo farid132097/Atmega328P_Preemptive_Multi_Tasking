@@ -44,8 +44,10 @@
 
 
 ;;===============================define system macro starting===============================;; 
-.equ     TASK_BLOCK,      0x00                            ;bit 0 in system status reg          
-.equ     TASK_READY,      0x01                            ;bit 0 in system status reg          
+.equ     TASK_BLOCKED,    0x00                            ;KerSchSts val=0                     
+.equ     TASK_READY,      0x01                            ;KerSchSts val=1                     
+.equ     TASK_EXECUTING,  0x02                            ;KerSchSts val=2                     
+.equ     TASK_SUSPENDED,  0x03                            ;KerSchSts val=3                     
 .equ     SCH_MODE_HANDLER,0x00                            ;handler mode in KER_SLP_TIME_MGNT   
 .equ     SCH_MODE_THREAD, 0x01                            ;thread mode in KER_SLP_TIME_MGNT    
 ;;==================================define system macro end=================================;; 
@@ -656,7 +658,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;;============================sleep timeout management starting=============================;; 
 ;used registers          : R16, R17, R18, R24, R30(ZL), R31(ZH)                                
 ;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
-;return registers        : R24 (TASK_READY/TASK_BLOCK)                                         
+;return registers        : R24 (TASK_READY/TASK_BLOCKED)                                       
 ;unsafe access registers : R16, R17, R18, R24, R30(ZL), R31(ZH)                                
 .macro  KER_SLP_TIME_MGNT                                 ;total 5.50uS @8MHz     ( 44 clocks) 
 		LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
@@ -691,7 +693,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		ST    Z                  , R24                    ;update flag            (  2 clocks) 
 		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
     _VAL_NOT_NULL\@:                                                                           
-	    LDI   R24                , TASK_BLOCK             ;use as return val      (  1 clock ) 
+	    LDI   R24                , TASK_BLOCKED           ;use as return val      (  1 clock ) 
     _EXIT_SLP_TIME\@:                                                                          
 .endm                                                                                          
 ;;============================sleep timeout management end==================================;; 
@@ -984,12 +986,7 @@ Kernel_Init:                                              ;total 38.63uS @8MHz  
 
 ;;=================================kernel idle task starting================================;; 
 Kernel_Task_Idle:                                         ;total 0.5uS @8MHz      (  4 clocks) 
-       ;LDI   R25                , 0x00                   ;set UBRRH              (  1 clock ) 
-       ;LDI   R24                , 0x00                   ;set UBRRL              (  1 clock ) 
-       ;CALL  Debug_Init                                  ;debug init             ( 19 clocks) 
     _IDLE_LOOP:                                           ;forever loop                        
-	   ;LDI   R24                , 0x23                   ;load val               (  1 clock ) 
-	   ;CALL  Debug_Tx_Byte                                                                    
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
@@ -1012,7 +1009,7 @@ Kernel_Task_Sleep:                                        ;total 35.5uS @8MHz   
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R16                , TASK_BLOCK             ;block task until cnt=0 (  1 clock ) 
+        LDI   R16                , TASK_BLOCKED           ;block task until cnt=0 (  1 clock ) 
 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 		;run scheduler, load next task sp, restore context                                     
 		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
