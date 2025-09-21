@@ -12,7 +12,6 @@
 int main(void) {
     
 	Kernel_Init();
-	
 
 	Kernel_Task_Create(Tasks_Task1,  0);
 	Kernel_Task_Create(Tasks_Task2,  3);
@@ -23,9 +22,6 @@ int main(void) {
 	Kernel_Task_Create(Tasks_Task7,  5);
 	Kernel_Task_Create(Tasks_Task8,  8);
 	Kernel_Task_Create(Tasks_Task9,  7);
-
-	PORTD^=(1<<5);
-	PORTD^=(1<<5);
 	
 	Kernel_Start_Tasks();
 	
