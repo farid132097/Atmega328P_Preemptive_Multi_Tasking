@@ -868,15 +868,18 @@ Kernel_SysTick_Reg_Init:                                  ;total 11.5uS @8MHz   
 Kernel_Task_Create:                                       ;total 20.38uS @8MHz    (163 clocks) 
         ;func_ptr->R25:R24, task_priority->R22                                                 
         KER_PUSH_MSP_ZP                                   ;push MSP and ZP        ( 18 clocks) 
-		;across this function, R16 will be used as task_id                                     
-		LDS   R16                , KerBase+OFB_TID        ;load task_id           (  2 clocks) 
 		LDI   R17                , 0x00                   ;clear reg              (  1 clock ) 
 		;set priority to KerSchPr+task_id                                                      
 		LDI   ZL                 , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
-		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
-		ADC   ZH                 , R17                    ;add high byte+carry    (  1 clock ) 
+		KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
 		ST    Z                  , R22                    ;save priority          (  2 clocks) 
+		;set task status to KerSchSts+task_id                                                      
+		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+		KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
+		LDI   R16                , TASK_READY             ;set status as ready    (  1 clock ) 
+		ST    Z                  , R16                    ;save status            (  2 clocks) 
 		;stack pointer for current task (KerStack + KER_STK_SZ*(task_id+1) - 1) ->stack top    
 		LDS   R16                , KerBase+OFB_TID        ;load task_id           (  2 clocks) 
 		MOV   R17                , R16                    ;load task_id           (  1 clock ) 
@@ -930,20 +933,10 @@ Kernel_Task_Create:                                       ;total 20.38uS @8MHz  
 
 ;;=================================kernel start tasks starting==============================;; 
 Kernel_Start_Tasks:                                       ;total 11.38uS @8MHz    ( 91 clocks) 
-		;clear task_id                                                                         
-		LDI   R16                , 0x00                   ;load task_id           (  2 clocks) 
-		STS   KerBase+OFB_TID    , R16                    ;store task_id          (  2 clocks) 
-		;load ZP with addr+offset                                                              
-		LDI   ZL                 , lo8(KerPSP+0x00)       ;fetch ZPL KerPSP->TID0 (  1 clock ) 
-		LDI   ZH                 , hi8(KerPSP+0x00)       ;fetch ZPH KerPSP->TID0 (  1 clock ) 
-		;load task_id 0 task's SP                                                              
-		LD    R16                , Z+                     ;load val from Z, inc Z (  2 clocks) 
-		LD    R17                , Z                      ;load val from Z+1      (  2 clocks) 
-        ;set task_id=0 task's SP                                                               
-		OUT   IOSPL              , R16                    ;load SPL               (  1 clock ) 
-        OUT   IOSPH              , R17                    ;load SPH               (  1 clock ) 
-        ;forcefully restore context, in ISR it will be stored automatically                    
-		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
+		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          ( 92 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
 		;config timer for system tick                                                          
 		KER_TIMER_INIT                                    ;init timer, int enable ( 12 clocks) 
 		;execute return to jump to task0, pushed while task init                               
