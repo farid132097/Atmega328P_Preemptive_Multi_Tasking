@@ -1060,7 +1060,7 @@ Kernel_Task_Constant_Latency:                             ;total 35.5uS @8MHz   
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R16                , TASK_READY             ;save as cons_lat       (  1 clock ) 
+        LDI   R16                , TASK_CONS_LAT          ;save as cons_lat       (  1 clock ) 
 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 		SEI                                               ;enable interrupt       (  1 clock ) 
 		RET                                               ;return from subroutine (  4 clocks) 
