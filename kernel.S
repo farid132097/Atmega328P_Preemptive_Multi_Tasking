@@ -696,7 +696,10 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		ST    Z                  , R24                    ;update flag            (  2 clocks) 
 		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
     _VAL_NOT_NULL\@:                                                                           
-	    LDI   R24                , TASK_BLOCKED           ;use as return val      (  1 clock ) 
+	    LDI   ZL                 , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+        KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
+	    LD    R24                , Z                      ;return sts             (  2 clocks) 
     _EXIT_SLP_TIME\@:                                                                          
 .endm                                                                                          
 ;;============================sleep timeout management end==================================;; 
@@ -1057,7 +1060,7 @@ Kernel_Task_Constant_Latency:                             ;total 35.5uS @8MHz   
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R16                , TASK_CONS_LAT          ;save as cons_lat       (  1 clock ) 
+        LDI   R16                , TASK_READY             ;save as cons_lat       (  1 clock ) 
 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 		SEI                                               ;enable interrupt       (  1 clock ) 
 		RET                                               ;return from subroutine (  4 clocks) 

@@ -64,9 +64,10 @@ void Tasks_Task2(void){
   while(1){
     
     #ifdef CONSTANT_LAT_TEST
+    
+    Kernel_Task_Constant_Latency(20);
 
     PORTC ^= (1<<2);
-    Kernel_Task_Constant_Latency(20);
     for(uint8_t i=0;i<200;i++){
       Debug_Tx_Byte('2');
     }
@@ -94,9 +95,9 @@ void Tasks_Task3(void){
   while(1){
     
     #ifdef CONSTANT_LAT_TEST
-
-    PORTC ^= (1<<3);
+    
     Kernel_Task_Constant_Latency(30);
+    PORTC ^= (1<<3);
 	  for(uint8_t i=0;i<200;i++){
       Debug_Tx_Byte('3');
     }
@@ -125,8 +126,8 @@ void Tasks_Task4(void){
     
     #ifdef CONSTANT_LAT_TEST
 
-    PORTC ^= (1<<4);
     Kernel_Task_Constant_Latency(40);
+    PORTC ^= (1<<4);
 	  for(uint8_t i=0;i<200;i++){
       Debug_Tx_Byte('4');
     }
@@ -155,8 +156,8 @@ void Tasks_Task5(void){
     
     #ifdef CONSTANT_LAT_TEST
 
-    PORTC ^= (1<<5);
     Kernel_Task_Constant_Latency(50);
+    PORTC ^= (1<<5);
 	  for(uint8_t i=0;i<200;i++){
       Debug_Tx_Byte('5');
     }
