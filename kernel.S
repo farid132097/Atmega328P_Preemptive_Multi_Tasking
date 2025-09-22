@@ -48,6 +48,7 @@
 .equ     TASK_READY,      0x01                            ;KerSchSts val=1                     
 .equ     TASK_EXECUTING,  0x02                            ;KerSchSts val=2                     
 .equ     TASK_SUSPENDED,  0x03                            ;KerSchSts val=3                     
+.equ     TASK_CONS_LAT,   0x04                            ;KerSchSts val=3, constant latency   
 .equ     SCH_MODE_HANDLER,0x00                            ;handler mode in KER_SLP_TIME_MGNT   
 .equ     SCH_MODE_THREAD, 0x01                            ;thread mode in KER_SLP_TIME_MGNT    
 ;;==================================define system macro end=================================;; 
@@ -140,6 +141,8 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .global  Kernel_Start_Tasks                                                                    
 .global  Kernel_Task_Idle                                                                      
 .global  Kernel_Task_Sleep                                                                     
+.global  Kernel_Task_Constant_Latency                                                          
+.global  Kernel_Task_Constant_Latency_Sleep                                                    
 .global  Kernel_Task_Sleep_Time_Get                                                            
 .global  Kernel_Task_Status_Get                                                                
 .global  Kernel_NTask_Get                                                                      
@@ -658,7 +661,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;;============================sleep timeout management starting=============================;; 
 ;used registers          : R16, R17, R18, R24, R30(ZL), R31(ZH)                                
 ;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
-;return registers        : R24 (TASK_READY/TASK_BLOCKED)                                       
+;return registers        : R24 (READY/BLOCKED/EXECUTING/SUSPENDED/CONS_LAT)                    
 ;unsafe access registers : R16, R17, R18, R24, R30(ZL), R31(ZH)                                
 .macro  KER_SLP_TIME_MGNT                                 ;total 5.50uS @8MHz     ( 44 clocks) 
 		LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
@@ -1032,6 +1035,60 @@ Kernel_Task_Sleep:                                        ;total 35.5uS @8MHz   
 		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task sleep end====================================;; 
+
+
+
+
+
+;;========================kernel task constant latency starting=============================;; 
+;used registers          : R16, R24, R25, R30(ZL), R31(ZH)                                     
+;arg registers           : R25:R24(SleepTime)                                                  
+;return registers        : None                                                                
+;unsafe access registers : R16, R24, R25, R30(ZL), R31(ZH)                                     
+Kernel_Task_Constant_Latency:                             ;total 35.5uS @8MHz     ( 26 clocks) 
+		;create next task wakeup time (args R25:R24)                                           
+		CLI                                               ;disable interrupt      (  1 clock ) 
+		LDI   ZL                 , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
+		KER_CALC_ADDR_OFF_WORD                            ;offset calc            (  6 clocks) 
+		STD   Z+0                , R24                    ;save sleep time low    (  2 clocks) 
+		STD   Z+1                , R25                    ;save sleep time high   (  2 clocks) 
+		;update task scheduler status as constant latency                                      
+		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
+        LDI   R16                , TASK_CONS_LAT          ;save as cons_lat       (  1 clock ) 
+		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
+		SEI                                               ;enable interrupt       (  1 clock ) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;=============================kernel task constant latency end=============================;; 
+
+
+
+
+
+;;=======================kernel task constant latency sleep starting========================;; 
+;used registers          : R16, R24, R25, R30(ZL), R31(ZH)                                     
+;arg registers           : R25:R24(SleepTime)                                                  
+;return registers        : None                                                                
+;unsafe access registers : R16, R24, R25, R30(ZL), R31(ZH)                                     
+Kernel_Task_Constant_Latency_Sleep:                       ;total 35.5uS @8MHz     ( 26 clocks) 
+		;save current context                                                                  
+        KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		;update task scheduler status as blocked                                               
+		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
+        LDI   R16                , TASK_BLOCKED           ;block task until cnt=0 (  1 clock ) 
+		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
+		;run scheduler, load next task sp, restore context                                     
+		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          ( 92 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;=============================kernel task constant latency end=============================;; 
 
 
 

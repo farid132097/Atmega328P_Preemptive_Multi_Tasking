@@ -31,6 +31,8 @@ extern void      Kernel_Task_Create(void (*func)(void), uint8_t priority);
 extern void      Kernel_Start_Tasks(void);
 extern void      Kernel_Task_Idle(void);
 extern void      Kernel_Task_Sleep(uint16_t val);
+extern void      Kernel_Task_Constant_Latency(uint16_t val);
+extern void      Kernel_Task_Constant_Latency_Sleep(void);
 extern uint16_t  Kernel_Task_Sleep_Time_Get(uint8_t task_id);
 extern uint8_t   Kernel_Task_Status_Get(uint8_t task_id);
 extern uint8_t   Kernel_NTask_Get(void);
