@@ -738,12 +738,12 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		STS    KerBase+OFB_LPR   , R16                    ;lowest priority        (  2 clocks) 
 		LDI    R16               , 0x00                   ;start from 0           (  1 clock ) 
 		STS    KerBase+OFB_PTID  , R16                    ;highest prio tid=0     (  2 clocks) 
-		MOV    R25               , R24                    ;copy sch mode          (  1 clock ) 
+		MOV    R15               , R24                    ;copy sch mode          (  1 clock ) 
 	_KER_SCH_LOOP\@:                                                                           
 	    ;store task id to run from KER_DEC_SLP_TIMEOUT                                         
 		STS    KerBase+OFB_TID   , R16                    ;store task id          (  2 clocks) 
         ;sleep time decrement, update ready/blocked status                                     
-		MOV    R24               , R25                    ;restore sch mode       (  1 clock ) 
+		MOV    R24               , R15                    ;restore sch mode       (  1 clock ) 
 		KER_SLP_TIME_MGNT                                 ;update return vars     ( 44 clocks) 
         CPI    R24               , TASK_READY             ;compare                (  1 clock ) 
         BRNE   _KER_SCH_NEXT\@                            ;skip if task not ready (  2 clocks) 
@@ -1105,13 +1105,13 @@ Kernel_Task_Constant_Latency_Sleep:                       ;total 35.5uS @8MHz   
 Kernel_Task_Sleep_Time_Get:                               ;total 1.88uS @8MHz     ( 15 clocks) 
 		MOV   R16                , R24                    ;copy                   (  1 clock ) 
 		LSL   R16                                         ;x2                     (  1 clock ) 
-		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
-		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		LDI   ZL                 , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
+		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
-		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
-		LD    R24                , Z+                     ;load sleep time        (  2 clocks) 
-		LD    R25                , Z                      ;load sleep time        (  2 clocks) 
+		ADC   ZH                 , R16                    ;add high byte+carry    (  1 clock ) 
+		LDD   R24                , Z+0                    ;load sleep time        (  2 clocks) 
+		LDD   R25                , Z+1                    ;load sleep time        (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;==============================kernel task sleep time get end==============================;; 
 
@@ -1126,11 +1126,11 @@ Kernel_Task_Sleep_Time_Get:                               ;total 1.88uS @8MHz   
 ;unsafe access registers : R16, R24, R30(ZL), R31(ZH)                                          
 Kernel_Task_Status_Get:                                   ;total 1.50uS @8MHz     ( 12 clocks) 
 		MOV   R16                , R24                    ;copy                   (  1 clock ) 
-		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		ADD   R30                , R16                    ;add low bytes          (  1 clock ) 
+		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
+		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
+		ADD   ZL                 , R16                    ;add low bytes          (  1 clock ) 
 		LDI   R16                , 0x00                   ;load 0                 (  1 clock ) 
-		ADC   R31                , R16                    ;add high byte+carry    (  1 clock ) 
+		ADC   ZH                 , R16                    ;add high byte+carry    (  1 clock ) 
 		LD    R24                , Z                      ;load task status       (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;================================kernel task status get end================================;; 
@@ -1227,4 +1227,3 @@ Kernel_CPU_Usage_Get:                                     ;total 0.75uS @8MHz   
 		LDS   R24                , KerBase+OFB_USAGE      ;load cpu usage         (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;==================================kernel cpu usage get end================================;; 
-
