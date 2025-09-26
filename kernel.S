@@ -12,7 +12,7 @@
 .equ     KER_TR ,         1000                            ;TickRate in Hz, not calculated      
 .equ     KER_PRS,         0x03                            ;For prescaler 64, manually select   
 .equ     KER_RLD,         0x82                            ;KER_RLD=0xFF-(F_CPU/KER_PRS/KER_TR) 
-.equ     KER_STK_SZ,      128                             ;stack size in bytes for each task   
+.equ     KER_STK_SZ,      160                             ;stack size in bytes for each task   
 .equ     KER_MX_NTSK,     10                              ;max number of tasks                 
 ;;==============================define user address or macro end============================;; 
 
@@ -1083,7 +1083,7 @@ Kernel_Task_Constant_Latency_Sleep:                       ;total 35.5uS @8MHz   
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R16                , TASK_BLOCKED           ;block task until cnt=0 (  1 clock ) 
+        LDI   R16                , TASK_CONS_LAT          ;cnstnt_lat until cnt=0 (  1 clock ) 
 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 		;run scheduler, load next task sp, restore context                                     
 		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
