@@ -66,13 +66,16 @@ Debug_Init:                                               ;total 2.38uS @8MHz   
 
 
 ;;====================================debug tx starting=====================================;; 
-Debug_Tx_Byte:                                            ;total 2.00uS+LT @8MHz  ( 13 clocks) 
-        MOV   R25                , R24                    ;copy r24               (  1 clock ) 
-	_LOAD_UCSR0A:
-		LDS   R24                , SRUCSR0A               ;load UCSR0A            (  2 clocks) 
-		SBRS  R24                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
-        RJMP  _LOAD_UCSR0A                                ;jump to load UCSR0A    (  2 clocks) 
-        STS   SRUDR0             , R24                    ;load val to UDR0       (  2 clocks) 
+Debug_Tx_Byte:                                            ;total 2.00uS+LT @8MHz  ( 16 clocks) 
+		;write single byte to data register (Arg R24)                                          
+		PUSH  R16                                         ;save reg               (  2 clocks) 
+		STS   SRUDR0             , R24                    ;load val to UDR0       (  2 clocks) 
+                                                                                               
+    __UDRE0_CLEARED:                                      ;undefined loop wrt ck               
+		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16     (  2 clocks) 
+		SBRS  R16                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
+		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set(  2 clocks) 
+		POP   R16                                         ;restore reg            (  2 clocks) 
         RET                                               ;return from subroutine (  4 clocks) 
 ;;======================================debug tx end========================================;; 
 
@@ -85,7 +88,7 @@ Debug_Tx_Word:                                            ;total 2.00uS+LT @8MHz
 		;write 2 bytes, (Arg R24, R25), Args retained                                          
 		PUSH  R24                                         ;save reg               (  2 clocks) 
 		MOV   R24                , R25                    ;copy reg               (  1 clock ) 
-		CALL  Debug_Tx_Byte                               ;send via uart          ( 13 clocks) 
+		CALL  Debug_Tx_Byte                               ;send via uart          ( 21 clocks) 
         POP   R24                                         ;restore reg            (  2 clocks) 
 		CALL  Debug_Tx_Byte                               ;send via uart          ( 21 clocks) 
         RET                                               ;return from subroutine (  4 clocks) 
@@ -184,7 +187,6 @@ Debug_Tx_RAM_Area:                                        ;5.5uS+LT x R22 @8MHz 
 		BRNE  __DUMP_BYTES                                                                     
         RET                                               ;return from subroutine,  (4 clocks) 
 ;;===============================debug tx confirm ram area end==============================;; 
-
 
 
 

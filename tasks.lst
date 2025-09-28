@@ -416,59 +416,69 @@
  440 02ee 02E0      		ldi r16,lo8(2)
  441               	.LVL0:
  442               	.L27:
- 443 02f0 88B1      		in r24,40-32
- 444 02f2 8027      		eor r24,r16
- 445 02f4 88B9      		out 40-32,r24
- 446               	.LM93:
- 447 02f6 81E0      		ldi r24,lo8(1)
- 448 02f8 0E94 0000 		call Debug_Tx_Byte
- 449               	.LM94:
- 450 02fc 81E0      		ldi r24,lo8(1)
- 451 02fe 0E94 0000 		call Kernel_Task_Status_Get
- 452 0302 805E      		subi r24,lo8(-(32))
- 453 0304 0E94 0000 		call Debug_Tx_Byte
- 454               	.LM95:
- 455 0308 0E94 0000 		call Kernel_Abs_High_Prio_Task_ID_Get
- 456 030c 805F      		subi r24,lo8(-(16))
- 457 030e 0E94 0000 		call Debug_Tx_Byte
+ 443               	.LM93:
+ 444               	/* #APP */
+ 445               	 ;  17 "tasks.c" 1
+ 446 02f0 0F93      		push r16
+ 447               	 ;  0 "" 2
+ 448               	.LM94:
+ 449               	/* #NOAPP */
+ 450 02f2 8AE0      		ldi r24,lo8(10)
+ 451 02f4 90E0      		ldi r25,hi8(10)
+ 452 02f6 0E94 0000 		call Kernel_Task_Constant_Latency
+ 453               	.LM95:
+ 454               	/* #APP */
+ 455               	 ;  23 "tasks.c" 1
+ 456 02fa 0F91      		pop r16
+ 457               	 ;  0 "" 2
  458               	.LM96:
- 459 0312 0E94 0000 		call Kernel_Lowest_Prio_Get
- 460 0316 0E94 0000 		call Debug_Tx_Byte
- 461 031a 10E0      		ldi r17,lo8(0)
- 462               	.L26:
- 463               	.LBB2:
- 464               	.LM97:
- 465 031c 81E0      		ldi r24,lo8(1)
- 466 031e 0E94 0000 		call Debug_Tx_Byte
- 467               	.LM98:
- 468 0322 1F5F      		subi r17,lo8(-(1))
- 469 0324 183C      		cpi r17,lo8(-56)
- 470 0326 01F4      		brne .L26
- 471               	.LBE2:
- 472               	.LM99:
- 473 0328 8AE0      		ldi r24,lo8(10)
- 474 032a 90E0      		ldi r25,hi8(10)
- 475 032c 0E94 0000 		call Kernel_Task_Sleep
- 476 0330 00C0      		rjmp .L27
- 477               	.LFE6:
- 567               	.Letext0:
+ 459               	/* #NOAPP */
+ 460 02fc 88B1      		in r24,40-32
+ 461 02fe 8027      		eor r24,r16
+ 462 0300 88B9      		out 40-32,r24
+ 463               	.LM97:
+ 464 0302 81E0      		ldi r24,lo8(1)
+ 465 0304 0E94 0000 		call Debug_Tx_Byte
+ 466               	.LM98:
+ 467 0308 0E94 0000 		call Kernel_Abs_High_Prio_Task_ID_Get
+ 468 030c 805F      		subi r24,lo8(-(16))
+ 469 030e 0E94 0000 		call Debug_Tx_Byte
+ 470               	.LM99:
+ 471 0312 0E94 0000 		call Kernel_Lowest_Prio_Get
+ 472 0316 0E94 0000 		call Debug_Tx_Byte
+ 473 031a 10E0      		ldi r17,lo8(0)
+ 474               	.L26:
+ 475               	.LBB2:
+ 476               	.LM100:
+ 477 031c 812F      		mov r24,r17
+ 478 031e 0E94 0000 		call Debug_Tx_Byte
+ 479               	.LM101:
+ 480 0322 1F5F      		subi r17,lo8(-(1))
+ 481 0324 183C      		cpi r17,lo8(-56)
+ 482 0326 01F4      		brne .L26
+ 483               	.LBE2:
+ 484               	.LM102:
+ 485 0328 0E94 0000 		call Kernel_Task_Constant_Latency_Sleep
+ 486 032c 00C0      		rjmp .L27
+ 487               	.LFE6:
+ 577               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:2      *ABS*:0000003f __SREG__
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:3      *ABS*:0000003e __SP_H__
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:4      *ABS*:0000003d __SP_L__
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:5      *ABS*:00000034 __CCP__
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:18     .text:00000000 Tasks_Task9
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:65     .text:00000056 Tasks_Task8
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:112    .text:000000ac Tasks_Task7
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:159    .text:00000102 Tasks_Task6
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:206    .text:00000158 Tasks_Task5
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:261    .text:000001ba Tasks_Task4
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:316    .text:0000021c Tasks_Task3
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:371    .text:0000027e Tasks_Task2
-C:\Users\farid\AppData\Local\Temp/ccAg0jZo.s:426    .text:000002e0 Tasks_Task1
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:18     .text:00000000 Tasks_Task9
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:65     .text:00000056 Tasks_Task8
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:112    .text:000000ac Tasks_Task7
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:159    .text:00000102 Tasks_Task6
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:206    .text:00000158 Tasks_Task5
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:261    .text:000001ba Tasks_Task4
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:316    .text:0000021c Tasks_Task3
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:371    .text:0000027e Tasks_Task2
+C:\Users\farid\AppData\Local\Temp/ccxvP0f6.s:426    .text:000002e0 Tasks_Task1
 
 UNDEFINED SYMBOLS
 Debug_Init
@@ -479,3 +489,5 @@ Kernel_Task_Status_Get
 Kernel_Abs_High_Prio_Task_ID_Get
 Kernel_Lowest_Prio_Get
 Kernel_Task_Sleep
+Kernel_Task_Constant_Latency
+Kernel_Task_Constant_Latency_Sleep

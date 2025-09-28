@@ -14,21 +14,41 @@ void Tasks_Task1(void){
   
   while(1){
     
-    //Kernel_Task_Constant_Latency(10);
+    asm("push r16");
+    //asm("push r24");
+    //asm("push r25");
+    Kernel_Task_Constant_Latency(10);
+    //asm("pop r25");
+    //asm("pop r24");
+    asm("pop r16");
+
     PORTC ^= (1<<1);
+    
 
 	  Debug_Tx_Byte(1);
+
+    //asm("push r16");
+    //asm("push r24");
+    //asm("push r25");
     //Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
-    Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(1));
+    //asm("pop r25");
+    //asm("pop r24");
+    //asm("pop r16");
+
+    //asm("push r16");
+    //asm("push r24");
+    //Debug_Tx_Byte(0x20+Kernel_Task_Status_Get(1));
+    //asm("pop r24");
+    //asm("pop r16");
     Debug_Tx_Byte(0x10+Kernel_Abs_High_Prio_Task_ID_Get());
     Debug_Tx_Byte(Kernel_Lowest_Prio_Get());
     for(uint8_t i=0;i<200;i++){
-      Debug_Tx_Byte(1);
+      Debug_Tx_Byte(i);
     }
 
-    Kernel_Task_Sleep(10);
+    //Kernel_Task_Sleep(10);
 
-    //Kernel_Task_Constant_Latency_Sleep();
+    Kernel_Task_Constant_Latency_Sleep();
     
   }
 }

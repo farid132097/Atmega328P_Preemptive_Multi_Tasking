@@ -746,7 +746,11 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		MOV    R24               , R15                    ;restore sch mode       (  1 clock ) 
 		KER_SLP_TIME_MGNT                                 ;update return vars     ( 44 clocks) 
         CPI    R24               , TASK_READY             ;compare                (  1 clock ) 
-        BRNE   _KER_SCH_NEXT\@                            ;skip if task not ready (  2 clocks) 
+        BREQ   _KER_CALC_PRIO\@                           ;calc priority if ready (  2 clocks) 
+		CPI    R24               , TASK_CONS_LAT          ;compare                (  1 clock ) 
+        BREQ   _KER_CALC_PRIO\@                           ;calc priority if c_lat (  2 clocks) 
+        RJMP   _KER_SCH_NEXT\@                            ;skip if !ready|c_lat   (  2 clocks) 
+	_KER_CALC_PRIO\@:
 		KER_CURR_TASK_PRIO                                ;get task prio ->R24    (  9 clocks) 
         ;compare current task priority with lowest priority found so far                       
 		LDS    R16               , KerBase+OFB_LPR        ;load lowest priority   (  2 clocks) 
@@ -1083,7 +1087,7 @@ Kernel_Task_Constant_Latency_Sleep:                       ;total 35.5uS @8MHz   
 		LDI   ZL                 , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
 		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R16                , TASK_CONS_LAT          ;cnstnt_lat until cnt=0 (  1 clock ) 
+        LDI   R16                , TASK_BLOCKED           ;blocked until cnt=0    (  1 clock ) 
 		STD   Z+0                , R16                    ;save block flag        (  2 clocks) 
 		;run scheduler, load next task sp, restore context                                     
 		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
