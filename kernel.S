@@ -158,17 +158,17 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;============================debug pin operation init starting=============================;; 
-;used registers          : R16, R17                                                            
+;used registers          : R18, R19                                                            
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17                                                            
+;unsafe access registers : R18, R19                                                            
 .macro  KER_TIMER_INIT                                    ;total 1.5uS @8MHz      ( 12 clocks) 
-        LDS   R16		         , KerBase+OFB_PRS        ;load prescaler         (  2 clocks) 
-		LDS   R17		         , KerBase+OFB_RLD        ;load reload val        (  2 clocks) 
-		STS   SRTCCR0B           , R16                    ;prescaler-> TCCR0B     (  2 clocks) 
-		STS   SRTCNT0            , R17                    ;reload val-> TCNT0     (  2 clocks) 
-		LDI   R16                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
-		STS   SRTIMSK0           , R16                    ;set to TIMSK0          (  2 clocks) 
+        LDS   R18		         , KerBase+OFB_PRS        ;load prescaler         (  2 clocks) 
+		LDS   R19		         , KerBase+OFB_RLD        ;load reload val        (  2 clocks) 
+		STS   SRTCCR0B           , R18                    ;prescaler-> TCCR0B     (  2 clocks) 
+		STS   SRTCNT0            , R19                    ;reload val-> TCNT0     (  2 clocks) 
+		LDI   R18                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
+		STS   SRTIMSK0           , R18                    ;set to TIMSK0          (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
 .endm                                                                                          
 ;;==============================debug pin operation init end================================;; 
@@ -227,13 +227,13 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;==============================reload counter value starting===============================;; 
-;used registers          : R16                                                                 
+;used registers          : R18                                                                 
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : None                                                                
+;unsafe access registers : R18                                                                 
 .macro  KER_COUNTER_RELOAD                                ;total 0.5uS @8MHz      (  4 clocks) 
-        LDS   R16                , KerBase+OFB_RLD        ;load reload value      (  2 clocks) 
-		STS   SRTCNT0            , R16                    ;Set value to TCNT0     (  2 clocks) 
+        LDS   R18                , KerBase+OFB_RLD        ;load reload value      (  2 clocks) 
+		STS   SRTCNT0            , R18                    ;Set value to TCNT0     (  2 clocks) 
 .endm                                                                                          
 ;;=================================reload counter value end=================================;; 
 
@@ -486,16 +486,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;=========================calculate offset addr in words starting==========================;; 
-;used registers          : R16, R30(ZL), R31(ZH)                                               
+;used registers          : R18, R30(ZL), R31(ZH)                                               
 ;arg registers           : R30(ZL), R31(ZH)                                                    
 ;return registers        : R30(ZL), R31(ZH)                                                    
-;unsafe access registers : R16, R30(ZL), R31(ZH)                                               
+;unsafe access registers : R18, R30(ZL), R31(ZH)                                               
 .macro  KER_CALC_ADDR_OFF_WORD                            ;total 0.75uS @8MHz     (  6 clocks) 
-        LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		LSL   R16                                         ;left shift to multiply (  1 clock ) 
-		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
-		LDI   R16                , 0x00                   ;clear for carry prop   (  1 clock ) 
-		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		ADD   ZL                 , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   ZH                 , R18                    ;add carry if any       (  1 clock ) 
 .endm                                                                                          
 ;;=============================calculate offset addr in words end===========================;; 
 
@@ -504,15 +504,15 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;=========================calculate offset addr in bytes starting==========================;; 
-;used registers          : R16, R30(ZL), R31(ZH)                                               
+;used registers          : R18, R30(ZL), R31(ZH)                                               
 ;arg registers           : R30(ZL), R31(ZH)                                                    
 ;return registers        : R30(ZL), R31(ZH)                                                    
-;unsafe access registers : R16, R30(ZL), R31(ZH)                                               
+;unsafe access registers : R18, R30(ZL), R31(ZH)                                               
 .macro  KER_CALC_ADDR_OFF_BYTES                           ;total 0.63uS @8MHz     (  5 clocks) 
-        LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		ADD   ZL                 , R16                    ;add offset to array    (  1 clock ) 
-		LDI   R16                , 0x00                   ;clear for carry prop   (  1 clock ) 
-		ADC   ZH                 , R16                    ;add carry if any       (  1 clock ) 
+        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   ZL                 , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   ZH                 , R18                    ;add carry if any       (  1 clock ) 
 .endm                                                                                          
 ;;=============================calculate offset addr in bytes end===========================;; 
 
@@ -521,18 +521,18 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;===============================save current task sp starting==============================;; 
-;used registers          : R16, R17, R30(ZL), R31(ZH)                                          
+;used registers          : R18, R19, R30(ZL), R31(ZH)                                          
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17, R30(ZL), R31(ZH)                                          
+;unsafe access registers : R18, R19, R30(ZL), R31(ZH)                                          
 .macro  KER_SAVE_CURR_TASK_SP                             ;total 1.75uS @8MHz     ( 14 clocks) 
 		LDI   ZL                 , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
 		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
-		IN    R16                , IOSPL                  ;fetch SPL0             (  1 clock ) 
-		IN    R17                , IOSPH                  ;fetch SPH0             (  1 clock ) 
-		STD   Z+0                , R16                    ;store SPL at ZP+0      (  2 clocks) 
-		STD   Z+1                , R17                    ;store SPH at ZP+1      (  2 clocks) 
+		IN    R18                , IOSPL                  ;fetch SPL0             (  1 clock ) 
+		IN    R19                , IOSPH                  ;fetch SPH0             (  1 clock ) 
+		STD   Z+0                , R18                    ;store SPL at ZP+0      (  2 clocks) 
+		STD   Z+1                , R19                    ;store SPH at ZP+1      (  2 clocks) 
 .endm                                                                                          
 ;;================================save current task sp end==================================;; 
 
@@ -541,21 +541,21 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;==============================load next task id starting==================================;; 
-;used registers          : R16, R17                                                            
+;used registers          : R18, R19                                                            
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17                                                            
+;unsafe access registers : R18, R19                                                            
 .macro  KER_LOAD_NEXT_TASK_ID                             ;total 1.63uS @8MHz     ( 13 clocks) 
-		LDS   R16                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		INC   R16                                         ;increment task_id      (  1 clock ) 
-		LDS   R17                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		INC   R18                                         ;increment task_id      (  1 clock ) 
+		LDS   R19                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
 	_MOD_CONT\@:                                          ;use local label                     
-	    CP    R16                , R17                    ;compare R17 with R16   (  1 clock ) 
+	    CP    R18                , R19                    ;compare R17 with R16   (  1 clock ) 
 		BRLO  _MOD_DONE\@                                 ;if R16<R17, done       (  2 clocks) 
-		SUB   R16                , R17                    ;subtract R17 from R16  (  1 clock ) 
+		SUB   R18                , R19                    ;subtract R17 from R16  (  1 clock ) 
 		RJMP  _MOD_CONT\@                                 ;go to loop start       (  2 clocks) 
 	_MOD_DONE\@:                                          ;use local label                     
-	    STS   KerBase+OFB_TID    , R16                    ;save task_id%ntask     (  2 clocks) 
+	    STS   KerBase+OFB_TID    , R18                    ;save task_id%ntask     (  2 clocks) 
 .endm                                                                                          
 ;;=================================load next task id end====================================;; 
 
@@ -564,27 +564,27 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;==============================increment tick counter starting=============================;; 
-;used registers          : R16, R17                                                            
+;used registers          : R18, R19                                                            
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17                                                            
+;unsafe access registers : R18, R19                                                            
 .macro  KER_TICK_INCREMENT                                ;total 3.38uS @8MHz     ( 26 clocks) 
-		LDS   R16                , KerBase+OFB_TICK0      ;load Byte0             (  2 clocks) 
-		INC   R16                                         ;add 1 with Byte0       (  1 clock ) 
-		STS   KerBase+OFB_TICK0  , R16                    ;set Byte0              (  2 clocks) 
-		LDI   R17                , 0x00                   ;clear reg              (  1 clock ) 
-		LDS   R16                , KerBase+OFB_TICK1      ;load Byte1             (  2 clocks) 
-		ADC   R16                , R17                    ;add carry with Byte1   (  1 clock ) 
-		STS   KerBase+OFB_TICK1  , R16                    ;set Byte1              (  2 clocks) 
-		LDS   R16                , KerBase+OFB_TICK2      ;load Byte2             (  2 clocks) 
-		ADC   R16                , R17                    ;add carry with Byte2   (  1 clock ) 
-		STS   KerBase+OFB_TICK2  , R16                    ;set Byte2              (  2 clocks) 
-		LDS   R16                , KerBase+OFB_TICK3      ;load Byte3             (  2 clocks) 
-		ADC   R16                , R17                    ;add carry with Byte3   (  1 clock ) 
-		STS   KerBase+OFB_TICK3  , R16                    ;set Byte3              (  2 clocks) 
-		LDS   R16                , KerBase+OFB_TICK4      ;load Byte4             (  2 clocks) 
-		ADC   R16                , R17                    ;add carry with Byte4   (  1 clock ) 
-		STS   KerBase+OFB_TICK4  , R16                    ;set Byte4              (  2 clocks) 
+		LDS   R18                , KerBase+OFB_TICK0      ;load Byte0             (  2 clocks) 
+		INC   R18                                         ;add 1 with Byte0       (  1 clock ) 
+		STS   KerBase+OFB_TICK0  , R18                    ;set Byte0              (  2 clocks) 
+		LDI   R19                , 0x00                   ;clear reg              (  1 clock ) 
+		LDS   R18                , KerBase+OFB_TICK1      ;load Byte1             (  2 clocks) 
+		ADC   R18                , R19                    ;add carry with Byte1   (  1 clock ) 
+		STS   KerBase+OFB_TICK1  , R18                    ;set Byte1              (  2 clocks) 
+		LDS   R18                , KerBase+OFB_TICK2      ;load Byte2             (  2 clocks) 
+		ADC   R18                , R19                    ;add carry with Byte2   (  1 clock ) 
+		STS   KerBase+OFB_TICK2  , R18                    ;set Byte2              (  2 clocks) 
+		LDS   R18                , KerBase+OFB_TICK3      ;load Byte3             (  2 clocks) 
+		ADC   R18                , R19                    ;add carry with Byte3   (  1 clock ) 
+		STS   KerBase+OFB_TICK3  , R18                    ;set Byte3              (  2 clocks) 
+		LDS   R18                , KerBase+OFB_TICK4      ;load Byte4             (  2 clocks) 
+		ADC   R18                , R19                    ;add carry with Byte4   (  1 clock ) 
+		STS   KerBase+OFB_TICK4  , R18                    ;set Byte4              (  2 clocks) 
 .endm                                                                                          
 ;;=================================increment tick counter end===============================;; 
 
@@ -593,18 +593,18 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;==============================load task id & sp starting==================================;; 
-;used registers          : R16, R17, R30(ZL), R31(ZH)                                          
+;used registers          : R18, R19, R30(ZL), R31(ZH)                                          
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17, R30(ZL), R31(ZH)                                          
+;unsafe access registers : R18, R19, R30(ZL), R31(ZH)                                          
 .macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.75uS @8MHz     ( 14 clocks) 
 		LDI   ZL                 , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
 		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
-		LDD   R16                , Z+0                    ;load SPL at ZP         (  2 clocks) 
-		LDD   R17                , Z+1                    ;load SPH at ZP         (  2 clocks) 
-		OUT   IOSPL              , R16                    ;load SPL0              (  1 clock ) 
-		OUT   IOSPH              , R17                    ;load SPH0              (  1 clock ) 
+		LDD   R18                , Z+0                    ;load SPL at ZP         (  2 clocks) 
+		LDD   R19                , Z+1                    ;load SPH at ZP         (  2 clocks) 
+		OUT   IOSPL              , R18                    ;load SPL0              (  1 clock ) 
+		OUT   IOSPH              , R19                    ;load SPH0              (  1 clock ) 
 .endm                                                                                          
 ;;=================================load task id & sp end====================================;; 
 
@@ -613,17 +613,17 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;================================push msp & zp starting====================================;; 
-;used registers          : R16, R17, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
+;used registers          : R18, R19, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
+;unsafe access registers : R18, R19, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
 .macro  KER_PUSH_MSP_ZP                                   ;total 2.25uS @8MHz     ( 18 clocks) 
         LDS   XL                 , KerSSZ+OFM_MSPI+0      ;load val low           (  2 clocks) 
 		LDS   XH                 , KerSSZ+OFM_MSPI+1      ;load val high          (  2 clocks) 
-		IN    R16                , IOSPL                  ;copy                   (  1 clock ) 
-		IN    R17                , IOSPH                  ;copy                   (  1 clock ) 
-		ST    X+                 , R16                    ;store main SPL         (  2 clocks) 
-        ST    X+                 , R17                    ;store main SPH         (  2 clocks) 
+		IN    R18                , IOSPL                  ;copy                   (  1 clock ) 
+		IN    R19                , IOSPH                  ;copy                   (  1 clock ) 
+		ST    X+                 , R18                    ;store main SPL         (  2 clocks) 
+        ST    X+                 , R19                    ;store main SPH         (  2 clocks) 
 		ST    X+                 , ZL                     ;store main ZL          (  2 clocks) 
 		ST    X+                 , ZH                     ;store main ZH          (  2 clocks) 
 		STS   KerSSZ+OFM_MSPI+0  , XL                     ;store new index        (  2 clocks) 
@@ -636,19 +636,19 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;=================================pop msp & zp starting====================================;; 
-;used registers          : R16, R17, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
+;used registers          : R18, R19, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
+;unsafe access registers : R18, R19, R26(XL), R27(XH), R30(ZL), R31(ZH)                        
 .macro  KER_POP_MSP_ZP                                    ;total 2.25uS @8MHz     ( 18 clocks) 
 		LDS   XL                 , KerSSZ+OFM_MSPI+0      ;load val low           (  2 clocks) 
 		LDS   XH                 , KerSSZ+OFM_MSPI+1      ;load val high          (  2 clocks) 
 		LD    ZH                 , -X                     ;load ZH                (  2 clocks) 
 		LD    ZL                 , -X                     ;load ZL                (  2 clocks) 
-		LD    R17                , -X                     ;load main SPH          (  2 clocks) 
-		LD    R16                , -X                     ;load main SPL          (  2 clocks) 
-		OUT   IOSPL              , R16                    ;set SPL                (  1 clock ) 
-		OUT   IOSPH              , R17                    ;set SPH                (  1 clock ) 
+		LD    R19                , -X                     ;load main SPH          (  2 clocks) 
+		LD    R18                , -X                     ;load main SPL          (  2 clocks) 
+		OUT   IOSPL              , R18                    ;set SPL                (  1 clock ) 
+		OUT   IOSPH              , R19                    ;set SPH                (  1 clock ) 
 		STS   KerSSZ+OFM_MSPI+0  , XL                     ;store new index        (  2 clocks) 
 		STS   KerSSZ+OFM_MSPI+1  , XH                     ;store new index        (  2 clocks) 
 .endm                                                                                          
@@ -659,32 +659,32 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;============================sleep timeout management starting=============================;; 
-;used registers          : R16, R17, R18, R24, R30(ZL), R31(ZH)                                
+;used registers          : R18, R19, R20, R24, R30(ZL), R31(ZH)                                
 ;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
 ;return registers        : R24 (READY/BLOCKED/EXECUTING/SUSPENDED/CONS_LAT)                    
-;unsafe access registers : R16, R17, R18, R24, R30(ZL), R31(ZH)                                
+;unsafe access registers : R18, R19, R20, R24, R30(ZL), R31(ZH)                                
 .macro  KER_SLP_TIME_MGNT                                 ;total 5.50uS @8MHz     ( 44 clocks) 
 		LDI   ZL                 , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
 		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
 		;fetch current value from ram, if val=0, skip decrement                                
-        LDD   R16                , Z+0                    ;load val low byte      (  2 clocks) 
-		LDD   R17                , Z+1                    ;load val high byte     (  2 clocks) 
-		MOV   R18                , R16                    ;copy                   (  1 clock ) 
-		OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
+        LDD   R18                , Z+0                    ;load val low byte      (  2 clocks) 
+		LDD   R19                , Z+1                    ;load val high byte     (  2 clocks) 
+		MOV   R20                , R18                    ;copy                   (  1 clock ) 
+		OR    R20                , R19                    ;or high & low bytes    (  1 clock ) 
 		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
         CPI   R24                , SCH_MODE_THREAD        ;if arg=1, thread mode  (  1 clock ) 
 		BREQ  _VAL_NOT_NULL\@                             ;no need to dec val     (  2 clocks) 
-		;R17:R16 contains 16 bit sleep timer val, decrease val by 1                            
-		LDI   R18                , 0x01                   ;set val 1              (  1 clock ) 
-        SUB   R16                , R18                    ;subtract low byte      (  1 clock ) 
-		LDI   R18                , 0x00                   ;clear                  (  1 clock ) 
-		SBC   R17                , R18                    ;subtract carry if any  (  1 clock ) 
+		;R19:R18 contains 16 bit sleep timer val, decrease val by 1                            
+		LDI   R20                , 0x01                   ;set val 1              (  1 clock ) 
+        SUB   R18                , R20                    ;subtract low byte      (  1 clock ) 
+		LDI   R20                , 0x00                   ;clear                  (  1 clock ) 
+		SBC   R19                , R20                    ;subtract carry if any  (  1 clock ) 
 		;store new value                                                                       
-		STD   Z+0                , R16                    ;store low byte         (  2 clocks) 
-		STD   Z+1                , R17                    ;store low byte         (  2 clocks) 
-		MOV   R18                , R16                    ;copy                   (  1 clock ) 
-		OR    R18                , R17                    ;or high & low bytes    (  1 clock ) 
+		STD   Z+0                , R18                    ;store low byte         (  2 clocks) 
+		STD   Z+1                , R19                    ;store low byte         (  2 clocks) 
+		MOV   R20                , R18                    ;copy                   (  1 clock ) 
+		OR    R20                , R19                    ;or high & low bytes    (  1 clock ) 
 		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
 	_VAL_NULL\@:                                                                               
 	    ;find ram address for status                                                           
@@ -709,17 +709,17 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;============================current task priority starting================================;; 
-;used registers          : R16, R24, R30(ZL), R31(ZH)                                          
+;used registers          : R18, R24, R30(ZL), R31(ZH)                                          
 ;arg registers           : None                                                                
 ;return registers        : R24 (Current task priority)                                         
-;unsafe access registers : R16, R24, R30(ZL), R31(ZH)                                          
+;unsafe access registers : R18, R24, R30(ZL), R31(ZH)                                          
 .macro  KER_CURR_TASK_PRIO                                ;total 1.13uS @8MHz     (  9 clocks) 
 		LDI    ZL                , lo8(KerSchPr)          ;load low addr          (  1 clock ) 
 		LDI    ZH                , hi8(KerSchPr)          ;load high addr         (  1 clock ) 
-		LDI    R16               , 0x00                   ;clear reg, for carry   (  1 clock ) 
+		LDI    R18               , 0x00                   ;clear reg, for carry   (  1 clock ) 
 		LDS    R24               , KerBase+OFB_TID        ;load task id           (  2 clocks) 
         ADD    ZL                , R24                    ;add low addr           (  1 clock ) 
-		ADC    ZH                , R16                    ;add carry if any       (  1 clock ) 
+		ADC    ZH                , R18                    ;add carry if any       (  1 clock ) 
 		LD     R24               , Z                      ;load current tid prio  (  2 clocks) 
 .endm                                                                                          
 ;;==============================current task priority end===================================;; 
@@ -729,19 +729,19 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;================================run scheduler starting====================================;; 
-;used registers          : R16, R17, R18, R24, R25, R30(ZL), R31(ZH)                           
+;used registers          : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
 ;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17, R18, R24, R25, R30(ZL), R31(ZH)                           
+;unsafe access registers : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
 .macro  KER_RUN_SCHEDULER                                 ;total 11.5uS @8MHz     ( 92 clocks) 
-		LDI    R16               , 0xFF                   ;set 0xff               (  1 clock ) 
-		STS    KerBase+OFB_LPR   , R16                    ;lowest priority        (  2 clocks) 
-		LDI    R16               , 0x00                   ;start from 0           (  1 clock ) 
-		STS    KerBase+OFB_PTID  , R16                    ;highest prio tid=0     (  2 clocks) 
+		LDI    R18               , 0xFF                   ;set 0xff               (  1 clock ) 
+		STS    KerBase+OFB_LPR   , R18                    ;lowest priority        (  2 clocks) 
+		LDI    R18               , 0x00                   ;start from 0           (  1 clock ) 
+		STS    KerBase+OFB_PTID  , R18                    ;highest prio tid=0     (  2 clocks) 
 		MOV    R15               , R24                    ;copy sch mode          (  1 clock ) 
 	_KER_SCH_LOOP\@:                                                                           
 	    ;store task id to run from KER_DEC_SLP_TIMEOUT                                         
-		STS    KerBase+OFB_TID   , R16                    ;store task id          (  2 clocks) 
+		STS    KerBase+OFB_TID   , R18                    ;store task id          (  2 clocks) 
         ;sleep time decrement, update ready/blocked status                                     
 		MOV    R24               , R15                    ;restore sch mode       (  1 clock ) 
 		KER_SLP_TIME_MGNT                                 ;update return vars     ( 44 clocks) 
@@ -753,24 +753,24 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 	_KER_CALC_PRIO\@:
 		KER_CURR_TASK_PRIO                                ;get task prio ->R24    (  9 clocks) 
         ;compare current task priority with lowest priority found so far                       
-		LDS    R16               , KerBase+OFB_LPR        ;load lowest priority   (  2 clocks) 
-		CP     R24               , R16                    ;compare                (  1 clock ) 
+		LDS    R18               , KerBase+OFB_LPR        ;load lowest priority   (  2 clocks) 
+		CP     R24               , R18                    ;compare                (  1 clock ) 
 		BRSH   _KER_SCH_NEXT\@                            ;if prio>=lowest prio   (  2 clocks) 
 		;found new lowest priority                                                             
 		STS    KerBase+OFB_LPR   , R24                    ;save lowest priority   (  2 clocks) 
-		LDS    R16               , KerBase+OFB_TID        ;load task id           (  2 clocks) 
-		STS    KerBase+OFB_PTID  , R16                    ;save lowest priority   (  2 clocks) 
+		LDS    R18               , KerBase+OFB_TID        ;load task id           (  2 clocks) 
+		STS    KerBase+OFB_PTID  , R18                    ;save lowest priority   (  2 clocks) 
                                                                                                
     _KER_SCH_NEXT\@:                                                                           
-	    LDS    R16               , KerBase+OFB_TID        ;load task id           (  2 clocks) 
-		INC    R16                                        ;increment by 1         (  1 clock ) 
-		LDS    R17               , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
-		CP     R16               , R17                    ;compare with ntask     (  2 clocks) 
+	    LDS    R18               , KerBase+OFB_TID        ;load task id           (  2 clocks) 
+		INC    R18                                        ;increment by 1         (  1 clock ) 
+		LDS    R19               , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
+		CP     R18               , R19                    ;compare with ntask     (  2 clocks) 
 		BRSH   _KER_SCH_EXIT\@                            ;if task_id>=ntask      (  2 clocks) 
 		RJMP   _KER_SCH_LOOP\@                            ;jump to entry          (  2 clocks) 
 	_KER_SCH_EXIT\@:                                                                           
-        LDS    R16               , KerBase+OFB_PTID       ;load high prio task id (  2 clocks) 
-		STS    KerBase+OFB_TID   , R16                    ;for test only          (  2 clocks) 
+        LDS    R18               , KerBase+OFB_PTID       ;load high prio task id (  2 clocks) 
+		STS    KerBase+OFB_TID   , R18                    ;for test only          (  2 clocks) 
 .endm                                                                                          
 ;;===================================run scheduler end======================================;; 
 
@@ -779,30 +779,30 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;================================calc cpu usage starting===================================;; 
-;used registers          : R16, R17                                                            
+;used registers          : R18, R19                                                            
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17                                                            
+;unsafe access registers : R18, R19                                                            
 .macro  KER_CPU_USAGE                                     ;total 3.25uS @8MHz     ( 26 clocks) 
         ;check if current target task is idle task or not                                      
-        LDS    R16               , KerBase+OFB_TID        ;load target task_id    (  2 clocks) 
-		TST    R16                                        ;check if idle task     (  1 clock ) 
+        LDS    R18               , KerBase+OFB_TID        ;load target task_id    (  2 clocks) 
+		TST    R18                                        ;check if idle task     (  1 clock ) 
 		BREQ   _KER_USG_TICK\@                            ;task_id=idle, skip     (  2 clocks) 
-		LDS    R16               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
-		INC    R16                                        ;inc active tick cnt    (  1 clock ) 
-		STS    KerBase+OFB_UATC  , R16                    ;store new val          (  2 clocks) 
+		LDS    R18               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
+		INC    R18                                        ;inc active tick cnt    (  1 clock ) 
+		STS    KerBase+OFB_UATC  , R18                    ;store new val          (  2 clocks) 
 	_KER_USG_TICK\@:                                                                           
-		LDS    R16               , KerBase+OFB_UTC        ;load usage tick cnt    (  2 clocks) 
-		INC    R16                                        ;increment tick cnt     (  1 clock ) 
-		CPI    R16               , 100                    ;compare with 100       (  1 clock ) 
+		LDS    R18               , KerBase+OFB_UTC        ;load usage tick cnt    (  2 clocks) 
+		INC    R18                                        ;increment tick cnt     (  1 clock ) 
+		CPI    R18               , 100                    ;compare with 100       (  1 clock ) 
 		BRLO   _KER_USG_UTC_SV\@                          ;val<100, save new val  (  2 clocks) 
-		LDI    R16               , 0x00                   ;val>=100, roll back    (  1 clock ) 
-		LDS    R17               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
-		STS    KerBase+OFB_USAGE , R17                    ;store usage            (  2 clocks) 
-		LDI    R17               , 0x00                   ;clear reg              (  1 clock ) 
-		STS    KerBase+OFB_UATC  , R17                    ;clear active tick cnt  (  2 clocks) 
+		LDI    R18               , 0x00                   ;val>=100, roll back    (  1 clock ) 
+		LDS    R19               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
+		STS    KerBase+OFB_USAGE , R19                    ;store usage            (  2 clocks) 
+		LDI    R19               , 0x00                   ;clear reg              (  1 clock ) 
+		STS    KerBase+OFB_UATC  , R19                    ;clear active tick cnt  (  2 clocks) 
 	_KER_USG_UTC_SV\@:                                                                         
-		STS    KerBase+OFB_UTC   , R16                    ;store new val          (  2 clocks) 
+		STS    KerBase+OFB_UTC   , R18                    ;store new val          (  2 clocks) 
 .endm                                                                                          
 ;;===================================calc cpu usage end=====================================;; 
 
@@ -832,40 +832,40 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;================================SysTick reg init starting=================================;; 
-;used registers          : R16, R17, R22, R24, R26(XL), R27(XH), R30(ZL), R31(ZH)              
+;used registers          : R18, R19, R22, R24, R26(XL), R27(XH), R30(ZL), R31(ZH)              
 ;arg registers           : R24(Prescaler), R22(ReloadVal)                                      
 ;return registers        : None                                                                
-;unsafe access registers : R16, R17, R22, R24, R26(XL), R27(XH), R30(ZL), R31(ZH)              
+;unsafe access registers : R18, R19, R22, R24, R26(XL), R27(XH), R30(ZL), R31(ZH)              
 Kernel_SysTick_Reg_Init:                                  ;total 11.5uS @8MHz     ( 92 clocks) 
         CLI                                               ;disable global int     (  1 clock ) 
 		KER_DEBUG_PIN_INIT                                ;debug pin init         (  4 clocks) 
         KER_PUSH_MSP_ZP                                   ;push MSP and ZP        ( 18 clocks) 
 		;clear reg                                                                             
-		LDI   R16                , 0x00                   ;set 0x00 to R16        (  1 clock ) 
+		LDI   R18                , 0x00                   ;set 0x00 to R18        (  1 clock ) 
 		;clear tick counter                                                                    
-		STS   KerBase+OFB_TICK0  , R16                    ;clear  KerBase[0]      (  2 clocks) 
-		STS   KerBase+OFB_TICK1  , R16                    ;clear  KerBase[1]      (  2 clocks) 
-		STS   KerBase+OFB_TICK2  , R16                    ;clear  KerBase[2]      (  2 clocks) 
-		STS   KerBase+OFB_TICK3  , R16                    ;clear  KerBase[3]      (  2 clocks) 
-		STS   KerBase+OFB_TICK4  , R16                    ;clear  KerBase[4]      (  2 clocks) 
+		STS   KerBase+OFB_TICK0  , R18                    ;clear  KerBase[0]      (  2 clocks) 
+		STS   KerBase+OFB_TICK1  , R18                    ;clear  KerBase[1]      (  2 clocks) 
+		STS   KerBase+OFB_TICK2  , R18                    ;clear  KerBase[2]      (  2 clocks) 
+		STS   KerBase+OFB_TICK3  , R18                    ;clear  KerBase[3]      (  2 clocks) 
+		STS   KerBase+OFB_TICK4  , R18                    ;clear  KerBase[4]      (  2 clocks) 
 		;clear system registers                                                                
-		STS   KerBase+OFB_PRS    , R16                    ;clear  KerBase[5]      (  2 clocks) 
-		STS   KerBase+OFB_RLD    , R16                    ;clear  KerBase[6]      (  2 clocks) 
-		STS   KerBase+OFB_TID    , R16                    ;clear  KerBase[7]      (  2 clocks) 
-		STS   KerBase+OFB_NTSK   , R16                    ;clear  KerBase[8]      (  2 clocks) 
-		STS   KerBase+OFB_LPR    , R16                    ;clear  KerBase[9]      (  2 clocks) 
-        STS   KerBase+OFB_PTID   , R16                    ;clear  KerBase[10]     (  2 clocks) 
-		STS   KerBase+OFB_UTC    , R16                    ;clear  KerBase[11]     (  2 clocks) 
-		STS   KerBase+OFB_UATC   , R16                    ;clear  KerBase[12]     (  2 clocks) 
-		STS   KerBase+OFB_USAGE  , R16                    ;clear  KerBase[13]     (  2 clocks) 
+		STS   KerBase+OFB_PRS    , R18                    ;clear  KerBase[5]      (  2 clocks) 
+		STS   KerBase+OFB_RLD    , R18                    ;clear  KerBase[6]      (  2 clocks) 
+		STS   KerBase+OFB_TID    , R18                    ;clear  KerBase[7]      (  2 clocks) 
+		STS   KerBase+OFB_NTSK   , R18                    ;clear  KerBase[8]      (  2 clocks) 
+		STS   KerBase+OFB_LPR    , R18                    ;clear  KerBase[9]      (  2 clocks) 
+        STS   KerBase+OFB_PTID   , R18                    ;clear  KerBase[10]     (  2 clocks) 
+		STS   KerBase+OFB_UTC    , R18                    ;clear  KerBase[11]     (  2 clocks) 
+		STS   KerBase+OFB_UATC   , R18                    ;clear  KerBase[12]     (  2 clocks) 
+		STS   KerBase+OFB_USAGE  , R18                    ;clear  KerBase[13]     (  2 clocks) 
 		;clear all timer registers                                                             
-		STS   SRTCCR0A           , R16                    ;clear TCCR0A           (  2 clocks) 
-		STS   SRTCCR0B           , R16                    ;clear TCCR0B           (  2 clocks) 
-		STS   SRTIMSK0           , R16                    ;clear TIMSK0           (  2 clocks) 
-		STS   SRTIFR0            , R16                    ;clear TIFR0            (  2 clocks) 
-		STS   SROCR0A            , R16                    ;clear OCR0A            (  2 clocks) 
-		STS   SROCR0B            , R16                    ;clear OCR0B            (  2 clocks) 
-		STS   SRTCNT0            , R16                    ;clear TCNT0            (  2 clocks) 
+		STS   SRTCCR0A           , R18                    ;clear TCCR0A           (  2 clocks) 
+		STS   SRTCCR0B           , R18                    ;clear TCCR0B           (  2 clocks) 
+		STS   SRTIMSK0           , R18                    ;clear TIMSK0           (  2 clocks) 
+		STS   SRTIFR0            , R18                    ;clear TIFR0            (  2 clocks) 
+		STS   SROCR0A            , R18                    ;clear OCR0A            (  2 clocks) 
+		STS   SROCR0B            , R18                    ;clear OCR0B            (  2 clocks) 
+		STS   SRTCNT0            , R18                    ;clear TCNT0            (  2 clocks) 
 		;save values for future use                                                            
 		STS   KerBase+OFB_PRS    , R24                    ;KerBase[5] prescaler   (  2 clocks) 
 		STS   KerBase+OFB_RLD    , R22                    ;KerBase[6] reload val  (  2 clocks) 
@@ -884,7 +884,6 @@ Kernel_SysTick_Reg_Init:                                  ;total 11.5uS @8MHz   
 ;unsafe access registers : R16, R17, R22, R24, R25, R26(XL), R27(XH), R30(ZL), R31(ZH)         
 Kernel_Task_Create:                                       ;total 20.38uS @8MHz    (163 clocks) 
         KER_PUSH_MSP_ZP                                   ;push MSP and ZP        ( 18 clocks) 
-		LDI   R17                , 0x00                   ;clear reg              (  1 clock ) 
 		;set priority to KerSchPr+task_id                                                      
 		LDI   ZL                 , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
 		LDI   ZH                 , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
