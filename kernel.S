@@ -1,10 +1,17 @@
 
+/*
+ * File          : kernel.S
+ * Author        : MD. Faridul Islam (faridmdislam@gmail.com)
+ * Description   : AVR kernel for bare-metal RTOS
+ * Created       : Jul 27, 2025, 9:30 PM
+ * Last Modified : Sep 02, 2025, 8:42 PM
+ */
+
+
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "kernel.h"
-#include "debug.h"
-
-
 
 
 
@@ -12,7 +19,7 @@
 .equ     KER_TR ,         1000                            ;TickRate in Hz, not calculated      
 .equ     KER_PRS,         0x03                            ;For prescaler 64, manually select   
 .equ     KER_RLD,         0x82                            ;KER_RLD=0xFF-(F_CPU/KER_PRS/KER_TR) 
-.equ     KER_STK_SZ,      160                             ;stack size in bytes for each task   
+.equ     KER_STK_SZ,      128                             ;stack size in bytes for each task   
 .equ     KER_MX_NTSK,     10                              ;max number of tasks                 
 ;;==============================define user address or macro end============================;; 
 
@@ -1228,3 +1235,5 @@ Kernel_CPU_Usage_Get:                                     ;total 0.75uS @8MHz   
 		LDS   R24                , KerBase+OFB_USAGE      ;load cpu usage         (  2 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;==================================kernel cpu usage get end================================;; 
+
+

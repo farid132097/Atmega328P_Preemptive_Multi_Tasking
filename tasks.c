@@ -42,7 +42,7 @@ void Tasks_Task2(void){
   
   while(1){
     
-    Kernel_Task_Constant_Latency(2);
+    Kernel_Task_Constant_Latency(20);
 
     PORTC ^= (1<<2);
 

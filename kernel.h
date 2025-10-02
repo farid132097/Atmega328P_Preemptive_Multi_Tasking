@@ -1,6 +1,17 @@
 
+/*
+ * File          : kernel.h
+ * Author        : MD. Faridul Islam (faridmdislam@gmail.com)
+ * Description   : AVR kernel for bare-metal RTOS
+ * Created       : Jul 27, 2025, 9:30 PM
+ * Last Modified : Sep 02, 2025, 8:42 PM
+ */
+
+
+
 #ifndef  _KERNEL_H_
 #define  _KERNEL_H_
+
 
 
 //Enable/disable kernel debug via gpio
@@ -19,9 +30,9 @@
 #define  KER_DBG_PIN     0x05   //PORTD5 pin
 #endif
 
+
+
 #ifndef __ASSEMBLER__           //Only accessible via C
-
-
 extern void      Kernel_SysTick_Reg_Init(uint8_t presclaer_reg, uint8_t reload_val);
 extern uint64_t  Kernel_SysTick_Val_Get(void);
 extern uint64_t  Kernel_SysTick_Val_Safely_Get(void);
@@ -41,9 +52,9 @@ extern uint8_t   Kernel_Lowest_Prio_Get(void);
 extern uint8_t   Kernel_High_Prio_Task_ID_Get(void);
 extern uint8_t   Kernel_Abs_High_Prio_Task_ID_Get(void);
 extern uint8_t   Kernel_CPU_Usage_Get(void);
-
-
 #endif
+
+
 
 #endif
 

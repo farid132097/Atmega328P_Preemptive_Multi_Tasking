@@ -8,7 +8,7 @@
 #include "tasks.h"
 
 
-    
+
 int main(void) {
     
 	Kernel_Init();

@@ -5,7 +5,7 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .text         00000db0  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000698  00800100  00800100  00000e24  2**0
+  1 .bss          00000558  00800100  00800100  00000e24  2**0
                   ALLOC
   2 .stab         00000c6c  00000000  00000000  00000e24  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -89,7 +89,7 @@ Disassembly of section .text:
 000000a2 <main>:
 
 
-    
+
 int main(void) {
     
 	Kernel_Init();
@@ -588,7 +588,7 @@ void Tasks_Task2(void){
   
   while(1){
     
-    Kernel_Task_Constant_Latency(2);
+    Kernel_Task_Constant_Latency(20);
 
     PORTC ^= (1<<2);
  3ac:	14 e0       	ldi	r17, 0x04	; 4
@@ -597,8 +597,8 @@ void Tasks_Task2(void){
   
   while(1){
     
-    Kernel_Task_Constant_Latency(2);
- 3ae:	82 e0       	ldi	r24, 0x02	; 2
+    Kernel_Task_Constant_Latency(20);
+ 3ae:	84 e1       	ldi	r24, 0x14	; 20
  3b0:	90 e0       	ldi	r25, 0x00	; 0
  3b2:	0e 94 77 05 	call	0xaee	; 0xaee <Kernel_Task_Constant_Latency>
 
@@ -1098,7 +1098,7 @@ Kernel_Task_Create:                                       ;total 21.50uS @8MHz  
 		INC   R18                                         ;increment task_id      (  1 clock ) 
  722:	23 95       	inc	r18
 		LDI   R19                , KER_STK_SZ             ;load stack size        (  1 clock ) 
- 724:	30 ea       	ldi	r19, 0xA0	; 160
+ 724:	30 e8       	ldi	r19, 0x80	; 128
 		MUL   R18                , R19                    ;multiply to get offset (  2 clocks) 
  726:	23 9f       	mul	r18, r19
 		MOV   ZL                 , R0                     ;load multiplied low    (  1 clocks) 
