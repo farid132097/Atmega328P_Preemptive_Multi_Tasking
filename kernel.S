@@ -69,12 +69,17 @@
 .equ     SRSPH   ,        0x5E                            ;manually defined SPH in SRAM        
 .equ     SRSPL   ,        0x5D                            ;manually defined SPL in SRAM        
 .equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
+.equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
+.equ     SRMCUCR ,        0x55                            ;manually defined MCUCR in SRAM      
+.equ     SRMCUSR ,        0x54                            ;manually defined MCUSR in SRAM      
 .equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM      
 .equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM      
 .equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM      
 .equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM     
 .equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM     
 .equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
+.equ     IOMCUCR ,        0x35                            ;manually defined MCUCR in IO        
+.equ     IOMCUSR ,        0x34                            ;manually defined MCUSR in IO        
 .equ     IOOCR0B ,        0x28                            ;manually defined OCR0B in IO        
 .equ     IOOCR0A ,        0x27                            ;manually defined OCR0A in IO        
 .equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO        
@@ -122,7 +127,9 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;;===============================define vector section starting=============================;; 
 .section .vectors, "ax", @progbits                                                             
                                                                                                
-.org    0x20                                                                                   
+.org    0x000C                                                                                 
+        RJMP  __vector_6                                                                       
+.org    0x0020                                                                                 
         RJMP  __vector_16                                                                      
 ;;=================================define vector section end================================;; 
 
@@ -170,6 +177,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;return registers        : None                                                                
 ;unsafe access registers : R18, R19                                                            
 .macro  KER_TIMER_INIT                                    ;total 1.5uS @8MHz      ( 12 clocks) 
+        #ifdef KER_TIMER0_AS_TICK_SRC                                                          
         LDS   R18		         , KerBase+OFB_PRS        ;load prescaler         (  2 clocks) 
 		LDS   R19		         , KerBase+OFB_RLD        ;load reload val        (  2 clocks) 
 		STS   SRTCCR0B           , R18                    ;prescaler-> TCCR0B     (  2 clocks) 
@@ -177,6 +185,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDI   R18                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
 		STS   SRTIMSK0           , R18                    ;set to TIMSK0          (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
+		#endif                                                                                 
+		#ifdef KER_WDT_AS_TICK_SRC                                                             
+        WDR                                               ;reset wdt              (  1 clock ) 
+		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
+		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
+		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		LDI   R18                , 0x46                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
+		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		SEI                                               ;force enable interrupt (  1 clock ) 
+		#endif                                                                                 
 .endm                                                                                          
 ;;==============================debug pin operation init end================================;; 
 
@@ -736,28 +754,28 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;================================run scheduler starting====================================;; 
-;used registers          : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
+;used registers          : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
 ;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
 ;return registers        : None                                                                
-;unsafe access registers : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
+;unsafe access registers : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
 .macro  KER_RUN_SCHEDULER                                 ;total 13.25uS @8MHz    (106 clocks) 
 		LDI    R18               , 0xFF                   ;set 0xff               (  1 clock ) 
 		STS    KerBase+OFB_LPR   , R18                    ;lowest priority        (  2 clocks) 
 		LDI    R18               , 0x00                   ;start from 0           (  1 clock ) 
 		STS    KerBase+OFB_PTID  , R18                    ;highest prio tid=0     (  2 clocks) 
-		MOV    R15               , R24                    ;copy sch mode          (  1 clock ) 
+		MOV    R21               , R24                    ;copy sch mode          (  1 clock ) 
 	_KER_SCH_LOOP\@:                                                                           
 	    ;store task id to run from KER_DEC_SLP_TIMEOUT                                         
 		STS    KerBase+OFB_TID   , R18                    ;store task id          (  2 clocks) 
         ;sleep time decrement, update ready/blocked status                                     
-		MOV    R24               , R15                    ;restore sch mode       (  1 clock ) 
+		MOV    R24               , R21                    ;restore sch mode       (  1 clock ) 
 		KER_SLP_TIME_MGNT                                 ;update return vars     ( 52 clocks) 
         CPI    R24               , TASK_READY             ;compare                (  1 clock ) 
         BREQ   _KER_CALC_PRIO\@                           ;calc priority if ready (  2 clocks) 
 		CPI    R24               , TASK_CONS_LAT          ;compare                (  1 clock ) 
         BREQ   _KER_CALC_PRIO\@                           ;calc priority if c_lat (  2 clocks) 
         RJMP   _KER_SCH_NEXT\@                            ;skip if !ready|c_lat   (  2 clocks) 
-	_KER_CALC_PRIO\@:
+	_KER_CALC_PRIO\@:                                                                          
 		KER_CURR_TASK_PRIO                                ;get task prio ->R24    (  9 clocks) 
         ;compare current task priority with lowest priority found so far                       
 		LDS    R18               , KerBase+OFB_LPR        ;load lowest priority   (  2 clocks) 
@@ -818,6 +836,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;=================================ISR execution starting===================================;; 
+#ifdef  KER_TIMER0_AS_TICK_SRC                                                                 
 .global  __vector_16                                                                           
     __vector_16:                                          ;total 40.00uS @8MHz    (334 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
@@ -832,6 +851,26 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
+#endif                                                                                         
+#ifdef  KER_WDT_AS_TICK_SRC                                                                    
+.global  __vector_6                                                                            
+    __vector_6:                                           ;total 40.00uS @8MHz    (334 clocks) 
+	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
+        KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
+		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
+		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
+		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
+	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
+		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
+		ORI   R18                , 0x40                   ;set WDIE               (  1 clock ) 
+		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		RETI                                              ;return from interrupt  (  4 clocks) 
+#endif                                                                                         
 ;;====================================ISR execution end=====================================;; 
 
 
@@ -866,6 +905,7 @@ Kernel_SysTick_Reg_Init:                                  ;total 11.50uS @8MHz  
 		STS   KerBase+OFB_UATC   , R18                    ;clear  KerBase[12]     (  2 clocks) 
 		STS   KerBase+OFB_USAGE  , R18                    ;clear  KerBase[13]     (  2 clocks) 
 		;clear all timer registers                                                             
+		#ifdef KER_TIMER0_AS_TICK_SRC                                                          
 		STS   SRTCCR0A           , R18                    ;clear TCCR0A           (  2 clocks) 
 		STS   SRTCCR0B           , R18                    ;clear TCCR0B           (  2 clocks) 
 		STS   SRTIMSK0           , R18                    ;clear TIMSK0           (  2 clocks) 
@@ -873,6 +913,18 @@ Kernel_SysTick_Reg_Init:                                  ;total 11.50uS @8MHz  
 		STS   SROCR0A            , R18                    ;clear OCR0A            (  2 clocks) 
 		STS   SROCR0B            , R18                    ;clear OCR0B            (  2 clocks) 
 		STS   SRTCNT0            , R18                    ;clear TCNT0            (  2 clocks) 
+		#endif                                                                                 
+        #ifdef KER_WDT_AS_TICK_SRC                                                             
+		WDR                                               ;reset wdt              (  1 clock ) 
+		IN    R18                , IOMCUSR                ;copy MCUSR             (  1 clock ) 
+		ANDI  R18                , 0xFF & (0<<WDRF)       ;clear WDRF             (  1 clock ) 
+		OUT   IOMCUSR            , R18                    ;set val                (  1 clock ) 
+		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
+		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
+		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		LDI   R18                , 0x00                   ;clear WDE              (  1 clock ) 
+		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		#endif                                                                                 
 		;save values for future use                                                            
 		STS   KerBase+OFB_PRS    , R24                    ;KerBase[5] prescaler   (  2 clocks) 
 		STS   KerBase+OFB_RLD    , R22                    ;KerBase[6] reload val  (  2 clocks) 

@@ -16,7 +16,8 @@
 
 //Enable/disable kernel debug via gpio
 #define  KER_DBG_ENABLE
-
+//#define  KER_TIMER0_AS_TICK_SRC
+#define  KER_WDT_AS_TICK_SRC
 
 
 /*
