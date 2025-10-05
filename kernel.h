@@ -14,10 +14,24 @@
 
 
 
-//Enable/disable kernel debug via gpio
+//Enable or disable kernel debug via gpio
 #define  KER_DBG_ENABLE
+
+//Uncomment only one
 //#define  KER_TIMER0_AS_TICK_SRC
 #define  KER_WDT_AS_TICK_SRC
+
+
+//Uncomment if idle times need to be in sleep
+//#define  KER_IDLE_AS_SLEEP
+
+//Uncomment only one
+#define  KER_SLEEP_MODE_IDLE
+//#define  KER_SLEEP_MODE_ADC_NR
+//#define  KER_SLEEP_MODE_POWER_DOWN
+//#define  KER_SLEEP_MODE_POWER_SAVE
+//#define  KER_SLEEP_MODE_STDBY
+//#define  KER_SLEEP_MODE_EXT_STDBY
 
 
 /*

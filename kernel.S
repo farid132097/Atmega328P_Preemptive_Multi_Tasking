@@ -28,22 +28,23 @@
 
 
 ;;===============================define data offsets starting===============================;; 
-.equ     OFB_TICK0,       0x00                            ;tick count byte0 offset from KerBase
-.equ     OFB_TICK1,       0x01                            ;tick count byte1 offset from KerBase
-.equ     OFB_TICK2,       0x02                            ;tick count byte2 offset from KerBase
-.equ     OFB_TICK3,       0x03                            ;tick count byte3 offset from KerBase
-.equ     OFB_TICK4,       0x04                            ;tick count byte4 offset from KerBase
-.equ     OFB_PRS  ,       0x05                            ;prescaler offset from KerBase       
-.equ     OFB_RLD  ,       0x06                            ;counter reload offset from KerBase  
-.equ     OFB_TID  ,       0x07                            ;task id offset from KerBase         
-.equ     OFB_NTSK ,       0x08                            ;ntask offset from KerBase           
-.equ     OFB_LPR  ,       0x09                            ;lowest priority offset from KerBase 
-.equ     OFB_PTID ,       0x0A                            ;prio task_id offset from KerBase    
-.equ     OFB_UTC  ,       0x0B                            ;usage tick cnt offset from KerBase  
-.equ     OFB_UATC ,       0x0C                            ;active tick cnt offset from KerBase 
-.equ     OFB_USAGE,       0x0D                            ;cpu usage offset from KerBase       
-.equ     OFM_MSPI ,       0x00                            ;msp index field offset from MSPZP   
-.equ     OFM_MSPS ,       0x02                            ;msp starting offset from MSPZP      
+.equ     OFB_TICK0,       0x00                            ;offset from KerBase tick count byte0
+.equ     OFB_TICK1,       0x01                            ;offset from KerBase tick count byte1
+.equ     OFB_TICK2,       0x02                            ;offset from KerBase tick count byte2
+.equ     OFB_TICK3,       0x03                            ;offset from KerBase tick count byte3
+.equ     OFB_TICK4,       0x04                            ;offset from KerBase tick count byte4
+.equ     OFB_PRS  ,       0x05                            ;offset from KerBase prescaler       
+.equ     OFB_RLD  ,       0x06                            ;offset from KerBase counter reload  
+.equ     OFB_TID  ,       0x07                            ;offset from KerBase task id         
+.equ     OFB_NTSK ,       0x08                            ;offset from KerBase ntask           
+.equ     OFB_LPR  ,       0x09                            ;offset from KerBase lowest priority 
+.equ     OFB_PTID ,       0x0A                            ;offset from KerBase prio task_id    
+.equ     OFB_UTC  ,       0x0B                            ;offset from KerBase usage tick cnt  
+.equ     OFB_UATC ,       0x0C                            ;offset from KerBase active tick cnt 
+.equ     OFB_USAGE,       0x0D                            ;offset from KerBase cpu usage       
+.equ     OFB_SLCFG,       0x0E                            ;offset from KerBase sleep config    
+.equ     OFM_MSPI ,       0x00                            ;offset from MSPZP msp index field   
+.equ     OFM_MSPS ,       0x02                            ;offset from MSPZP msp starting      
 ;;==================================define data offsets end=================================;; 
 
 
@@ -72,6 +73,7 @@
 .equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
 .equ     SRMCUCR ,        0x55                            ;manually defined MCUCR in SRAM      
 .equ     SRMCUSR ,        0x54                            ;manually defined MCUSR in SRAM      
+.equ     SRSMCR  ,        0x53                            ;manually defined SMCR in SRAM       
 .equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM      
 .equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM      
 .equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM      
@@ -80,6 +82,7 @@
 .equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
 .equ     IOMCUCR ,        0x35                            ;manually defined MCUCR in IO        
 .equ     IOMCUSR ,        0x34                            ;manually defined MCUSR in IO        
+.equ     IOSMCR  ,        0x33                            ;manually defined SMCR in IO         
 .equ     IOOCR0B ,        0x28                            ;manually defined OCR0B in IO        
 .equ     IOOCR0A ,        0x27                            ;manually defined OCR0A in IO        
 .equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO        
@@ -99,7 +102,7 @@
 .section   .bss                                                                                
                                                                                                
 .global    KerBase                                        ;declare global space for kernel     
-KerBase:   .skip 14                                       ;see offset section                  
+KerBase:   .skip 16                                       ;see offset section                  
                                                                                                
 .global    KerPSP                                         ;space for process stack pointers    
 KerPSP:    .skip KER_MX_NTSK*2                            ;2 bytes for each task               
@@ -187,6 +190,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
 		#ifdef KER_WDT_AS_TICK_SRC                                                             
+		#warning "wdt is enabled"
         WDR                                               ;reset wdt              (  1 clock ) 
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
@@ -835,11 +839,79 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
+;;===============================kernel sleep config starting===============================;; 
+;used registers          : R18                                                                 
+;arg registers           : None                                                                
+;return registers        : None                                                                
+;unsafe access registers : R18                                                                 
+.macro KER_SLEEP_INIT                                     ;total 0.63uS @8MHz     (  5 clocks) 
+    #ifdef KER_IDLE_AS_SLEEP                                                                   
+        #ifdef KER_SLEEP_MODE_IDLE                                                             
+		LDI   R18                , 0x00                   ;set SM[2:0] val        (  1 clock ) 
+		#elif KER_SLEEP_MODE_ADC_NR                                                            
+		LDI   R18                , 0x02                   ;set SM[2:0] val        (  1 clock ) 
+		#elif KER_SLEEP_MODE_POWER_DOWN                                                        
+		LDI   R18                , 0x04                   ;set SM[2:0] val        (  1 clock ) 
+		#elif KER_SLEEP_MODE_POWER_SAVE                                                        
+		LDI   R18                , 0x06                   ;set SM[2:0] val        (  1 clock ) 
+		#elif KER_SLEEP_MODE_STDBY                                                             
+		LDI   R18                , 0x0C                   ;set SM[2:0] val        (  1 clock ) 
+		#elif KER_SLEEP_MODE_STDBY                                                             
+		LDI   R18                , 0x0E                   ;set SM[2:0] val        (  1 clock ) 
+		#endif                                                                                 
+		STS   IOSMCR             , R18                    ;set sleep control val  (  2 clocks) 
+		STS   KerBase+OFB_SLCFG  , R18                    ;save sleep control val (  2 clocks) 
+	#endif                                                                                     
+.endm                                                                                          
+;;================================kernel sleep config end===================================;; 
+
+
+
+
+
+;;==============================kernel enter sleep mode starting============================;; 
+;used registers          : None                                                                
+;arg registers           : None                                                                
+;return registers        : None                                                                
+;unsafe access registers : None                                                                
+.macro KER_ENTER_SLEEP                                    ;total 0.75uS @8MHz     (  6 clocks) 
+    #ifdef KER_IDLE_AS_SLEEP                                                                   
+		LDS   R18                , SRSMCR                 ;load SMCR              (  2 clocks) 
+		ORI   R18                , 0x01                   ;set SE bit             (  1 clock ) 
+		STS   SRSMCR             , R18                    ;set val                (  2 clocks) 
+		SLEEP                                             ;sleep cpu              (  1 clock ) 
+	#endif                                                                                     
+.endm                                                                                          
+;;================================kernel enter sleep mode end===============================;; 
+
+
+
+
+
+;;===============================kernel exit sleep mode starting============================;; 
+;used registers          : None                                                                
+;arg registers           : None                                                                
+;return registers        : None                                                                
+;unsafe access registers : None                                                                
+.macro KER_EXIT_SLEEP                                     ;total 0.63uS @8MHz     (  5 clocks) 
+    #ifdef KER_IDLE_AS_SLEEP                                                                   
+        LDS   R18                , SRSMCR                 ;load SMCR              (  2 clocks) 
+		ANDI  R18                , 0xFE                   ;clear SE bit           (  1 clock ) 
+		STS   SRSMCR             , R18                    ;set val                (  2 clocks) 
+	#endif                                                                                     
+.endm                                                                                          
+;;=================================kernel exit sleep mode end===============================;; 
+
+
+
+
+
 ;;=================================ISR execution starting===================================;; 
 #ifdef  KER_TIMER0_AS_TICK_SRC                                                                 
 .global  __vector_16                                                                           
-    __vector_16:                                          ;total 40.00uS @8MHz    (334 clocks) 
+    __vector_16:                                          ;total 40.00uS @8MHz    (339 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
+		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
@@ -854,8 +926,9 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 #endif                                                                                         
 #ifdef  KER_WDT_AS_TICK_SRC                                                                    
 .global  __vector_6                                                                            
-    __vector_6:                                           ;total 40.00uS @8MHz    (334 clocks) 
+    __vector_6:                                           ;total 40.00uS @8MHz    (344 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
+		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
@@ -916,9 +989,9 @@ Kernel_SysTick_Reg_Init:                                  ;total 11.50uS @8MHz  
 		#endif                                                                                 
         #ifdef KER_WDT_AS_TICK_SRC                                                             
 		WDR                                               ;reset wdt              (  1 clock ) 
-		IN    R18                , IOMCUSR                ;copy MCUSR             (  1 clock ) 
+		LDS   R18                , SRMCUSR                ;copy MCUSR             (  1 clock ) 
 		ANDI  R18                , 0xFF & (0<<WDRF)       ;clear WDRF             (  1 clock ) 
-		OUT   IOMCUSR            , R18                    ;set val                (  1 clock ) 
+		STS   SRMCUSR            , R18                    ;set val                (  1 clock ) 
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
@@ -1062,7 +1135,9 @@ Kernel_Init:                                              ;total 39.75uS @8MHz  
 ;return registers        : None                                                                
 ;unsafe access registers : None                                                                
 Kernel_Task_Idle:                                         ;total 0.50uS @8MHz     (  4 clocks) 
+	    KER_SLEEP_INIT                                    ;sleep init             (  8 clocks)
     _IDLE_LOOP:                                           ;forever loop                        
+	    KER_ENTER_SLEEP                                   ;enter sleep mode       (  4 clocks)
 		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
