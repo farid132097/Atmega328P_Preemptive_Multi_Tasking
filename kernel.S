@@ -1,11 +1,11 @@
 
-/*
- * File          : kernel.S
- * Author        : MD. Faridul Islam (faridmdislam@gmail.com)
- * Description   : AVR kernel for bare-metal RTOS
- * Created       : Jul 27, 2025, 9:30 PM
- * Last Modified : Sep 02, 2025, 8:42 PM
- */
+
+ ; File          : kernel.S
+ ; Author        : MD. Faridul Islam (faridmdislam@gmail.com)
+ ; Description   : AVR kernel for bare-metal RTOS
+ ; Created       : Jul 27, 2025, 9:30 PM
+ ; Last Modified : Sep 02, 2025, 8:42 PM
+
 
 
 
@@ -190,12 +190,31 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
 		#ifdef KER_WDT_AS_TICK_SRC                                                             
-		#warning "wdt is enabled"
         WDR                                               ;reset wdt              (  1 clock ) 
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		#ifdef KER_WDT_TICK_16MS                                                               
+		LDI   R18                , 0x40                   ;WDIE                   (  1 clock ) 
+		#endif                                                                                 
+        #ifdef KER_WDT_TICK_32MS                                                               
+		LDI   R18                , 0x41                   ;WDIE, WDPS0            (  1 clock ) 
+		#endif                                                                                 
+		#ifdef KER_WDT_TICK_64MS                                                               
+		LDI   R18                , 0x42                   ;WDIE, WDPS1            (  1 clock ) 
+		#endif                                                                                 
+		#ifdef KER_WDT_TICK_125MS                                                              
+		LDI   R18                , 0x43                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
+		#endif                                                                                 
+		#ifdef KER_WDT_TICK_250MS                                                              
+		LDI   R18                , 0x44                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
+		#endif                                                                                 
+		#ifdef KER_WDT_TICK_500MS                                                              
+		LDI   R18                , 0x45                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
+		#endif                                                                                 
+		#ifdef KER_WDT_TICK_1000MS                                                             
 		LDI   R18                , 0x46                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
+		#endif                                                                                 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
@@ -848,15 +867,20 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
     #ifdef KER_IDLE_AS_SLEEP                                                                   
         #ifdef KER_SLEEP_MODE_IDLE                                                             
 		LDI   R18                , 0x00                   ;set SM[2:0] val        (  1 clock ) 
-		#elif KER_SLEEP_MODE_ADC_NR                                                            
+		#endif                                                                                 
+		#ifdef KER_SLEEP_MODE_ADC_NR                                                           
 		LDI   R18                , 0x02                   ;set SM[2:0] val        (  1 clock ) 
-		#elif KER_SLEEP_MODE_POWER_DOWN                                                        
+		#ifdef KER_SLEEP_MODE_POWER_DOWN                                                       
+		#endif                                                                                 
 		LDI   R18                , 0x04                   ;set SM[2:0] val        (  1 clock ) 
-		#elif KER_SLEEP_MODE_POWER_SAVE                                                        
+		#ifdef KER_SLEEP_MODE_POWER_SAVE                                                       
+		#endif                                                                                 
 		LDI   R18                , 0x06                   ;set SM[2:0] val        (  1 clock ) 
-		#elif KER_SLEEP_MODE_STDBY                                                             
+		#ifdef KER_SLEEP_MODE_STDBY                                                            
+		#endif                                                                                 
 		LDI   R18                , 0x0C                   ;set SM[2:0] val        (  1 clock ) 
-		#elif KER_SLEEP_MODE_STDBY                                                             
+		#ifdef KER_SLEEP_MODE_STDBY                                                            
+		#endif                                                                                 
 		LDI   R18                , 0x0E                   ;set SM[2:0] val        (  1 clock ) 
 		#endif                                                                                 
 		STS   IOSMCR             , R18                    ;set sleep control val  (  2 clocks) 

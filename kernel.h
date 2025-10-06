@@ -22,13 +22,22 @@
 #define  KER_WDT_AS_TICK_SRC
 
 
+//Uncomment only one
+//#define  KER_WDT_TICK_16MS
+//#define  KER_WDT_TICK_32MS
+//#define  KER_WDT_TICK_64MS
+//#define  KER_WDT_TICK_125MS
+//#define  KER_WDT_TICK_250MS
+//#define  KER_WDT_TICK_500MS
+#define  KER_WDT_TICK_1000MS
+
 //Uncomment if idle times need to be in sleep
-//#define  KER_IDLE_AS_SLEEP
+#define  KER_IDLE_AS_SLEEP
 
 //Uncomment only one
-#define  KER_SLEEP_MODE_IDLE
+//#define  KER_SLEEP_MODE_IDLE
 //#define  KER_SLEEP_MODE_ADC_NR
-//#define  KER_SLEEP_MODE_POWER_DOWN
+#define  KER_SLEEP_MODE_POWER_DOWN
 //#define  KER_SLEEP_MODE_POWER_SAVE
 //#define  KER_SLEEP_MODE_STDBY
 //#define  KER_SLEEP_MODE_EXT_STDBY
