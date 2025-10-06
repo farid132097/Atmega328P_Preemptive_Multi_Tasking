@@ -27,9 +27,9 @@
 //#define  KER_WDT_TICK_32MS
 //#define  KER_WDT_TICK_64MS
 //#define  KER_WDT_TICK_125MS
-//#define  KER_WDT_TICK_250MS
+#define  KER_WDT_TICK_250MS
 //#define  KER_WDT_TICK_500MS
-#define  KER_WDT_TICK_1000MS
+//#define  KER_WDT_TICK_1000MS
 
 //Uncomment if idle times need to be in sleep
 #define  KER_IDLE_AS_SLEEP

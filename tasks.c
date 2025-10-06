@@ -8,7 +8,16 @@
 
 void Tasks_Task1(void){
   
-  DDRC |= (1<<1);
+  //turn off HDC1080 VDD
+  DDRD |= (1<<2);
+  PORTD&=~(1<<2);
+  
+  //Logic low to SCL & SDA
+  DDRC |= (1<<4)|(1<<5);
+  PORTC&=~((1<<4)|(1<<5));
+
+  //DDRC |= (1<<1);
+
 
   Debug_Init(0);
   
@@ -16,7 +25,7 @@ void Tasks_Task1(void){
     
     Kernel_Task_Constant_Latency(10);
 
-    PORTC ^= (1<<1);
+    //PORTC ^= (1<<1);
     
 
 	  Debug_Tx_Byte(1);
@@ -36,7 +45,7 @@ void Tasks_Task1(void){
 
 void Tasks_Task2(void){
   
-  DDRC |= (1<<2);
+  //DDRC |= (1<<2);
 
   Debug_Init(0);
   
@@ -44,7 +53,7 @@ void Tasks_Task2(void){
     
     Kernel_Task_Constant_Latency(20);
 
-    PORTC ^= (1<<2);
+    //PORTC ^= (1<<2);
 
 	  Debug_Tx_Byte(2);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -62,7 +71,7 @@ void Tasks_Task2(void){
 
 void Tasks_Task3(void){
   
-  DDRC |= (1<<3);
+  //DDRC |= (1<<3);
 
   Debug_Init(0);
   
@@ -70,7 +79,7 @@ void Tasks_Task3(void){
     
     Kernel_Task_Constant_Latency(30);
 
-    PORTC ^= (1<<3);
+    //PORTC ^= (1<<3);
 
 	  Debug_Tx_Byte(3);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -88,7 +97,7 @@ void Tasks_Task3(void){
 
 void Tasks_Task4(void){
   
-  DDRC |= (1<<4);
+  //DDRC |= (1<<4);
 
   Debug_Init(0);
   
@@ -96,7 +105,7 @@ void Tasks_Task4(void){
     
     Kernel_Task_Constant_Latency(40);
 
-    PORTC ^= (1<<4);
+    //PORTC ^= (1<<4);
 
 	  Debug_Tx_Byte(4);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -114,7 +123,7 @@ void Tasks_Task4(void){
 
 void Tasks_Task5(void){
   
-  DDRC |= (1<<5);
+  //DDRC |= (1<<5);
 
   Debug_Init(0);
   
@@ -122,7 +131,7 @@ void Tasks_Task5(void){
 
     Kernel_Task_Constant_Latency(50);
     
-    PORTC ^= (1<<5);
+    //PORTC ^= (1<<5);
 
 	  Debug_Tx_Byte(5);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));

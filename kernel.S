@@ -12,7 +12,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "kernel.h"
-
+#include "debug.h"
 
 
 ;;============================define user address or macro starting=========================;; 
@@ -66,20 +66,29 @@
 
 
 ;;===========================define hardware reg address starting===========================;; 
+;SRAM Mapped Addresses, LDS/STS can be used
+.equ     SRADMUX ,        0x7C                            ;manually defined ADMUX in SRAM      
+.equ     SRADCSRB,        0x7B                            ;manually defined ADCSRB in SRAM     
+.equ     SRADCSRA,        0x7A                            ;manually defined ADCSRA in SRAM     
+.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
+.equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
 .equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM       
 .equ     SRSPH   ,        0x5E                            ;manually defined SPH in SRAM        
 .equ     SRSPL   ,        0x5D                            ;manually defined SPL in SRAM        
-.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
-.equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
 .equ     SRMCUCR ,        0x55                            ;manually defined MCUCR in SRAM      
 .equ     SRMCUSR ,        0x54                            ;manually defined MCUSR in SRAM      
 .equ     SRSMCR  ,        0x53                            ;manually defined SMCR in SRAM       
+.equ     SRACSR  ,        0x50                            ;manually defined ACSR in SRAM       
 .equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM      
 .equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM      
 .equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM      
 .equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM     
 .equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM     
 .equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
+;IO Mapped Addresses, IN/OUT commands can be used
+.equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
+.equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO          
+.equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO          
 .equ     IOMCUCR ,        0x35                            ;manually defined MCUCR in IO        
 .equ     IOMCUSR ,        0x34                            ;manually defined MCUSR in IO        
 .equ     IOSMCR  ,        0x33                            ;manually defined SMCR in IO         
@@ -89,9 +98,6 @@
 .equ     IOTCCR0B,        0x25                            ;manually defined TCCR0B in IO       
 .equ     IOTCCR0A,        0x24                            ;manually defined TCCR0A in IO       
 .equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO        
-.equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
-.equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO          
-.equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO          
 ;;==============================define hardware reg address end=============================;; 
 
 
@@ -858,6 +864,27 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
+;;===========================kernel disable analog domain starting==========================;; 
+;used registers          : None                                                                
+;arg registers           : None                                                                
+;return registers        : None                                                                
+;unsafe access registers : None                                                                
+.macro KER_DISABLE_ANALOG_DOMAIN                          ;total 0.75uS @8MHz     ( 10 clocks) 
+    #ifdef KER_IDLE_AS_SLEEP                                                                   
+		LDS   R18                , SRADCSRA               ;load ADCSRA            (  2 clocks) 
+		ANDI  R18                , 0xEF                   ;clear ADEN             (  1 clock ) 
+		STS   SRADCSRA           , R18                    ;set val                (  2 clocks) 
+		LDS   R18                , SRACSR                 ;load ACSR              (  2 clocks) 
+		ORI   R18                , 0x80                   ;set ACD                (  1 clock ) 
+		STS   SRACSR             , R18                    ;set val                (  2 clocks) 
+	#endif                                                                                     
+.endm                                                                                          
+;;=============================kernel disable analog domain end=============================;; 
+
+
+
+
+
 ;;===============================kernel sleep config starting===============================;; 
 ;used registers          : R18                                                                 
 ;arg registers           : None                                                                
@@ -883,7 +910,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		#endif                                                                                 
 		LDI   R18                , 0x0E                   ;set SM[2:0] val        (  1 clock ) 
 		#endif                                                                                 
-		STS   IOSMCR             , R18                    ;set sleep control val  (  2 clocks) 
+		STS   SRSMCR             , R18                    ;set sleep control val  (  2 clocks) 
 		STS   KerBase+OFB_SLCFG  , R18                    ;save sleep control val (  2 clocks) 
 	#endif                                                                                     
 .endm                                                                                          
@@ -1158,11 +1185,19 @@ Kernel_Init:                                              ;total 39.75uS @8MHz  
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
 ;unsafe access registers : None                                                                
-Kernel_Task_Idle:                                         ;total 0.50uS @8MHz     (  4 clocks) 
-	    KER_SLEEP_INIT                                    ;sleep init             (  8 clocks)
+Kernel_Task_Idle:                                                                              
+	    KER_SLEEP_INIT                                    ;sleep init             (  5 clocks) 
+        
+		LDI   R24, 0
+		LDI   R25, 0
+		CALL  Debug_Init
     _IDLE_LOOP:                                           ;forever loop                        
-	    KER_ENTER_SLEEP                                   ;enter sleep mode       (  4 clocks)
-		RJMP  _IDLE_LOOP                                  ;return from subroutine (  4 clocks) 
+	    KER_DISABLE_ANALOG_DOMAIN                         ;disable adc, ac        ( 10 clocks) 
+		LDI R24, 0x05
+		CALL  Debug_Tx_Byte
+	    KER_ENTER_SLEEP                                   ;enter sleep mode       (  6 clocks) 
+		KER_EXIT_SLEEP
+		RJMP  _IDLE_LOOP                                  ;return from subroutine (  2 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
 
