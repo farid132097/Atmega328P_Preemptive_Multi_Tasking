@@ -48,16 +48,16 @@
 ;;===================================debug init starting====================================;; 
 Debug_Init:                                               ;total 2.38uS @8MHz     ( 19 clocks) 
         ;init registers for UART0 (Arg R25:R24->UBRRH:UBRRL)                                   
-		LDI   R16                , (1<<1)                 ;mask U2x               (  1 clock ) 
-		STS   SRUCSR0A           , R16                    ;load val to UCSR0A     (  2 clocks) 
-		MOV   R16                , R25                    ;copy R25->baud rate H  (  1 clock ) 
-		STS   SRUBRR0H           , R16                    ;load val to UBRR0H     (  2 clocks) 
-		MOV   R16                , R24                    ;copy R24->baud rate L  (  1 clock ) 
-		STS   SRUBRR0L           , R16                    ;load val to UBRR0L     (  2 clocks) 
-		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit      (  1 clock ) 
-		STS   SRUCSR0C           , R16                    ;load val to UCSR0C     (  2 clocks) 
-		LDI   R16                , (1<<3)                 ;enable tx              (  1 clock ) 
-		STS   SRUCSR0B           , R16                    ;load val to UCSR0B     (  2 clocks) 
+		LDI   R18                , (1<<1)                 ;mask U2x               (  1 clock ) 
+		STS   SRUCSR0A           , R18                    ;load val to UCSR0A     (  2 clocks) 
+		MOV   R18                , R25                    ;copy R25->baud rate H  (  1 clock ) 
+		STS   SRUBRR0H           , R18                    ;load val to UBRR0H     (  2 clocks) 
+		MOV   R18                , R24                    ;copy R24->baud rate L  (  1 clock ) 
+		STS   SRUBRR0L           , R18                    ;load val to UBRR0L     (  2 clocks) 
+		LDI   R18                , (1<<1)|(1<<2)          ;config 8 data bit      (  1 clock ) 
+		STS   SRUCSR0C           , R18                    ;load val to UCSR0C     (  2 clocks) 
+		LDI   R18                , (1<<3)                 ;enable tx              (  1 clock ) 
+		STS   SRUCSR0B           , R18                    ;load val to UCSR0B     (  2 clocks) 
         RET                                               ;return from subroutine (  4 clocks) 
 ;;======================================debug init end======================================;; 
 
@@ -68,14 +68,14 @@ Debug_Init:                                               ;total 2.38uS @8MHz   
 ;;====================================debug tx starting=====================================;; 
 Debug_Tx_Byte:                                            ;total 2.00uS+LT @8MHz  ( 16 clocks) 
 		;write single byte to data register (Arg R24)                                          
-		PUSH  R16                                         ;save reg               (  2 clocks) 
+		PUSH  R18                                         ;save reg               (  2 clocks) 
 		STS   SRUDR0             , R24                    ;load val to UDR0       (  2 clocks) 
                                                                                                
     __UDRE0_CLEARED:                                      ;undefined loop wrt ck               
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16     (  2 clocks) 
-		SBRS  R16                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
+		LDS   R18                , SRUCSR0A               ;load UCSR0A to R18     (  2 clocks) 
+		SBRS  R18                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
 		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set(  2 clocks) 
-		POP   R16                                         ;restore reg            (  2 clocks) 
+		POP   R18                                         ;restore reg            (  2 clocks) 
         RET                                               ;return from subroutine (  4 clocks) 
 ;;======================================debug tx end========================================;; 
 
@@ -103,16 +103,16 @@ Debug_Tx_Word:                                            ;total 2.00uS+LT @8MHz
 ;;================================debug tx confirm starting=================================;; 
 Debug_Tx_Byte_Conf:                                       ;total 2.63uS+LT @8MHz  ( 21 clocks) 
         ;write 1 byte, (Arg R24), Args retained                                                
-		PUSH  R16                                         ;save reg               (  2 clocks) 
+		PUSH  R18                                         ;save reg               (  2 clocks) 
 		STS   SRUDR0             , R24                    ;load val to UDR0,      (  2 clocks) 
     __TXC0_CLEARED:                                                                            
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks) 
-		SBRS  R16                , 0x06                   ;skip if TXC0 is set,   (  2 clocks) 
+		LDS   R18                , SRUCSR0A               ;load UCSR0A to R18,    (  2 clocks) 
+		SBRS  R18                , 0x06                   ;skip if TXC0 is set,   (  2 clocks) 
 		RJMP  __TXC0_CLEARED                              ;wait until TXC0 is set (  2 clocks) 
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks) 
-		ORI   R16                , (1<<6)                 ;mask bit 6,            (  1 clock ) 
-		STS   SRUCSR0A           , R16                    ;write reg with bit msk (  2 clocks) 
-		POP   R16                                         ;restore reg            (  2 clocks) 
+		LDS   R18                , SRUCSR0A               ;load UCSR0A to R18,    (  2 clocks) 
+		ORI   R18                , (1<<6)                 ;mask bit 6,            (  1 clock ) 
+		STS   SRUCSR0A           , R18                    ;write reg with bit msk (  2 clocks) 
+		POP   R18                                         ;restore reg            (  2 clocks) 
         RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================debug tx confirm end===================================;; 
 

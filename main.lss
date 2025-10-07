@@ -9,17 +9,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   2 .stab         00000d08  00000000  00000000  00000e38  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      0000006d  00000000  00000000  00001b40  2**0
+  3 .stabstr      0000006c  00000000  00000000  00001b40  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000040  00000000  00000000  00001bad  2**0
+  4 .debug_aranges 00000040  00000000  00000000  00001bac  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 000000bd  00000000  00000000  00001bed  2**0
+  5 .debug_pubnames 000000bd  00000000  00000000  00001bec  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   000001a9  00000000  00000000  00001caa  2**0
+  6 .debug_info   000001a9  00000000  00000000  00001ca9  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 000000ba  00000000  00000000  00001e53  2**0
+  7 .debug_abbrev 000000ba  00000000  00000000  00001e52  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000483  00000000  00000000  00001f0d  2**0
+  8 .debug_line   00000483  00000000  00000000  00001f0c  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  000000c0  00000000  00000000  00002390  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -2051,26 +2051,26 @@ Kernel_CPU_Usage_Get:                                     ;total 0.75uS @8MHz   
 ;;===================================debug init starting====================================;; 
 Debug_Init:                                               ;total 2.38uS @8MHz     ( 19 clocks) 
         ;init registers for UART0 (Arg R25:R24->UBRRH:UBRRL)                                   
-		LDI   R16                , (1<<1)                 ;mask U2x               (  1 clock ) 
- d02:	02 e0       	ldi	r16, 0x02	; 2
-		STS   SRUCSR0A           , R16                    ;load val to UCSR0A     (  2 clocks) 
- d04:	00 93 c0 00 	sts	0x00C0, r16
-		MOV   R16                , R25                    ;copy R25->baud rate H  (  1 clock ) 
- d08:	09 2f       	mov	r16, r25
-		STS   SRUBRR0H           , R16                    ;load val to UBRR0H     (  2 clocks) 
- d0a:	00 93 c5 00 	sts	0x00C5, r16
-		MOV   R16                , R24                    ;copy R24->baud rate L  (  1 clock ) 
- d0e:	08 2f       	mov	r16, r24
-		STS   SRUBRR0L           , R16                    ;load val to UBRR0L     (  2 clocks) 
- d10:	00 93 c4 00 	sts	0x00C4, r16
-		LDI   R16                , (1<<1)|(1<<2)          ;config 8 data bit      (  1 clock ) 
- d14:	06 e0       	ldi	r16, 0x06	; 6
-		STS   SRUCSR0C           , R16                    ;load val to UCSR0C     (  2 clocks) 
- d16:	00 93 c2 00 	sts	0x00C2, r16
-		LDI   R16                , (1<<3)                 ;enable tx              (  1 clock ) 
- d1a:	08 e0       	ldi	r16, 0x08	; 8
-		STS   SRUCSR0B           , R16                    ;load val to UCSR0B     (  2 clocks) 
- d1c:	00 93 c1 00 	sts	0x00C1, r16
+		LDI   R18                , (1<<1)                 ;mask U2x               (  1 clock ) 
+ d02:	22 e0       	ldi	r18, 0x02	; 2
+		STS   SRUCSR0A           , R18                    ;load val to UCSR0A     (  2 clocks) 
+ d04:	20 93 c0 00 	sts	0x00C0, r18
+		MOV   R18                , R25                    ;copy R25->baud rate H  (  1 clock ) 
+ d08:	29 2f       	mov	r18, r25
+		STS   SRUBRR0H           , R18                    ;load val to UBRR0H     (  2 clocks) 
+ d0a:	20 93 c5 00 	sts	0x00C5, r18
+		MOV   R18                , R24                    ;copy R24->baud rate L  (  1 clock ) 
+ d0e:	28 2f       	mov	r18, r24
+		STS   SRUBRR0L           , R18                    ;load val to UBRR0L     (  2 clocks) 
+ d10:	20 93 c4 00 	sts	0x00C4, r18
+		LDI   R18                , (1<<1)|(1<<2)          ;config 8 data bit      (  1 clock ) 
+ d14:	26 e0       	ldi	r18, 0x06	; 6
+		STS   SRUCSR0C           , R18                    ;load val to UCSR0C     (  2 clocks) 
+ d16:	20 93 c2 00 	sts	0x00C2, r18
+		LDI   R18                , (1<<3)                 ;enable tx              (  1 clock ) 
+ d1a:	28 e0       	ldi	r18, 0x08	; 8
+		STS   SRUCSR0B           , R18                    ;load val to UCSR0B     (  2 clocks) 
+ d1c:	20 93 c1 00 	sts	0x00C1, r18
         RET                                               ;return from subroutine (  4 clocks) 
  d20:	08 95       	ret
 
@@ -2080,22 +2080,22 @@ Debug_Init:                                               ;total 2.38uS @8MHz   
 ;;====================================debug tx starting=====================================;; 
 Debug_Tx_Byte:                                            ;total 2.00uS+LT @8MHz  ( 16 clocks) 
 		;write single byte to data register (Arg R24)                                          
-		PUSH  R16                                         ;save reg               (  2 clocks) 
- d22:	0f 93       	push	r16
+		PUSH  R18                                         ;save reg               (  2 clocks) 
+ d22:	2f 93       	push	r18
 		STS   SRUDR0             , R24                    ;load val to UDR0       (  2 clocks) 
  d24:	80 93 c6 00 	sts	0x00C6, r24
 
 00000d28 <__UDRE0_CLEARED>:
                                                                                                
     __UDRE0_CLEARED:                                      ;undefined loop wrt ck               
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16     (  2 clocks) 
- d28:	00 91 c0 00 	lds	r16, 0x00C0
-		SBRS  R16                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
- d2c:	05 ff       	sbrs	r16, 5
+		LDS   R18                , SRUCSR0A               ;load UCSR0A to R18     (  2 clocks) 
+ d28:	20 91 c0 00 	lds	r18, 0x00C0
+		SBRS  R18                , 0x05                   ;skip if UDRE0 is set   (  2 clocks) 
+ d2c:	25 ff       	sbrs	r18, 5
 		RJMP  __UDRE0_CLEARED                             ;wait until UDRE0 is set(  2 clocks) 
  d2e:	fc cf       	rjmp	.-8      	; 0xd28 <__UDRE0_CLEARED>
-		POP   R16                                         ;restore reg            (  2 clocks) 
- d30:	0f 91       	pop	r16
+		POP   R18                                         ;restore reg            (  2 clocks) 
+ d30:	2f 91       	pop	r18
         RET                                               ;return from subroutine (  4 clocks) 
  d32:	08 95       	ret
 
@@ -2124,27 +2124,27 @@ Debug_Tx_Word:                                            ;total 2.00uS+LT @8MHz
 ;;================================debug tx confirm starting=================================;; 
 Debug_Tx_Byte_Conf:                                       ;total 2.63uS+LT @8MHz  ( 21 clocks) 
         ;write 1 byte, (Arg R24), Args retained                                                
-		PUSH  R16                                         ;save reg               (  2 clocks) 
- d44:	0f 93       	push	r16
+		PUSH  R18                                         ;save reg               (  2 clocks) 
+ d44:	2f 93       	push	r18
 		STS   SRUDR0             , R24                    ;load val to UDR0,      (  2 clocks) 
  d46:	80 93 c6 00 	sts	0x00C6, r24
 
 00000d4a <__TXC0_CLEARED>:
     __TXC0_CLEARED:                                                                            
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks) 
- d4a:	00 91 c0 00 	lds	r16, 0x00C0
-		SBRS  R16                , 0x06                   ;skip if TXC0 is set,   (  2 clocks) 
- d4e:	06 ff       	sbrs	r16, 6
+		LDS   R18                , SRUCSR0A               ;load UCSR0A to R18,    (  2 clocks) 
+ d4a:	20 91 c0 00 	lds	r18, 0x00C0
+		SBRS  R18                , 0x06                   ;skip if TXC0 is set,   (  2 clocks) 
+ d4e:	26 ff       	sbrs	r18, 6
 		RJMP  __TXC0_CLEARED                              ;wait until TXC0 is set (  2 clocks) 
  d50:	fc cf       	rjmp	.-8      	; 0xd4a <__TXC0_CLEARED>
-		LDS   R16                , SRUCSR0A               ;load UCSR0A to R16,    (  2 clocks) 
- d52:	00 91 c0 00 	lds	r16, 0x00C0
-		ORI   R16                , (1<<6)                 ;mask bit 6,            (  1 clock ) 
- d56:	00 64       	ori	r16, 0x40	; 64
-		STS   SRUCSR0A           , R16                    ;write reg with bit msk (  2 clocks) 
- d58:	00 93 c0 00 	sts	0x00C0, r16
-		POP   R16                                         ;restore reg            (  2 clocks) 
- d5c:	0f 91       	pop	r16
+		LDS   R18                , SRUCSR0A               ;load UCSR0A to R18,    (  2 clocks) 
+ d52:	20 91 c0 00 	lds	r18, 0x00C0
+		ORI   R18                , (1<<6)                 ;mask bit 6,            (  1 clock ) 
+ d56:	20 64       	ori	r18, 0x40	; 64
+		STS   SRUCSR0A           , R18                    ;write reg with bit msk (  2 clocks) 
+ d58:	20 93 c0 00 	sts	0x00C0, r18
+		POP   R18                                         ;restore reg            (  2 clocks) 
+ d5c:	2f 91       	pop	r18
         RET                                               ;return from subroutine (  4 clocks) 
  d5e:	08 95       	ret
 
