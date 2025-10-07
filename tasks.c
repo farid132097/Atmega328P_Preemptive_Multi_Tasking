@@ -9,12 +9,20 @@
 void Tasks_Task1(void){
   
   //turn off HDC1080 VDD
-  DDRD |= (1<<2);
-  PORTD&=~(1<<2);
+  //DDRD |= (1<<2);
+  //PORTD&=~(1<<2);
   
   //Logic low to SCL & SDA
-  DDRC |= (1<<4)|(1<<5);
-  PORTC&=~((1<<4)|(1<<5));
+  //DDRC |= (1<<4)|(1<<5);
+  //PORTC&=~((1<<4)|(1<<5));
+  
+  //Test with AVRUSB board
+  //Pull-up for USB bus
+  DDRD &=~((1<<3)|(1<<2));
+  PORTD|= (1<<3)|(1<<2);
+  //LED pin
+  DDRD |= (1<<4);
+  PORTD&=~(1<<4);
 
   //DDRC |= (1<<1);
 
@@ -27,6 +35,8 @@ void Tasks_Task1(void){
 
     //PORTC ^= (1<<1);
     
+    //LED on
+    PORTD|= (1<<4);
 
 	  Debug_Tx_Byte(1);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -36,6 +46,9 @@ void Tasks_Task1(void){
     for(uint8_t i=0;i<200;i++){
       Debug_Tx_Byte(i);
     }
+
+    //LED off
+    PORTD&=~(1<<4);
 
     //Kernel_Task_Sleep(10);
     Kernel_Task_Constant_Latency_Sleep();

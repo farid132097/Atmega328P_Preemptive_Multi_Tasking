@@ -3,8 +3,8 @@
  ; File          : kernel.S
  ; Author        : MD. Faridul Islam (faridmdislam@gmail.com)
  ; Description   : AVR kernel for bare-metal RTOS
- ; Created       : Jul 27, 2025, 9:30 PM
- ; Last Modified : Sep 02, 2025, 8:42 PM
+ ; Created       : Jul 27, 2025, 09:30 PM
+ ; Last Modified : Oct 07, 2025, 10:42 PM
 
 
 
@@ -13,6 +13,8 @@
 #include <avr/interrupt.h>
 #include "kernel.h"
 #include "debug.h"
+
+
 
 
 ;;============================define user address or macro starting=========================;; 
@@ -66,7 +68,7 @@
 
 
 ;;===========================define hardware reg address starting===========================;; 
-;SRAM Mapped Addresses, LDS/STS can be used
+;SRAM Mapped Addresses, LDS/STS can be used                                                    
 .equ     SRADMUX ,        0x7C                            ;manually defined ADMUX in SRAM      
 .equ     SRADCSRB,        0x7B                            ;manually defined ADCSRB in SRAM     
 .equ     SRADCSRA,        0x7A                            ;manually defined ADCSRA in SRAM     
@@ -85,7 +87,7 @@
 .equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM     
 .equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM     
 .equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
-;IO Mapped Addresses, IN/OUT commands can be used
+;IO Mapped Addresses, IN/OUT commands can be used                                              
 .equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
 .equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO          
 .equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO          
@@ -136,9 +138,9 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;;===============================define vector section starting=============================;; 
 .section .vectors, "ax", @progbits                                                             
                                                                                                
-.org    0x000C                                                                                 
+.org    0x000C                                            ;isr location for wdt                
         RJMP  __vector_6                                                                       
-.org    0x0020                                                                                 
+.org    0x0020                                            ;isr location for timer0ovf          
         RJMP  __vector_16                                                                      
 ;;=================================define vector section end================================;; 
 
@@ -185,8 +187,9 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 ;arg registers           : None                                                                
 ;return registers        : None                                                                
 ;unsafe access registers : R18, R19                                                            
-.macro  KER_TIMER_INIT                                    ;total 1.5uS @8MHz      ( 12 clocks) 
+.macro  KER_TIMER_INIT                                    ;1.25/1.50uS @8MHz    (10/12 clocks) 
         #ifdef KER_TIMER0_AS_TICK_SRC                                                          
+		;Timer0 overflow vect is used as tick source      ;total 1.5uS @8MHz      ( 12 clocks) 
         LDS   R18		         , KerBase+OFB_PRS        ;load prescaler         (  2 clocks) 
 		LDS   R19		         , KerBase+OFB_RLD        ;load reload val        (  2 clocks) 
 		STS   SRTCCR0B           , R18                    ;prescaler-> TCCR0B     (  2 clocks) 
@@ -195,32 +198,42 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		STS   SRTIMSK0           , R18                    ;set to TIMSK0          (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		#ifdef KER_WDT_AS_TICK_SRC                                                             
+		;watchdog timer timeout is used as tick source    ;total 1.5uS @8MHz      ( 10 clocks) 
         WDR                                               ;reset wdt              (  1 clock ) 
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		                                                                                       
 		#ifdef KER_WDT_TICK_16MS                                                               
 		LDI   R18                , 0x40                   ;WDIE                   (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
         #ifdef KER_WDT_TICK_32MS                                                               
 		LDI   R18                , 0x41                   ;WDIE, WDPS0            (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		#ifdef KER_WDT_TICK_64MS                                                               
 		LDI   R18                , 0x42                   ;WDIE, WDPS1            (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		#ifdef KER_WDT_TICK_125MS                                                              
 		LDI   R18                , 0x43                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		#ifdef KER_WDT_TICK_250MS                                                              
 		LDI   R18                , 0x44                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		#ifdef KER_WDT_TICK_500MS                                                              
 		LDI   R18                , 0x45                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		#ifdef KER_WDT_TICK_1000MS                                                             
 		LDI   R18                , 0x46                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
 		#endif                                                                                 
+		                                                                                       
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
@@ -895,21 +908,19 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
         #ifdef KER_SLEEP_MODE_IDLE                                                             
 		LDI   R18                , 0x00                   ;set SM[2:0] val        (  1 clock ) 
 		#endif                                                                                 
+                                                                                               
 		#ifdef KER_SLEEP_MODE_ADC_NR                                                           
 		LDI   R18                , 0x02                   ;set SM[2:0] val        (  1 clock ) 
+		#endif
+                                                                                               
 		#ifdef KER_SLEEP_MODE_POWER_DOWN                                                       
-		#endif                                                                                 
 		LDI   R18                , 0x04                   ;set SM[2:0] val        (  1 clock ) 
+        #endif                                                                                 
+		                                                                                       
 		#ifdef KER_SLEEP_MODE_POWER_SAVE                                                       
-		#endif                                                                                 
 		LDI   R18                , 0x06                   ;set SM[2:0] val        (  1 clock ) 
-		#ifdef KER_SLEEP_MODE_STDBY                                                            
 		#endif                                                                                 
-		LDI   R18                , 0x0C                   ;set SM[2:0] val        (  1 clock ) 
-		#ifdef KER_SLEEP_MODE_STDBY                                                            
-		#endif                                                                                 
-		LDI   R18                , 0x0E                   ;set SM[2:0] val        (  1 clock ) 
-		#endif                                                                                 
+	                                                                                           
 		STS   SRSMCR             , R18                    ;set sleep control val  (  2 clocks) 
 		STS   KerBase+OFB_SLCFG  , R18                    ;save sleep control val (  2 clocks) 
 	#endif                                                                                     
@@ -1187,17 +1198,10 @@ Kernel_Init:                                              ;total 39.75uS @8MHz  
 ;unsafe access registers : None                                                                
 Kernel_Task_Idle:                                                                              
 	    KER_SLEEP_INIT                                    ;sleep init             (  5 clocks) 
-        
-		LDI   R24, 0
-		LDI   R25, 0
-		CALL  Debug_Init
     _IDLE_LOOP:                                           ;forever loop                        
 	    KER_DISABLE_ANALOG_DOMAIN                         ;disable adc, ac        ( 10 clocks) 
-		LDI R24, 0x05
-		CALL  Debug_Tx_Byte
 	    KER_ENTER_SLEEP                                   ;enter sleep mode       (  6 clocks) 
-		KER_EXIT_SLEEP
-		RJMP  _IDLE_LOOP                                  ;return from subroutine (  2 clocks) 
+		RJMP  _IDLE_LOOP                                  ;jump to loop start     (  2 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
 

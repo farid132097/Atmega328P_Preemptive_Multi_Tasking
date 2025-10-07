@@ -390,17 +390,17 @@
  414               	/* prologue: function */
  415               	/* frame size = 0 */
  416               	.LM90:
- 417 02d2 529A      		sbi 42-32,2
- 418               	.LM91:
- 419 02d4 5A98      		cbi 43-32,2
- 420               	.LM92:
- 421 02d6 87B1      		in r24,39-32
- 422 02d8 8063      		ori r24,lo8(48)
- 423 02da 87B9      		out 39-32,r24
- 424               	.LM93:
- 425 02dc 88B1      		in r24,40-32
- 426 02de 8F7C      		andi r24,lo8(-49)
- 427 02e0 88B9      		out 40-32,r24
+ 417 02d2 8AB1      		in r24,42-32
+ 418 02d4 837F      		andi r24,lo8(-13)
+ 419 02d6 8AB9      		out 42-32,r24
+ 420               	.LM91:
+ 421 02d8 8BB1      		in r24,43-32
+ 422 02da 8C60      		ori r24,lo8(12)
+ 423 02dc 8BB9      		out 43-32,r24
+ 424               	.LM92:
+ 425 02de 549A      		sbi 42-32,4
+ 426               	.LM93:
+ 427 02e0 5C98      		cbi 43-32,4
  428               	.LM94:
  429 02e2 80E0      		ldi r24,lo8(0)
  430 02e4 90E0      		ldi r25,hi8(0)
@@ -412,57 +412,61 @@
  436 02ec 90E0      		ldi r25,hi8(10)
  437 02ee 0E94 0000 		call Kernel_Task_Constant_Latency
  438               	.LM96:
- 439 02f2 81E0      		ldi r24,lo8(1)
- 440 02f4 0E94 0000 		call Debug_Tx_Byte
- 441               	.LM97:
- 442 02f8 81E0      		ldi r24,lo8(1)
- 443 02fa 0E94 0000 		call Kernel_Task_Sleep_Time_Get
- 444 02fe 0E94 0000 		call Debug_Tx_Word
- 445               	.LM98:
- 446 0302 81E0      		ldi r24,lo8(1)
- 447 0304 0E94 0000 		call Kernel_Task_Status_Get
- 448 0308 805E      		subi r24,lo8(-(32))
- 449 030a 0E94 0000 		call Debug_Tx_Byte
- 450               	.LM99:
- 451 030e 0E94 0000 		call Kernel_Abs_High_Prio_Task_ID_Get
- 452 0312 805F      		subi r24,lo8(-(16))
- 453 0314 0E94 0000 		call Debug_Tx_Byte
- 454               	.LM100:
- 455 0318 0E94 0000 		call Kernel_Lowest_Prio_Get
- 456 031c 0E94 0000 		call Debug_Tx_Byte
- 457 0320 10E0      		ldi r17,lo8(0)
- 458               	.L26:
- 459               	.LBB2:
- 460               	.LM101:
- 461 0322 812F      		mov r24,r17
- 462 0324 0E94 0000 		call Debug_Tx_Byte
- 463               	.LM102:
- 464 0328 1F5F      		subi r17,lo8(-(1))
- 465 032a 183C      		cpi r17,lo8(-56)
- 466 032c 01F4      		brne .L26
- 467               	.LBE2:
- 468               	.LM103:
- 469 032e 0E94 0000 		call Kernel_Task_Constant_Latency_Sleep
- 470 0332 00C0      		rjmp .L27
- 471               	.LFE6:
- 561               	.Letext0:
+ 439 02f2 5C9A      		sbi 43-32,4
+ 440               	.LM97:
+ 441 02f4 81E0      		ldi r24,lo8(1)
+ 442 02f6 0E94 0000 		call Debug_Tx_Byte
+ 443               	.LM98:
+ 444 02fa 81E0      		ldi r24,lo8(1)
+ 445 02fc 0E94 0000 		call Kernel_Task_Sleep_Time_Get
+ 446 0300 0E94 0000 		call Debug_Tx_Word
+ 447               	.LM99:
+ 448 0304 81E0      		ldi r24,lo8(1)
+ 449 0306 0E94 0000 		call Kernel_Task_Status_Get
+ 450 030a 805E      		subi r24,lo8(-(32))
+ 451 030c 0E94 0000 		call Debug_Tx_Byte
+ 452               	.LM100:
+ 453 0310 0E94 0000 		call Kernel_Abs_High_Prio_Task_ID_Get
+ 454 0314 805F      		subi r24,lo8(-(16))
+ 455 0316 0E94 0000 		call Debug_Tx_Byte
+ 456               	.LM101:
+ 457 031a 0E94 0000 		call Kernel_Lowest_Prio_Get
+ 458 031e 0E94 0000 		call Debug_Tx_Byte
+ 459 0322 10E0      		ldi r17,lo8(0)
+ 460               	.L26:
+ 461               	.LBB2:
+ 462               	.LM102:
+ 463 0324 812F      		mov r24,r17
+ 464 0326 0E94 0000 		call Debug_Tx_Byte
+ 465               	.LM103:
+ 466 032a 1F5F      		subi r17,lo8(-(1))
+ 467 032c 183C      		cpi r17,lo8(-56)
+ 468 032e 01F4      		brne .L26
+ 469               	.LBE2:
+ 470               	.LM104:
+ 471 0330 5C98      		cbi 43-32,4
+ 472               	.LM105:
+ 473 0332 0E94 0000 		call Kernel_Task_Constant_Latency_Sleep
+ 474 0336 00C0      		rjmp .L27
+ 475               	.LFE6:
+ 565               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:00000000 tasks.c
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:2      *ABS*:0000003f __SREG__
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:3      *ABS*:0000003e __SP_H__
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:4      *ABS*:0000003d __SP_L__
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:5      *ABS*:00000034 __CCP__
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:6      *ABS*:00000000 __tmp_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:7      *ABS*:00000001 __zero_reg__
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:18     .text:00000000 Tasks_Task9
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:67     .text:0000005a Tasks_Task8
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:116    .text:000000b4 Tasks_Task7
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:165    .text:0000010e Tasks_Task6
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:214    .text:00000168 Tasks_Task5
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:263    .text:000001c2 Tasks_Task4
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:312    .text:0000021c Tasks_Task3
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:361    .text:00000276 Tasks_Task2
-C:\Users\WALTON\AppData\Local\Temp/ccsRo19j.s:410    .text:000002d0 Tasks_Task1
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:2      *ABS*:0000003f __SREG__
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:3      *ABS*:0000003e __SP_H__
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:4      *ABS*:0000003d __SP_L__
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:5      *ABS*:00000034 __CCP__
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:6      *ABS*:00000000 __tmp_reg__
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:7      *ABS*:00000001 __zero_reg__
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:18     .text:00000000 Tasks_Task9
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:67     .text:0000005a Tasks_Task8
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:116    .text:000000b4 Tasks_Task7
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:165    .text:0000010e Tasks_Task6
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:214    .text:00000168 Tasks_Task5
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:263    .text:000001c2 Tasks_Task4
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:312    .text:0000021c Tasks_Task3
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:361    .text:00000276 Tasks_Task2
+C:\Users\farid\AppData\Local\Temp/ccsC7vtg.s:410    .text:000002d0 Tasks_Task1
 
 UNDEFINED SYMBOLS
 Debug_Init

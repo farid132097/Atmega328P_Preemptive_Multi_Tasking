@@ -25,7 +25,6 @@ int main(void) {
 	
 	Kernel_Start_Tasks();
 	
-	
     while(1){
 		
         
