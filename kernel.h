@@ -19,7 +19,8 @@
 
 //Uncomment only one
 //#define  KER_TIMER0_AS_TICK_SRC
-#define  KER_WDT_AS_TICK_SRC
+//#define  KER_WDT_AS_TICK_SRC
+#define  KER_TOSC_AS_TICK_SRC
 
 //Uncomment only one
 //#define  KER_WDT_TICK_16MS
@@ -33,11 +34,19 @@
 //Uncomment if idle times need to be in sleep
 #define  KER_IDLE_AS_SLEEP
 
-//Uncomment only one
-//#define  KER_SLEEP_MODE_IDLE
-//#define  KER_SLEEP_MODE_ADC_NR
+
+//Do not change below section
+#ifdef KER_TIMER0_AS_TICK_SRC
+#define  KER_SLEEP_MODE_IDLE
+#endif
+
+#ifdef KER_WDT_AS_TICK_SRC
 #define  KER_SLEEP_MODE_POWER_DOWN
-//#define  KER_SLEEP_MODE_POWER_SAVE
+#endif
+
+#ifdef KER_TOSC_AS_TICK_SRC
+#define  KER_SLEEP_MODE_POWER_SAVE
+#endif
 
 
 /*

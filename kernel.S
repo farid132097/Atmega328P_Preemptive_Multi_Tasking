@@ -69,9 +69,15 @@
 
 ;;===========================define hardware reg address starting===========================;; 
 ;SRAM Mapped Addresses, LDS/STS can be used                                                    
+.equ     SRASSR  ,        0xB6                            ;manually defined ASSR in SRAM       
+.equ     SRTCNT2 ,        0xB2                            ;manually defined TNCT2 in SRAM      
+.equ     SRTCCR2B,        0xB1                            ;manually defined TCCR2B in SRAM     
+.equ     SRTCCR2A,        0xB0                            ;manually defined TCCR2A in SRAM     
 .equ     SRADMUX ,        0x7C                            ;manually defined ADMUX in SRAM      
 .equ     SRADCSRB,        0x7B                            ;manually defined ADCSRB in SRAM     
 .equ     SRADCSRA,        0x7A                            ;manually defined ADCSRA in SRAM     
+.equ     SRTIMSK2,        0x70                            ;manually defined TIMSK2 in SRAM     
+.equ     SRTIMSK1,        0x6F                            ;manually defined TIMSK1 in SRAM     
 .equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
 .equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
 .equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM       
@@ -86,6 +92,8 @@
 .equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM      
 .equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM     
 .equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM     
+.equ     SRTIFR2 ,        0x37                            ;manually defined TIFR2 in SRAM      
+.equ     SRTIFR1 ,        0x36                            ;manually defined TIFR1 in SRAM      
 .equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
 ;IO Mapped Addresses, IN/OUT commands can be used                                              
 .equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
@@ -99,6 +107,8 @@
 .equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO        
 .equ     IOTCCR0B,        0x25                            ;manually defined TCCR0B in IO       
 .equ     IOTCCR0A,        0x24                            ;manually defined TCCR0A in IO       
+.equ     IOTIFR2 ,        0x17                            ;manually defined TIFR2 in IO        
+.equ     IOTIFR1 ,        0x16                            ;manually defined TIFR1 in IO        
 .equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO        
 ;;==============================define hardware reg address end=============================;; 
 
@@ -140,6 +150,8 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
                                                                                                
 .org    0x000C                                            ;isr location for wdt                
         RJMP  __vector_6                                                                       
+.org    0x0012                                            ;isr location for timer2ovf async    
+        RJMP  __vector_9                                                                       
 .org    0x0020                                            ;isr location for timer0ovf          
         RJMP  __vector_16                                                                      
 ;;=================================define vector section end================================;; 
@@ -236,6 +248,54 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		                                                                                       
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
+		#endif                                                                                 
+                                                                                               
+		#ifdef KER_TOSC_AS_TICK_SRC                                                            
+		;timer2 asynchornus mode is used as tick source   ;total 1.5uS @8MHz      ( 57 clocks) 
+		LDI   R18                , 0x00                   ;clear interrupts       (  1 clock ) 
+		STS   SRTIMSK2           , R18                    ;set val to TIMSK2      (  2 clocks) 
+		LDI   R18                , 0x20                   ;set AS2 bit            (  1 clock ) 
+		STS   SRASSR             , R18                    ;set val to ASSR        (  2 clocks) 
+		LDI   R18                , 0x00                   ;clear reg              (  1 clock ) 
+		STS   SRTCCR2A           , R18                    ;set val to TCCR2A      (  2 clocks) 
+		LDI   R18                , 0x05                   ;set prescaler 128      (  1 clock ) 
+		STS   SRTCCR2B           , R18                    ;set val to TCCR2B      (  2 clocks) 
+		LDI   R18                , 0x00                   ;clear reg              (  1 clock ) 
+		STS   SRTCNT2            , R18                    ;set val to TCNT2       (  2 clocks) 
+	_KER_TC2_AUB\@:                                                                            
+	    LDS   R18                , SRASSR                 ;load ASSR              (  2 clocks) 
+        ANDI  R18                , 0x02                   ;check bit TCR2AUB      (  1 clock ) 
+		BRNE  _KER_TC2_AUB\@                              ;wait until AUB cleared (  2 clocks) 
+	_KER_TC2_BUB\@:                                                                            
+	    LDS   R18                , SRASSR                 ;load ASSR              (  2 clocks) 
+        ANDI  R18                , 0x01                   ;check bit TCR2BUB      (  1 clock ) 
+		BRNE  _KER_TC2_BUB\@                              ;wait until BUB cleared (  2 clocks) 
+	_KER_TC2_UB\@:                                                                             
+	    LDS   R18                , SRASSR                 ;load ASSR              (  2 clocks) 
+        ANDI  R18                , 0x10                   ;check bit TCNT2UB      (  1 clock ) 
+		BRNE  _KER_TC2_UB\@                               ;wait until BUB cleared (  2 clocks) 
+	_KER_TC2_TOV2\@:                                                                           
+	    LDS   R18                , SRTIFR2                ;load TIFR2             (  2 clocks) 
+        ANDI  R18                , 0x01                   ;check bit TOV2         (  1 clock ) 
+        BREQ  _KER_TC2_OCF2A\@                            ;bit cleared, jump next (  2 clocks) 
+		LDI   R18                , 0x01                   ;set bit                (  1 clock ) 
+		STS   SRTIFR2            , R18                    ;set val                (  2 clocks) 
+    _KER_TC2_OCF2A\@:                                                                          
+	    LDS   R18                , SRTIFR2                ;load TIFR2             (  2 clocks) 
+        ANDI  R18                , 0x02                   ;check bit OCF2A        (  1 clock ) 
+        BREQ  _KER_TC2_OCF2B\@                            ;bit cleared, jump next (  2 clocks) 
+		LDI   R18                , 0x02                   ;set bit                (  1 clock ) 
+		STS   SRTIFR2            , R18                    ;set val                (  2 clocks) 
+	_KER_TC2_OCF2B\@:                                                                          
+	    LDS   R18                , SRTIFR2                ;load TIFR2             (  2 clocks) 
+        ANDI  R18                , 0x04                   ;check bit OCF2B        (  1 clock ) 
+        BREQ  _KER_TC2_INTEN\@                            ;bit cleared, jump next (  2 clocks) 
+		LDI   R18                , 0x04                   ;set bit                (  1 clock ) 
+		STS   SRTIFR2            , R18                    ;set val                (  2 clocks) 
+    _KER_TC2_INTEN\@:                                                                          
+		LDI   R18                , 0x01                   ;set TOIE2 bit          (  1 clock ) 
+		STS   SRTIMSK2           , R18                    ;set val to TIMSK2      (  2 clocks) 
+        SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
 .endm                                                                                          
 ;;==============================debug pin operation init end================================;; 
@@ -969,23 +1029,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 ;;=================================ISR execution starting===================================;; 
-#ifdef  KER_TIMER0_AS_TICK_SRC                                                                 
-.global  __vector_16                                                                           
-    __vector_16:                                          ;total 40.00uS @8MHz    (339 clocks) 
-	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
-		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
-        KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
-		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
-		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
-		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
-		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
-		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
-		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
-	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
-		RETI                                              ;return from interrupt  (  4 clocks) 
-#endif                                                                                         
 #ifdef  KER_WDT_AS_TICK_SRC                                                                    
 .global  __vector_6                                                                            
     __vector_6:                                           ;total 40.00uS @8MHz    (344 clocks) 
@@ -1004,6 +1047,42 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x40                   ;set WDIE               (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		RETI                                              ;return from interrupt  (  4 clocks) 
+#endif                                                                                         
+
+#ifdef  KER_TOSC_AS_TICK_SRC                                                                   
+.global  __vector_9                                                                            
+    __vector_9:                                           ;total 40.00uS @8MHz    (344 clocks) 
+	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
+		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
+        KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
+		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
+		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
+		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
+	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
+		RETI                                              ;return from interrupt  (  4 clocks) 
+#endif                                                                                         
+
+#ifdef  KER_TIMER0_AS_TICK_SRC                                                                 
+.global  __vector_16                                                                           
+    __vector_16:                                          ;total 40.00uS @8MHz    (339 clocks) 
+	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
+		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
+        KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
+		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+		KER_COUNTER_RELOAD                                ;counter reload         (  4 clocks) 
+		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
+		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
+		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
+		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
+		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
+	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
 #endif                                                                                         
 ;;====================================ISR execution end=====================================;; 
@@ -1059,6 +1138,14 @@ Kernel_SysTick_Reg_Init:                                  ;total 11.50uS @8MHz  
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
 		LDI   R18                , 0x00                   ;clear WDE              (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
+		#endif                                                                                 
+		#ifdef KER_TOSC_AS_TICK_SRC                                                            
+        LDI   R18                , 0x00                   ;clear interrupt enbits (  1 clock ) 
+		STS   SRTIMSK2           , R18                    ;set val to TIMSK2      (  2 clocks) 
+		LDI   R18                , 0x00                   ;clear reg              (  1 clock ) 
+		STS   SRTCCR2B           , R18                    ;set val to TCCR2B      (  2 clocks) 
+		LDI   R18                , 0x00                   ;clear AS2 bit          (  1 clock ) 
+		STS   SRASSR             , R18                    ;set val to ASSR        (  2 clocks) 
 		#endif                                                                                 
 		;save values for future use                                                            
 		STS   KerBase+OFB_PRS    , R24                    ;KerBase[5] prescaler   (  2 clocks) 
