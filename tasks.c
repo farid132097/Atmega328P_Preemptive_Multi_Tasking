@@ -37,7 +37,7 @@ void Tasks_Task1(void){
     Debug_Tx_Byte(TIMSK2);
     Debug_Tx_Byte(TIFR2);
     Debug_Tx_Byte(ASSR);*/
-    Kernel_Task_Constant_Latency(5);
+    Kernel_Task_Constant_Latency(60000/KER_TICK_TIME);
 
     //PORTC ^= (1<<1);
     
@@ -70,7 +70,7 @@ void Tasks_Task2(void){
   
   while(1){
     
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
 
     //PORTC ^= (1<<2);
 
@@ -96,7 +96,7 @@ void Tasks_Task3(void){
   
   while(1){
     
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
 
     //PORTC ^= (1<<3);
 
@@ -122,7 +122,7 @@ void Tasks_Task4(void){
   
   while(1){
     
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
 
     //PORTC ^= (1<<4);
 
@@ -148,7 +148,7 @@ void Tasks_Task5(void){
   
   while(1){
 
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
     
     //PORTC ^= (1<<5);
 
@@ -172,7 +172,7 @@ void Tasks_Task6(void){
   
   while(1){
 
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
     
     Debug_Tx_Byte(6);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -194,7 +194,7 @@ void Tasks_Task7(void){
   
   while(1){
 
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
     
 	  Debug_Tx_Byte(7);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -216,7 +216,7 @@ void Tasks_Task8(void){
   
   while(1){
 
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
     
 	  Debug_Tx_Byte(8);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
@@ -238,7 +238,7 @@ void Tasks_Task9(void){
   
   while(1){
 
-    Kernel_Task_Constant_Latency(300);
+    Kernel_Task_Constant_Latency(3000);
     
 	  Debug_Tx_Byte(9);
     Debug_Tx_Word(Kernel_Task_Sleep_Time_Get(1));
