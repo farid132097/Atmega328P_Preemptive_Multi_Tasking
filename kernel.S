@@ -186,6 +186,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .global  Kernel_Task_Sleep                                                                     
 .global  Kernel_Task_Constant_Latency                                                          
 .global  Kernel_Task_Constant_Latency_Sleep                                                    
+.global  Kernel_PreSleep_Hook                                                                  
 .global  Kernel_Task_Sleep_Time_Get                                                            
 .global  Kernel_Task_Status_Get                                                                
 .global  Kernel_NTask_Get                                                                      
@@ -1360,6 +1361,9 @@ Kernel_Task_Idle:
 	    KER_SLEEP_INIT                                    ;sleep init             (  5 clocks) 
     _IDLE_LOOP:                                           ;forever loop                        
 	    KER_DISABLE_ANALOG_DOMAIN                         ;disable adc, ac        ( 10 clocks) 
+		#ifdef KER_CALL_FUNC_BEFORE_SLEEP                                                      
+		CALL  Kernel_PreSleep_Hook                        ;call func before sleep (  8 clocks) 
+		#endif                                                                                 
 	    KER_ENTER_SLEEP                                   ;enter sleep mode       (  6 clocks) 
 		RJMP  _IDLE_LOOP                                  ;jump to loop start     (  2 clocks) 
 ;;==================================kernel idle task end====================================;; 
@@ -1450,6 +1454,21 @@ Kernel_Task_Constant_Latency_Sleep:                       ;total 35.75uS @8MHz  
 		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=============================kernel task constant latency end=============================;; 
+
+
+
+
+
+;;=========================kernel call func before sleep starting===========================;; 
+;used registers          : R24, R25, R30(ZL), R31(ZH)                                          
+;arg registers           : R25:R24(FunctionPtr)                                                
+;return registers        : None                                                                
+;unsafe access registers : R24, R25, R30(ZL), R31(ZH)                                          
+Kernel_PreSleep_Hook:                                     ;total 1.00uS @8MHz     (  8 clocks) 
+        MOVW  R30                , R24                    ;move pointer to Z      (  1 clock ) 
+		ICALL                                             ;indirect call          (  3 clocks) 
+		RET                                               ;return from subroutine (  4 clocks) 
+;;============================kernel call func before sleep end=============================;; 
 
 
 
