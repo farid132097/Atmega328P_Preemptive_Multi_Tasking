@@ -4,7 +4,7 @@
  * Author        : MD. Faridul Islam (faridmdislam@gmail.com)
  * Description   : AVR kernel for bare-metal RTOS
  * Created       : Jul 27, 2025, 9:30 PM
- * Last Modified : Oct 30, 2025, 9:16 PM
+ * Last Modified : Nov 23, 2025, 03:05 AM
  */
 
 
@@ -134,6 +134,7 @@ extern void      Kernel_Task_Sleep(uint16_t val);
 extern void      Kernel_Task_Constant_Latency(uint16_t val);
 extern void      Kernel_Task_Constant_Latency_Sleep(void);
 extern void      Kernel_PreSleep_Hook(void (*func)(void));
+extern void      Kernel_Clock_Prescale(uint8_t prescaler_reg_val);
 extern uint16_t  Kernel_Task_Sleep_Time_Get(uint8_t task_id);
 extern uint8_t   Kernel_Task_Status_Get(uint8_t task_id);
 extern uint8_t   Kernel_NTask_Get(void);
