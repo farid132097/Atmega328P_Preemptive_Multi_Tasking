@@ -7,6 +7,8 @@
 #include "debug.h"
 #include "nrf24l01p.h"
 
+
+
 void Tasks_Disable_Peripherals(void){
   
 }
