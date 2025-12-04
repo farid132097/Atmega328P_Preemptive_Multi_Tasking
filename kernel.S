@@ -4,7 +4,7 @@
  ; Author        : MD. Faridul Islam (faridmdislam@gmail.com)
  ; Description   : AVR kernel for bare-metal RTOS
  ; Created       : Jul 27, 2025, 09:30 PM
- ; Last Modified : Dec 03, 2025, 01:18 AM
+ ; Last Modified : Dec 04, 2025, 12:44 PM
 
 
 
@@ -216,48 +216,34 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDI   R18                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
 		STS   SRTIMSK0           , R18                    ;set to TIMSK0          (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-		#ifdef KER_WDT_AS_TICK_SRC                                                             
+                                                                                               
+		#elif defined(KER_WDT_AS_TICK_SRC)                                                     
 		;watchdog timer timeout is used as tick source    ;total 1.5uS @8MHz      ( 10 clocks) 
         WDR                                               ;reset wdt              (  1 clock ) 
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x18                   ;set WDCE,WDE           (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
-		                                                                                       
 		#ifdef KER_WDT_TICK_16MS                                                               
 		LDI   R18                , 0x40                   ;WDIE                   (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-        #ifdef KER_WDT_TICK_32MS                                                               
+		#elif defined(KER_WDT_TICK_32MS)                                                       
 		LDI   R18                , 0x41                   ;WDIE, WDPS0            (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-		#ifdef KER_WDT_TICK_64MS                                                               
+		#elif defined(KER_WDT_TICK_64MS)                                                       
 		LDI   R18                , 0x42                   ;WDIE, WDPS1            (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-		#ifdef KER_WDT_TICK_125MS                                                              
+		#elif defined(KER_WDT_TICK_125MS)                                                      
 		LDI   R18                , 0x43                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-		#ifdef KER_WDT_TICK_250MS                                                              
+		#elif defined(KER_WDT_TICK_250MS)                                                      
 		LDI   R18                , 0x44                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-		#ifdef KER_WDT_TICK_500MS                                                              
+		#elif defined(KER_WDT_TICK_500MS)                                                      
 		LDI   R18                , 0x45                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
-		#endif                                                                                 
-		                                                                                       
-		#ifdef KER_WDT_TICK_1000MS                                                             
+		#elif defined(KER_WDT_TICK_1000MS)                                                     
 		LDI   R18                , 0x46                   ;WDIE, WDPS1, WDPS2     (  1 clock ) 
+		#else                                                                                  
+        LDI   R18                , 0x40                   ;WDIE                   (  1 clock ) 
 		#endif                                                                                 
-		                                                                                       
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
 		SEI                                               ;force enable interrupt (  1 clock ) 
-		#endif                                                                                 
                                                                                                
-		#ifdef KER_TOSC_AS_TICK_SRC                                                            
+		#elif defined(KER_TOSC_AS_TICK_SRC)                                                    
 		;timer2 asynchornus mode is used as tick source   ;total 1.5uS @8MHz      ( 57 clocks) 
 		LDI   R18                , 0x00                   ;clear interrupts       (  1 clock ) 
 		STS   SRTIMSK2           , R18                    ;set val to TIMSK2      (  2 clocks) 
@@ -265,54 +251,37 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		STS   SRASSR             , R18                    ;set val to ASSR        (  2 clocks) 
 		#ifdef KER_TOSC_TICK_1MS                                                               
 		LDI   R18                , 0x20                   ;1000Hz->clk/1/32       (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_10MS                                                              
+		LDI   R19                , 0x01                   ;1000Hz->clk/1/32       (  1 clock ) 
+		#elif defined(KER_TOSC_TICK_10MS)                                                      
 		LDI   R18                , 0x29                   ;100Hz->clk/8/41        (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_50MS                                                              
+		LDI   R19                , 0x02                   ;100Hz->clk/8/41        (  1 clock ) 
+		#elif defined(KER_TOSC_TICK_50MS)                                                      
 		LDI   R18                , 0xCC                   ;20Hz->clk/8/204        (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_100MS                                                             
+		LDI   R19                , 0x02                   ;20Hz->clk/8/204        (  1 clock ) 
+		#elif defined(KER_TOSC_TICK_100MS)                                                     
 		LDI   R18                , 0x66                   ;10Hz->clk/32/102       (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_250MS                                                             
+		LDI   R19                , 0x03                   ;10Hz->clk/32/102       (  1 clock ) 
+		#elif defined(KER_TOSC_TICK_250MS)                                                     
 		LDI   R18                , 0x80                   ;4Hz->clk/64/128        (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_500MS                                                             
+		LDI   R19                , 0x04                   ;4Hz->clk/64/128        (  1 clock ) 
+		#elif defined(KER_TOSC_TICK_500MS)                                                     
 		LDI   R18                , 0x80                   ;2Hz->clk/128/128       (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_1000MS                                                            
+		LDI   R19                , 0x05                   ;2Hz->clk/128/128       (  1 clock ) 
+		#elif defined(KER_TOSC_TICK_1000MS)                                                    
 		LDI   R18                , 0x80                   ;1Hz->clk/256/128       (  1 clock ) 
+		LDI   R19                , 0x06                   ;1Hz->clk/256/128       (  1 clock ) 
+		#else                                                                                  
+		LDI   R18                , 0x20                   ;1000Hz->clk/1/32       (  1 clock ) 
+		LDI   R19                , 0x01                   ;1000Hz->clk/1/32       (  1 clock ) 
 		#endif                                                                                 
-		STS   SROCR2A            , R18                    ;set val to OCR2A       (  2 clocks) 
+		STS   SROCR2A            , R18                    ;set compare match val  (  2 clocks) 
 		LDI   R18                , 0x00                   ;set val to reg         (  1 clock ) 
-		STS   SROCR2B            , R18                    ;set val to OCR2B       (  2 clocks) 
-		LDI   R18                , 0x02                   ;set WGM mode           (  1 clock ) 
+		STS   SROCR2B            , R18                    ;clear OCR2B            (  2 clocks) 
+		LDI   R18                , 0x02                   ;set CTC mode           (  1 clock ) 
 		STS   SRTCCR2A           , R18                    ;set val to TCCR2A      (  2 clocks) 
-		#ifdef KER_TOSC_TICK_1MS                                                               
-		LDI   R18                , 0x01                   ;1000Hz->clk/1/32       (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_10MS                                                              
-		LDI   R18                , 0x02                   ;100Hz->clk/8/41        (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_50MS                                                              
-		LDI   R18                , 0x02                   ;20Hz->clk/8/204        (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_100MS                                                             
-		LDI   R18                , 0x03                   ;10Hz->clk/32/102       (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_250MS                                                             
-		LDI   R18                , 0x04                   ;4Hz->clk/64/128        (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_500MS                                                             
-		LDI   R18                , 0x05                   ;2Hz->clk/128/128       (  1 clock ) 
-		#endif                                                                                 
-		#ifdef KER_TOSC_TICK_1000MS                                                            
-		LDI   R18                , 0x06                   ;1Hz->clk/256/128       (  1 clock ) 
-		#endif                                                                                 
-		STS   SRTCCR2B           , R18                    ;set val to TCCR2B      (  2 clocks) 
+		STS   SRTCCR2B           , R19                    ;set prescaler          (  2 clocks) 
 		LDI   R18                , 0x00                   ;clear reg              (  1 clock ) 
-		STS   SRTCNT2            , R18                    ;set val to TCNT2       (  2 clocks) 
+		STS   SRTCNT2            , R18                    ;clear TCNT2            (  2 clocks) 
 	_KER_TC2_AUB\@:                                                                            
 	    LDS   R18                , SRASSR                 ;load ASSR              (  2 clocks) 
         ANDI  R18                , 0x02                   ;check bit TCR2AUB      (  1 clock ) 
@@ -355,6 +324,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDI   R18                , 0x02                   ;set TOIE2 bit          (  1 clock ) 
 		STS   SRTIMSK2           , R18                    ;set val to TIMSK2      (  2 clocks) 
         SEI                                               ;force enable interrupt (  1 clock ) 
+                                                                                               
+		#else                                                                                  
+		;Default : Timer0 overflow 1000Hz                 ;total 1.5uS @8MHz      ( 12 clocks) 
+        LDS   R18		         , KerBase+OFB_PRS        ;load prescaler         (  2 clocks) 
+		LDS   R19		         , KerBase+OFB_RLD        ;load reload val        (  2 clocks) 
+		STS   SRTCCR0B           , R18                    ;prescaler-> TCCR0B     (  2 clocks) 
+		STS   SRTCNT0            , R19                    ;reload val-> TCNT0     (  2 clocks) 
+		LDI   R18                , 0x01                   ;bit mask TOIE0         (  1 clock ) 
+		STS   SRTIMSK0           , R18                    ;set to TIMSK0          (  2 clocks) 
+		SEI                                               ;force enable interrupt (  1 clock ) 
 		#endif                                                                                 
 .endm                                                                                          
 ;;==============================debug pin operation init end================================;; 
