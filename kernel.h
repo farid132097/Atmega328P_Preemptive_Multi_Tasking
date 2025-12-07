@@ -62,9 +62,9 @@
 
 //Do not change below section
 
-//Timer2 is used as tick source
+//Timer0 is used as tick source
 //High performance, higher power consumption
-//Timer2 is occupied, No external component required
+//Timer0 is occupied, No external component required
 #ifdef KER_TIMER2_AS_TICK_SRC
 #define  KER_SLEEP_MODE_IDLE
 #define  KER_TICK_TIME 1U
@@ -115,9 +115,9 @@
 #define  KER_TICK_TIME 1U
 #endif
 
-//Defaule: Timer2 is used as tick source
+//Defaule: Timer0 is used as tick source
 //High performance, higher power consumption
-//Timer2 is occupied, No external component required
+//Timer0 is occupied, No external component required
 #else
 #define  KER_SLEEP_MODE_IDLE
 #define  KER_TICK_TIME 1U
@@ -156,5 +156,4 @@ extern uint32_t  Kernel_Tick_Val_Safely_Get(void);
 
 
 #endif
-
 
