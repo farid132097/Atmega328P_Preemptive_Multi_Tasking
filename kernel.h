@@ -4,7 +4,7 @@
  * Author        : MD. Faridul Islam (faridmdislam@gmail.com)
  * Description   : AVR kernel for bare-metal RTOS
  * Created       : Jul 27, 2025, 9:30 PM
- * Last Modified : Dec 04, 2025, 12:44 PM
+ * Last Modified : Dec 08, 2025, 12:19 AM
  */
 
 
@@ -18,15 +18,15 @@
 //#define  KER_DBG_ENABLE
 
 //Uncomment only one
-//#define  KER_TIMER2_AS_TICK_SRC
+#define  KER_TIMER2_AS_TICK_SRC
 //#define  KER_WDT_AS_TICK_SRC
-#define  KER_TIMER2_ASYNC_AS_TICK_SRC
+//#define  KER_TIMER2_ASYNC_AS_TICK_SRC
 
 //Uncomment only one
 //#define  KER_WDT_TICK_16MS
-//#define  KER_WDT_TICK_32MS
+#define  KER_WDT_TICK_32MS
 //#define  KER_WDT_TICK_64MS
-#define  KER_WDT_TICK_125MS
+//#define  KER_WDT_TICK_125MS
 //#define  KER_WDT_TICK_250MS
 //#define  KER_WDT_TICK_500MS
 //#define  KER_WDT_TICK_1000MS
@@ -62,9 +62,9 @@
 
 //Do not change below section
 
-//Timer0 is used as tick source
+//Timer2 is used as tick source
 //High performance, higher power consumption
-//Timer0 is occupied, No external component required
+//Timer2 is occupied, No external component required
 #ifdef KER_TIMER2_AS_TICK_SRC
 #define  KER_SLEEP_MODE_IDLE
 #define  KER_TICK_TIME 1U
@@ -115,9 +115,9 @@
 #define  KER_TICK_TIME 1U
 #endif
 
-//Defaule: Timer0 is used as tick source
+//Default: Timer2 is used as tick source
 //High performance, higher power consumption
-//Timer0 is occupied, No external component required
+//Timer2 is occupied, No external component required
 #else
 #define  KER_SLEEP_MODE_IDLE
 #define  KER_TICK_TIME 1U
