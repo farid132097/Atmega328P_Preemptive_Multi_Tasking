@@ -89,11 +89,6 @@
 .equ     SRMCUSR ,        0x54                            ;manually defined MCUSR in SRAM      
 .equ     SRSMCR  ,        0x53                            ;manually defined SMCR in SRAM       
 .equ     SRACSR  ,        0x50                            ;manually defined ACSR in SRAM       
-.equ     SROCR0B ,        0x48                            ;manually defined OCR0B in SRAM      
-.equ     SROCR0A ,        0x47                            ;manually defined OCR0A in SRAM      
-.equ     SRTCNT0 ,        0x46                            ;manually defined TCNT0 in SRAM      
-.equ     SRTCCR0B,        0x45                            ;manually defined TCCR0B in SRAM     
-.equ     SRTCCR0A,        0x44                            ;manually defined TCCR0A in SRAM     
 .equ     SRTIFR2 ,        0x37                            ;manually defined TIFR2 in SRAM      
 .equ     SRTIFR1 ,        0x36                            ;manually defined TIFR1 in SRAM      
 .equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
@@ -103,12 +98,7 @@
 .equ     IOSPL   ,        0x3D                            ;manually defined SPL in IO          
 .equ     IOMCUCR ,        0x35                            ;manually defined MCUCR in IO        
 .equ     IOMCUSR ,        0x34                            ;manually defined MCUSR in IO        
-.equ     IOSMCR  ,        0x33                            ;manually defined SMCR in IO         
-.equ     IOOCR0B ,        0x28                            ;manually defined OCR0B in IO        
-.equ     IOOCR0A ,        0x27                            ;manually defined OCR0A in IO        
-.equ     IOTCNT0 ,        0x26                            ;manually defined TCNT0 in IO        
-.equ     IOTCCR0B,        0x25                            ;manually defined TCCR0B in IO       
-.equ     IOTCCR0A,        0x24                            ;manually defined TCCR0A in IO       
+.equ     IOSMCR  ,        0x33                            ;manually defined SMCR in IO          
 .equ     IOTIFR2 ,        0x17                            ;manually defined TIFR2 in IO        
 .equ     IOTIFR1 ,        0x16                            ;manually defined TIFR1 in IO        
 .equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO        
@@ -125,12 +115,6 @@
 ;        JMP   __vector_6                                                                       
 ;.org    0x000E                                            ;isr location for timer2compa async  
 ;        JMP   __vector_7                                                                       
-;.org    0x0010                                            ;isr location for timer2compb async  
-;        JMP   __vector_8                                                                       
-;.org    0x0012                                            ;isr location for timer2ovf async    
-;        JMP   __vector_9                                                                       
-;.org    0x0020                                            ;isr location for timer0ovf          
-;        JMP   __vector_16                                                                      
 ;;=================================define vector section end================================;; 
 
 
@@ -211,6 +195,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDI   R18                , 0x00                   ;disable timer clock    (  1 clock ) 
 		STS   SRTCCR2B           , R18                    ;set val to reg         (  2 clocks) 
 		STS   SRTIMSK2           , R18                    ;set val to reg         (  2 clocks) 
+		STS   SRASSR             , R18                    ;set val to reg         (  2 clocks) 
 		LDI   R18                , 0x07                   ;clear interrupt flag   (  1 clock ) 
 		STS   SRTIFR2            , R18                    ;set val to reg         (  2 clocks) 
 		LDI   R18                , 0x00                   ;set val to reg         (  1 clock ) 
@@ -323,7 +308,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		LDI   R18                , 0x04                   ;set bit                (  1 clock ) 
 		STS   SRTIFR2            , R18                    ;set val                (  2 clocks) 
     _KER_TC2_INTEN\@:                                                                          
-		LDI   R18                , 0x02                   ;set TOIE2 bit          (  1 clock ) 
+		LDI   R18                , 0x02                   ;set OCIE2A bit         (  1 clock ) 
 		STS   SRTIMSK2           , R18                    ;set val to TIMSK2      (  2 clocks) 
         SEI                                               ;force enable interrupt (  1 clock ) 
 .endm                                                                                          
@@ -1041,20 +1026,15 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
     #ifdef KER_IDLE_AS_SLEEP                                                                   
         #ifdef KER_SLEEP_MODE_IDLE                                                             
 		LDI   R18                , 0x00                   ;set SM[2:0] val        (  1 clock ) 
-		#endif                                                                                 
-                                                                                               
-		#ifdef KER_SLEEP_MODE_ADC_NR                                                           
+		#elif defined(KER_SLEEP_MODE_ADC_NR)                                                   
 		LDI   R18                , 0x02                   ;set SM[2:0] val        (  1 clock ) 
-		#endif
-                                                                                               
-		#ifdef KER_SLEEP_MODE_POWER_DOWN                                                       
+		#elif defined(KER_SLEEP_MODE_POWER_DOWN)                                               
 		LDI   R18                , 0x04                   ;set SM[2:0] val        (  1 clock ) 
-        #endif                                                                                 
-		                                                                                       
-		#ifdef KER_SLEEP_MODE_POWER_SAVE                                                       
+		#elif defined(KER_SLEEP_MODE_POWER_SAVE)                                               
 		LDI   R18                , 0x06                   ;set SM[2:0] val        (  1 clock ) 
+		#else                                                                                  
+		LDI   R18                , 0x00                   ;defaule: IDLE mode     (  1 clock ) 
 		#endif                                                                                 
-	                                                                                           
 		STS   SRSMCR             , R18                    ;set sleep control val  (  2 clocks) 
 		STS   KerBase+OFB_SLCFG  , R18                    ;save sleep control val (  2 clocks) 
 	#endif                                                                                     
@@ -1121,9 +1101,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		ORI   R18                , 0x40                   ;set WDIE               (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
-#endif                                                                                         
-
-#ifdef  KER_TIMER2_ASYNC_AS_TICK_SRC                                                           
+#elif defined(KER_TIMER2_AS_TICK_SRC) || defined(KER_TIMER2_ASYNC_AS_TICK_SRC)                 
 .global  __vector_7                                                                            
     __vector_7:                                           ;total 40.00uS @8MHz    (344 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
@@ -1138,11 +1116,9 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
 		RETI                                              ;return from interrupt  (  4 clocks) 
-#endif                                                                                         
-
-#ifdef  KER_TIMER2_AS_TICK_SRC                                                                 
-.global  __vector_16                                                                           
-    __vector_16:                                          ;total 40.00uS @8MHz    (339 clocks) 
+#else                                                                                          
+.global  __vector_7                                                                            
+    __vector_7:                                           ;total 40.00uS @8MHz    (344 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
 		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
@@ -1190,10 +1166,7 @@ Kernel_Tick_Init:                                         ;total 11.50uS @8MHz  
 		STS   KerBase+OFB_UATC   , R18                    ;clear  KerBase[12]     (  2 clocks) 
 		STS   KerBase+OFB_USAGE  , R18                    ;clear  KerBase[13]     (  2 clocks) 
 		;clear all timer registers                                                             
-		#ifdef KER_TIMER2_AS_TICK_SRC                                                          
-		KER_TIMER2_DISABLE                                                                     
-                                                                                               
-		#elif defined(KER_WDT_AS_TICK_SRC)                                                     
+		#ifdef KER_WDT_AS_TICK_SRC                                                             
 		WDR                                               ;reset wdt              (  1 clock ) 
 		LDS   R18                , SRMCUSR                ;copy MCUSR             (  1 clock ) 
 		ANDI  R18                , 0xFF & (0<<WDRF)       ;clear WDRF             (  1 clock ) 
@@ -1204,7 +1177,7 @@ Kernel_Tick_Init:                                         ;total 11.50uS @8MHz  
 		LDI   R18                , 0x00                   ;clear WDE              (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
                                                                                                
-		#elif defined(KER_TIMER2_ASYNC_AS_TICK_SRC)                                                    
+		#elif defined(KER_TIMER2_AS_TICK_SRC) || defined(KER_TIMER2_ASYNC_AS_TICK_SRC)         
         KER_TIMER2_DISABLE                                                                     
                                                                                                
 		#else                                                                                  
@@ -1324,7 +1297,7 @@ Kernel_Init:                                              ;total 39.75uS @8MHz  
 		KER_PUSH_MSP_ZP                                   ;push MSP and ZP        ( 18 clocks) 
 		;init timer for kernel                                                                 
 		LDI   R24                , 0x04                   ;set prescaler          (  1 clock ) 
-		LDI   R22                , 0x82                   ;set reload val         (  1 clock ) 
+		LDI   R22                , 0x7D                   ;set reload val         (  1 clock ) 
 		CALL  Kernel_Tick_Init                            ;init timer             ( 92 clocks) 
 		;create idle task at task_id 0, priority 0xFF (lowest)                                 
 		LDI   R24                , lo8(Kernel_Task_Idle)  ;load func addr low     (  1 clock ) 

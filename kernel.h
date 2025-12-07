@@ -18,9 +18,9 @@
 //#define  KER_DBG_ENABLE
 
 //Uncomment only one
-#define  KER_TIMER2_AS_TICK_SRC
+//#define  KER_TIMER2_AS_TICK_SRC
 //#define  KER_WDT_AS_TICK_SRC
-//#define  KER_TIMER2_ASYNC_AS_TICK_SRC
+#define  KER_TIMER2_ASYNC_AS_TICK_SRC
 
 //Uncomment only one
 //#define  KER_WDT_TICK_16MS
@@ -62,10 +62,10 @@
 
 //Do not change below section
 
-//Timer0 is used as tick source
+//Timer2 is used as tick source
 //High performance, higher power consumption
-//Timer0 is occupied, No external component required
-#ifdef KER_TIMER0_AS_TICK_SRC
+//Timer2 is occupied, No external component required
+#ifdef KER_TIMER2_AS_TICK_SRC
 #define  KER_SLEEP_MODE_IDLE
 #define  KER_TICK_TIME 1U
 
@@ -95,7 +95,7 @@
 //Timer2 Async is used as tick source
 //Balanced performance, lowest power consumption
 //Timer2 is occupied, external 32.768KHz crystal required
-#elif defined(KER_TOSC_AS_TICK_SRC)
+#elif defined(KER_TIMER2_ASYNC_AS_TICK_SRC)
 #define  KER_SLEEP_MODE_POWER_SAVE
 #ifdef KER_TOSC_TICK_1MS
 #define  KER_TICK_TIME 1U
@@ -115,9 +115,9 @@
 #define  KER_TICK_TIME 1U
 #endif
 
-//Defaule: Timer0 is used as tick source
+//Defaule: Timer2 is used as tick source
 //High performance, higher power consumption
-//Timer0 is occupied, No external component required
+//Timer2 is occupied, No external component required
 #else
 #define  KER_SLEEP_MODE_IDLE
 #define  KER_TICK_TIME 1U
