@@ -18,13 +18,13 @@
 //#define  KER_DBG_ENABLE
 
 //Uncomment only one
-#define  KER_TIMER2_AS_TICK_SRC
+//#define  KER_TIMER2_AS_TICK_SRC
 //#define  KER_WDT_AS_TICK_SRC
-//#define  KER_TIMER2_ASYNC_AS_TICK_SRC
+#define  KER_TIMER2_ASYNC_AS_TICK_SRC
 
 //Uncomment only one
 //#define  KER_WDT_TICK_16MS
-#define  KER_WDT_TICK_32MS
+//#define  KER_WDT_TICK_32MS
 //#define  KER_WDT_TICK_64MS
 //#define  KER_WDT_TICK_125MS
 //#define  KER_WDT_TICK_250MS
@@ -32,10 +32,10 @@
 //#define  KER_WDT_TICK_1000MS
 
 //Uncomment only one
-#define  KER_TOSC_TICK_1MS
+//#define  KER_TOSC_TICK_1MS
 //#define  KER_TOSC_TICK_10MS
 //#define  KER_TOSC_TICK_50MS
-//#define  KER_TOSC_TICK_100MS
+#define  KER_TOSC_TICK_100MS
 //#define  KER_TOSC_TICK_250MS
 //#define  KER_TOSC_TICK_500MS
 //#define  KER_TOSC_TICK_1000MS
