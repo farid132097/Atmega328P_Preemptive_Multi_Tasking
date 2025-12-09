@@ -1566,3 +1566,67 @@ Kernel_Tick_Val_Get:                                      ;total 0.75uS @8MHz   
 		OUT   IOSREG             , R18                    ;restore SREG           (  1 clock ) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;===================================kernel tick val get end================================;; 
+
+
+;;================================run scheduler starting====================================;; 
+;used registers          : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
+;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
+;return registers        : None                                                                
+;unsafe access registers : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
+;.macro  KER_RUN_SCHEDULER                                 ;total 13.25uS @8MHz    (106 clocks) 
+;		LDI   R16                , 0x00                   ;task_id from 0         (  1 clock ) 
+;		LDS   R17                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
+;		LDI   R18                , 0xFF                   ;lowest priority        (  1 clock ) 
+;		LDI   R19                , 0x00                   ;hi prio task_id=0      (  1 clock ) 
+;		LDI   R26                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+;		LDI   R27                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+;		LDI   R28                , lo8(KerSchPr)          ;load low addr          (  1 clock ) 
+;		LDI   R29                , hi8(KerSchPr)          ;load high addr         (  1 clock ) 
+;		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
+;		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
+;	_KER_SCH_LOOP\@:                                                                           
+;	    LDD   R24                , Z+0                    ;load val low byte      (  2 clocks) 
+;		LDD   R25                , Z+1                    ;load val high byte     (  2 clocks) 
+;       MOV   R20                , R24                    ;copy reg               (  1 clock ) 
+;		OR    R20                , R25                    ;or two reg             (  1 clock ) 
+;		BREQ  _VAL_NULL\@                                                                      
+;		CPI   R21                , SCH_MODE_THREAD        ;R21 argument           (  1 clock ) 
+;		BREQ  _VAL_NOT_NULL\@                                                                  
+;		SBIW  R24                , 0x01                   ;sutract sleep val      (  2 clocks) 
+;		STD   Z+0                , R24                    ;store low byte         (  2 clocks) 
+;		STD   Z+1                , R25                    ;store high byte        (  2 clocks) 
+;		MOV   R20                , R24                    ;copy                   (  1 clock ) 
+;		OR    R20                , R25                    ;or high & low bytes    (  1 clock ) 
+;		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
+;	_VAL_NULL\@:                                                                               
+;		LDI   R20                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+;		ST    X                  , R20                    ;update flag            (  2 clocks) 
+;		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
+;   _VAL_NOT_NULL\@:                                                                           
+;	    LD    R20                , X                      ;return sts             (  2 clocks) 
+;   _EXIT_SLP_TIME\@:                                                                          
+;       ADIW  R30                , 0x02                   ;add 2 with addr        (  2 clocks) 
+;		ADIW  R26                , 0x01                   ;add 1 with addr        (  2 clocks) 
+;   
+;	    CPI   R20                , TASK_READY             ;compare                (  1 clock ) 
+;       BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
+;       CPI   R20                , TASK_CONS_LAT          ;compare                (  1 clock ) 
+;		BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
+;		RJMP  _KER_SCH_NEXT\@                             ;next task id           (  2 clocks) 
+;
+;	_KER_CALC_PRIO\@:
+;	    LD    R20                , Y                      ;read priority          (  2 clocks) 
+;		CP    R20                , R18                    ;compare                (  1 clock ) 
+;       BRSH  _KER_SCH_NEXT\@                             ;next                   (  1 clock ) 
+;		ST    Y                  , R18                    ;store prio val         (  2 clocks) 
+;       MOV   R19                , R16                    ;store prio task_id     (  1 clock ) 
+;      
+;   _KER_SCH_NEXT\@:                                                                           
+;		INC   R16                                         ;increment by 1         (  1 clock ) 
+;		CP    R16                , R17                    ;compare with ntask     (  2 clocks) 
+;		BRLO  _KER_SCH_LOOP\@                             ;if task_id<ntask       (  2 clocks) 
+;	_KER_SCH_EXIT\@:                                                                           
+;		STS   KerBase+OFB_TID    , R19                    ;for test only          (  2 clocks) 
+;.endm                                                                                          
+;;===================================run scheduler end======================================;; 
+

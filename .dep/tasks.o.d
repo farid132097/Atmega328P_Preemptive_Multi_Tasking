@@ -1,9 +1,7 @@
-tasks.o: tasks.c kernel.h tasks.h debug.h nrf24l01p.h
+tasks.o: tasks.c kernel.h tasks.h debug.h
 
 kernel.h:
 
 tasks.h:
 
 debug.h:
-
-nrf24l01p.h:

@@ -5,7 +5,6 @@
 #include "kernel.h"
 #include "tasks.h"
 #include "debug.h"
-#include "nrf24l01p.h"
 
 
 
