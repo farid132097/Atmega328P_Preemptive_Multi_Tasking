@@ -18,9 +18,9 @@
 #define  KER_DBG_ENABLE
 
 //Uncomment only one
-//#define  KER_TIMER2_AS_TICK_SRC
+#define  KER_TIMER2_AS_TICK_SRC
 //#define  KER_WDT_AS_TICK_SRC
-#define  KER_TIMER2_ASYNC_AS_TICK_SRC
+//#define  KER_TIMER2_ASYNC_AS_TICK_SRC
 
 //Uncomment only one
 //#define  KER_WDT_TICK_16MS
