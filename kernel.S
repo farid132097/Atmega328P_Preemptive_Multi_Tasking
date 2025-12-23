@@ -934,12 +934,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-
-
-
-
-
-
         CPI    R24               , TASK_READY             ;compare                (  1 clock ) 
         BREQ   _KER_CALC_PRIO\@                           ;calc priority if ready (  2 clocks) 
 		CPI    R24               , TASK_CONS_LAT          ;compare                (  1 clock ) 
@@ -973,101 +967,28 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-;;================================calc cpu usage starting===================================;; 
-;used registers          : R18, R19                                                            
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : R18, R19                                                            
-.macro  KER_CPU_USAGE                                     ;total 3.25uS @8MHz     ( 26 clocks) 
-        ;check if current target task is idle task or not                                      
-        LDS    R18               , KerBase+OFB_TID        ;load target task_id    (  2 clocks) 
-		TST    R18                                        ;check if idle task     (  1 clock ) 
-		BREQ   _KER_USG_TICK\@                            ;task_id=idle, skip     (  2 clocks) 
-		LDS    R18               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
-		INC    R18                                        ;inc active tick cnt    (  1 clock ) 
-		STS    KerBase+OFB_UATC  , R18                    ;store new val          (  2 clocks) 
-	_KER_USG_TICK\@:                                                                           
-		LDS    R18               , KerBase+OFB_UTC        ;load usage tick cnt    (  2 clocks) 
-		INC    R18                                        ;increment tick cnt     (  1 clock ) 
-		CPI    R18               , 100                    ;compare with 100       (  1 clock ) 
-		BRLO   _KER_USG_UTC_SV\@                          ;val<100, save new val  (  2 clocks) 
-		LDI    R18               , 0x00                   ;val>=100, roll back    (  1 clock ) 
-		LDS    R19               , KerBase+OFB_UATC       ;load active tick cnt   (  2 clocks) 
-		STS    KerBase+OFB_USAGE , R19                    ;store usage            (  2 clocks) 
-		LDI    R19               , 0x00                   ;clear reg              (  1 clock ) 
-		STS    KerBase+OFB_UATC  , R19                    ;clear active tick cnt  (  2 clocks) 
-	_KER_USG_UTC_SV\@:                                                                         
-		STS    KerBase+OFB_UTC   , R18                    ;store new val          (  2 clocks) 
-.endm                                                                                          
-;;===================================calc cpu usage end=====================================;; 
-
-
-
-
-
-;;===========================kernel disable analog domain starting==========================;; 
-;used registers          : None                                                                
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : None                                                                
-.macro KER_DISABLE_ANALOG_DOMAIN                          ;total 0.75uS @8MHz     ( 10 clocks) 
-    #ifdef KER_IDLE_AS_SLEEP                                                                   
-		LDS   R18                , SRADCSRA               ;load ADCSRA            (  2 clocks) 
-		ANDI  R18                , 0x7F                   ;clear ADEN             (  1 clock ) 
-		STS   SRADCSRA           , R18                    ;set val                (  2 clocks) 
-		LDS   R18                , SRACSR                 ;load ACSR              (  2 clocks) 
-		ORI   R18                , 0x80                   ;set ACD                (  1 clock ) 
-		STS   SRACSR             , R18                    ;set val                (  2 clocks) 
-	#endif                                                                                     
-.endm                                                                                          
-;;=============================kernel disable analog domain end=============================;; 
-
-
-
-
-
-;;===============================kernel sleep config starting===============================;; 
-;used registers          : R18                                                                 
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : R18                                                                 
-.macro KER_SLEEP_INIT                                     ;total 0.63uS @8MHz     (  5 clocks) 
-    #ifdef KER_IDLE_AS_SLEEP                                                                   
-        #ifdef KER_SLEEP_MODE_IDLE                                                             
-		LDI   R18                , 0x00                   ;set SM[2:0] val        (  1 clock ) 
-		#elif defined(KER_SLEEP_MODE_ADC_NR)                                                   
-		LDI   R18                , 0x02                   ;set SM[2:0] val        (  1 clock ) 
-		#elif defined(KER_SLEEP_MODE_POWER_DOWN)                                               
-		LDI   R18                , 0x04                   ;set SM[2:0] val        (  1 clock ) 
-        #elif defined(KER_SLEEP_MODE_POWER_SAVE)                                               
-		LDI   R18                , 0x06                   ;set SM[2:0] val        (  1 clock ) 
-		#else                                                                                  
-		LDI   R18                , 0x00                   ;set SM[2:0] val        (  1 clock ) 
-		#endif                                                                                 
-		STS   SRSMCR             , R18                    ;set sleep control val  (  2 clocks) 
-		STS   KerBase+OFB_SLCFG  , R18                    ;save sleep control val (  2 clocks) 
-	#endif                                                                                     
-.endm                                                                                          
-;;================================kernel sleep config end===================================;; 
-
-
-
-
-
-
-;;=================================ISR execution starting===================================;; 
-#ifdef  KER_WDT_AS_TICK_SRC                                                                    
-.global  __vector_6                                                                            
-    __vector_6:                                           ;total 40.00uS @8MHz    (344 clocks) 
+;;===============================ISR Executables starting===================================;; 
+.macro  KER_ISR_EXECUTABLES                               ;total 1.13uS @8MHz     (  9 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
 		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
-		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
 	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
+.endm                                                                                          
+;;=================================ISR Executables end======================================;; 
+
+
+
+
+
+;;====================================ISR starting==========================================;; 
+#ifdef  KER_WDT_AS_TICK_SRC                                                                    
+.global  __vector_6                                                                            
+    __vector_6:                                           ;total 40.00uS @8MHz    (344 clocks) 
+	    KER_ISR_EXECUTABLES
 		LDS   R18                , SRWDTCSR               ;copy WDTCSR            (  2 clocks) 
 		ORI   R18                , 0x40                   ;set WDIE               (  1 clock ) 
 		STS   SRWDTCSR           , R18                    ;set val                (  2 clocks) 
@@ -1075,31 +996,15 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 #elif defined(KER_TIMER2_AS_TICK_SRC) || defined(KER_TIMER2_ASYNC_AS_TICK_SRC)                 
 .global  __vector_7                                                                            
     __vector_7:                                           ;total 40.00uS @8MHz    (344 clocks) 
-	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
-        KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
-		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
-		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
-		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
-		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
-	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
+	    KER_ISR_EXECUTABLES
 		RETI                                              ;return from interrupt  (  4 clocks) 
 #else                                                                                          
 .global  __vector_7                                                                            
     __vector_7:                                           ;total 40.00uS @8MHz    (344 clocks) 
-	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
-        KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
-		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
-		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
-		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
-		KER_CONTEXT_RESTORE_HANDLER                       ;restore context        ( 67 clocks) 
-	    KER_DEBUG_PIN_CLEAR                               ;debug pin clear        (  2 clocks) 
+	    KER_ISR_EXECUTABLES
 		RETI                                              ;return from interrupt  (  4 clocks) 
 #endif                                                                                         
-;;====================================ISR execution end=====================================;; 
+;;======================================ISR end=============================================;; 
 
 
 
@@ -1239,8 +1144,8 @@ Kernel_Task_Create:                                       ;total 21.50uS @8MHz  
 ;return registers        : None                                                                
 ;unsafe access registers : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
 Kernel_Start_Tasks:                                       ;total 25.63uS @8MHz    (205 clocks) 
-		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
-		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
+		;LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
+		;KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
 		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
 		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
 		;config timer for system tick                                                          
@@ -1307,7 +1212,7 @@ Kernel_Task_Idle:
 ;unsafe access registers : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
 Kernel_Task_Sleep:                                        ;total 37.25uS @8MHz    (298 clocks) 
         ;save current context                                                                  
-        ;KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
+        ;;KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
 		;KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		;create next task wakeup time (args R25:R24)                                           
 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
