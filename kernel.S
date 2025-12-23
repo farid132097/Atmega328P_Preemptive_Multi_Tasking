@@ -7,21 +7,13 @@
  ; Last Modified : Dec 08, 2025, 12:19 AM
 
 
+ ; ************this file is under modification************
+ ; ************go to main branch for working version
 
 
 #include <avr/io.h>
 #include "kernel.h"
 
-
-
-
-;;===============================define vector section starting=============================;; 
-;.section .vectors, "ax", @progbits                                                            
-;.org    0x000C                                            ;isr location for wdt               
-;        JMP   __vector_6                                                                      
-;.org    0x000E                                            ;isr location for timer2compa async 
-;        JMP   __vector_7                                                                      
-;;=================================define vector section end================================;; 
 
 
 
@@ -155,20 +147,7 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .global  Kernel_Init                                                                           
 .global  Kernel_Task_Idle                                                                      
 .global  Kernel_Task_Sleep                                                                     
-.global  Kernel_Task_Constant_Latency                                                          
-.global  Kernel_Task_Constant_Latency_Sleep                                                    
-.global  Kernel_PreSleep_Hook                                                                  
 .global  Kernel_Clock_Prescale                                                                 
-.global  Kernel_Task_Sleep_Time_Get                                                            
-.global  Kernel_Task_Status_Get                                                                
-.global  Kernel_NTask_Get                                                                      
-.global  Kernel_Task_Prio_Get                                                                  
-.global  Kernel_Lowest_Prio_Get                                                                
-.global  Kernel_High_Prio_Task_ID_Get                                                          
-.global  Kernel_Abs_High_Prio_Task_ID_Get                                                      
-.global  Kernel_CPU_Usage_Get                                                                  
-.global  Kernel_Tick_Val_Get                                                                   
-.global  Kernel_Tick_Val_Safely_Get                                                            
 ;;================================define global functions end===============================;; 
 
 
@@ -657,39 +636,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-;;=========================calculate offset addr in words starting==========================;; 
-;used registers          : R18, R30(ZL), R31(ZH)                                               
-;arg registers           : R30(ZL), R31(ZH)                                                    
-;return registers        : R30(ZL), R31(ZH)                                                    
-;unsafe access registers : R18, R30(ZL), R31(ZH)                                               
-.macro  KER_CALC_ADDR_OFF_WORD                            ;total 0.75uS @8MHz     (  6 clocks) 
-        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		LSL   R18                                         ;left shift to multiply (  1 clock ) 
-		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
-		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
-		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
-.endm                                                                                          
-;;=============================calculate offset addr in words end===========================;; 
-
-
-
-
-
-;;=========================calculate offset addr in bytes starting==========================;; 
-;used registers          : R18, R30(ZL), R31(ZH)                                               
-;arg registers           : R30(ZL), R31(ZH)                                                    
-;return registers        : R30(ZL), R31(ZH)                                                    
-;unsafe access registers : R18, R30(ZL), R31(ZH)                                               
-.macro  KER_CALC_ADDR_OFF_BYTES                           ;total 0.63uS @8MHz     (  5 clocks) 
-        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
-		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
-		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
-		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
-.endm                                                                                          
-;;=============================calculate offset addr in bytes end===========================;; 
-
-
-
 
 
 ;;===============================save current task sp starting==============================;; 
@@ -700,7 +646,15 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .macro  KER_SAVE_CURR_TASK_SP                             ;total 1.75uS @8MHz     ( 14 clocks) 
 		LDI   R30                , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
-		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
+
+        ;only for test
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
 		IN    R18                , IOSPL                  ;fetch SPL0             (  1 clock ) 
 		IN    R19                , IOSPH                  ;fetch SPH0             (  1 clock ) 
 		STD   Z+0                , R18                    ;store SPL at ZP+0      (  2 clocks) 
@@ -720,7 +674,15 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .macro  KER_LOAD_TASK_ID_AND_SP                           ;total 1.75uS @8MHz     ( 14 clocks) 
 		LDI   R30                , lo8(KerPSP)            ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerPSP)            ;fetch base pos high    (  1 clock ) 
-		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
+
+        ;only for test
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
 		LDD   R18                , Z+0                    ;load SPL at ZP         (  2 clocks) 
 		LDD   R19                , Z+1                    ;load SPH at ZP         (  2 clocks) 
 		OUT   IOSPL              , R18                    ;load SPL0              (  1 clock ) 
@@ -786,7 +748,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .macro  KER_SLP_TIME_MGNT                                 ;total 6.50uS @8MHz     ( 52 clocks) 
 		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
-		KER_CALC_ADDR_OFF_WORD                            ;calc offset            (  6 clocks) 
+
+
+        ;*******for check only
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
 		;fetch current value from ram, if val=0, skip decrement                                
         LDD   R18                , Z+0                    ;load val low byte      (  2 clocks) 
 		LDD   R19                , Z+1                    ;load val high byte     (  2 clocks) 
@@ -810,7 +781,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 	    ;find ram address for status                                                           
 	    LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-        KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
+
+
+        ;*******for check only
+        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
+
 		;update flag as task is ready                                                          
 		LDI   R24                , TASK_READY             ;set TASK_READY         (  1 clock ) 
 		ST    Z                  , R24                    ;update flag            (  2 clocks) 
@@ -818,7 +798,16 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
     _VAL_NOT_NULL\@:                                                                           
 	    LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-        KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
+
+
+        ;*******for check only
+        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
+
 	    LD    R24                , Z                      ;return sts             (  2 clocks) 
     _EXIT_SLP_TIME\@:                                                                          
 .endm                                                                                          
@@ -864,7 +853,93 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		STS    KerBase+OFB_TID   , R18                    ;store task id          (  2 clocks) 
         ;sleep time decrement, update ready/blocked status                                     
 		MOV    R24               , R21                    ;restore sch mode       (  1 clock ) 
-		KER_SLP_TIME_MGNT                                 ;update return vars     ( 52 clocks) 
+
+
+
+
+
+
+
+        ;copied from time management
+		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
+
+
+        ;*******for check only
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
+		;fetch current value from ram, if val=0, skip decrement                                
+        LDD   R18                , Z+0                    ;load val low byte      (  2 clocks) 
+		LDD   R19                , Z+1                    ;load val high byte     (  2 clocks) 
+		MOV   R20                , R18                    ;copy                   (  1 clock ) 
+		OR    R20                , R19                    ;or high & low bytes    (  1 clock ) 
+		BREQ  _VAL_NULL\@                                 ;val=0, save sts        (  2 clocks) 
+        CPI   R24                , SCH_MODE_THREAD        ;if arg=1, thread mode  (  1 clock ) 
+		BREQ  _VAL_NOT_NULL\@                             ;no need to dec val     (  2 clocks) 
+		;R19:R18 contains 16 bit sleep timer val, decrease val by 1                            
+		LDI   R20                , 0x01                   ;set val 1              (  1 clock ) 
+        SUB   R18                , R20                    ;subtract low byte      (  1 clock ) 
+		LDI   R20                , 0x00                   ;clear                  (  1 clock ) 
+		SBC   R19                , R20                    ;subtract carry if any  (  1 clock ) 
+		;store new value                                                                       
+		STD   Z+0                , R18                    ;store low byte         (  2 clocks) 
+		STD   Z+1                , R19                    ;store low byte         (  2 clocks) 
+		MOV   R20                , R18                    ;copy                   (  1 clock ) 
+		OR    R20                , R19                    ;or high & low bytes    (  1 clock ) 
+		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
+	_VAL_NULL\@:                                                                               
+	    ;find ram address for status                                                           
+	    LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+
+
+        ;*******for check only
+        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
+
+		;update flag as task is ready                                                          
+		LDI   R24                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+		ST    Z                  , R24                    ;update flag            (  2 clocks) 
+		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
+    _VAL_NOT_NULL\@:                                                                           
+	    LDI   R30                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+		LDI   R31                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+
+
+        ;*******for check only
+        LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
+
+	    LD    R24                , Z                      ;return sts             (  2 clocks) 
+    _EXIT_SLP_TIME\@:                                                                          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         CPI    R24               , TASK_READY             ;compare                (  1 clock ) 
         BREQ   _KER_CALC_PRIO\@                           ;calc priority if ready (  2 clocks) 
 		CPI    R24               , TASK_CONS_LAT          ;compare                (  1 clock ) 
@@ -1086,12 +1161,27 @@ Kernel_Task_Create:                                       ;total 21.50uS @8MHz  
 		;set priority to KerSchPr+task_id                                                      
 		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
+
+        ;only for test
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
 		ST    Z                  , R22                    ;save priority          (  2 clocks) 
 		;set task status to KerSchSts+task_id                                                  
 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_BYTES                           ;calc offset            (  5 clocks) 
+
+
+		;only for test
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
 		LDI   R18                , TASK_READY             ;set status as ready    (  1 clock ) 
 		ST    Z                  , R18                    ;save status            (  2 clocks) 
 		;stack pointer for current task (KerStack + KER_STK_SZ*(task_id+1) - 1) ->stack top    
@@ -1222,13 +1312,30 @@ Kernel_Task_Sleep:                                        ;total 37.25uS @8MHz  
 		;create next task wakeup time (args R25:R24)                                           
 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_WORD                            ;offset calc            (  6 clocks) 
+
+        ;only for test
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		LSL   R18                                         ;left shift to multiply (  1 clock ) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
 		STD   Z+0                , R24                    ;save sleep time low    (  2 clocks) 
 		STD   Z+1                , R25                    ;save sleep time high   (  2 clocks) 
 		;update task scheduler status as blocked                                               
 		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
+
+
+		;only for test
+		LDS   R18                , KerBase+OFB_TID        ;fetch task_id          (  2 clocks) 
+		ADD   R30                , R18                    ;add offset to array    (  1 clock ) 
+		LDI   R18                , 0x00                   ;clear for carry prop   (  1 clock ) 
+		ADC   R31                , R18                    ;add carry if any       (  1 clock ) 
+
+
+
         LDI   R18                , TASK_BLOCKED           ;block task until cnt=0 (  1 clock ) 
 		STD   Z+0                , R18                    ;save block flag        (  2 clocks) 
 		;run scheduler, load next task sp, restore context                                     
