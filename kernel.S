@@ -85,11 +85,8 @@
 .equ     SRTCCR2B,        0xB1                            ;manually defined TCCR2B in SRAM     
 .equ     SRTCCR2A,        0xB0                            ;manually defined TCCR2A in SRAM     
 .equ     SRADMUX ,        0x7C                            ;manually defined ADMUX in SRAM      
-.equ     SRADCSRB,        0x7B                            ;manually defined ADCSRB in SRAM     
 .equ     SRADCSRA,        0x7A                            ;manually defined ADCSRA in SRAM     
 .equ     SRTIMSK2,        0x70                            ;manually defined TIMSK2 in SRAM     
-.equ     SRTIMSK1,        0x6F                            ;manually defined TIMSK1 in SRAM     
-.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
 .equ     SRCLKPR ,        0x61                            ;manually defined CLKPR in SRAM      
 .equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
 .equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM       
@@ -100,8 +97,6 @@
 .equ     SRSMCR  ,        0x53                            ;manually defined SMCR in SRAM       
 .equ     SRACSR  ,        0x50                            ;manually defined ACSR in SRAM       
 .equ     SRTIFR2 ,        0x37                            ;manually defined TIFR2 in SRAM      
-.equ     SRTIFR1 ,        0x36                            ;manually defined TIFR1 in SRAM      
-.equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
 ;IO Mapped Addresses, IN/OUT commands can be used                                              
 .equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
 .equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO          
@@ -110,8 +105,6 @@
 .equ     IOMCUSR ,        0x34                            ;manually defined MCUSR in IO        
 .equ     IOSMCR  ,        0x33                            ;manually defined SMCR in IO         
 .equ     IOTIFR2 ,        0x17                            ;manually defined TIFR2 in IO        
-.equ     IOTIFR1 ,        0x16                            ;manually defined TIFR1 in IO        
-.equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO        
 ;;==============================define hardware reg address end=============================;; 
 
 
@@ -986,49 +979,12 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-;;==============================kernel enter sleep mode starting============================;; 
-;used registers          : None                                                                
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : None                                                                
-.macro KER_ENTER_SLEEP                                    ;total 0.75uS @8MHz     (  6 clocks) 
-    #ifdef KER_IDLE_AS_SLEEP                                                                   
-		LDS   R18                , SRSMCR                 ;load SMCR              (  2 clocks) 
-		ORI   R18                , 0x01                   ;set SE bit             (  1 clock ) 
-		STS   SRSMCR             , R18                    ;set val                (  2 clocks) 
-		SLEEP                                             ;sleep cpu              (  1 clock ) 
-	#endif                                                                                     
-.endm                                                                                          
-;;================================kernel enter sleep mode end===============================;; 
-
-
-
-
-
-;;===============================kernel exit sleep mode starting============================;; 
-;used registers          : None                                                                
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : None                                                                
-.macro KER_EXIT_SLEEP                                     ;total 0.63uS @8MHz     (  5 clocks) 
-    #ifdef KER_IDLE_AS_SLEEP                                                                   
-        LDS   R18                , SRSMCR                 ;load SMCR              (  2 clocks) 
-		ANDI  R18                , 0xFE                   ;clear SE bit           (  1 clock ) 
-		STS   SRSMCR             , R18                    ;set val                (  2 clocks) 
-	#endif                                                                                     
-.endm                                                                                          
-;;=================================kernel exit sleep mode end===============================;; 
-
-
-
-
 
 ;;=================================ISR execution starting===================================;; 
 #ifdef  KER_WDT_AS_TICK_SRC                                                                    
 .global  __vector_6                                                                            
     __vector_6:                                           ;total 40.00uS @8MHz    (344 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
-		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
@@ -1045,7 +1001,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .global  __vector_7                                                                            
     __vector_7:                                           ;total 40.00uS @8MHz    (344 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
-		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
@@ -1059,7 +1014,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 .global  __vector_7                                                                            
     __vector_7:                                           ;total 40.00uS @8MHz    (344 clocks) 
 	    KER_DEBUG_PIN_SET                                 ;debug pin set          (  2 clocks) 
-		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
@@ -1248,13 +1202,7 @@ Kernel_Init:                                              ;total 39.75uS @8MHz  
 ;return registers        : None                                                                
 ;unsafe access registers : None                                                                
 Kernel_Task_Idle:                                                                              
-	    KER_SLEEP_INIT                                    ;sleep init             (  5 clocks) 
     _IDLE_LOOP:                                           ;forever loop                        
-	    KER_DISABLE_ANALOG_DOMAIN                         ;disable adc, ac        ( 10 clocks) 
-		#ifdef KER_CALL_FUNC_BEFORE_SLEEP                                                      
-		CALL  Kernel_PreSleep_Hook                        ;call func before sleep (  8 clocks) 
-		#endif                                                                                 
-	    KER_ENTER_SLEEP                                   ;enter sleep mode       (  6 clocks) 
 		JMP   _IDLE_LOOP                                  ;jump to loop start     (  2 clocks) 
 ;;==================================kernel idle task end====================================;; 
 
@@ -1269,8 +1217,8 @@ Kernel_Task_Idle:
 ;unsafe access registers : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
 Kernel_Task_Sleep:                                        ;total 37.25uS @8MHz    (298 clocks) 
         ;save current context                                                                  
-        KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
+        ;KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
+		;KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
 		;create next task wakeup time (args R25:R24)                                           
 		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
 		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
@@ -1285,80 +1233,11 @@ Kernel_Task_Sleep:                                        ;total 37.25uS @8MHz  
 		STD   Z+0                , R18                    ;save block flag        (  2 clocks) 
 		;run scheduler, load next task sp, restore context                                     
 		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
-		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
-		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
-		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
+		;KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
+		;KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
+		;KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;=================================kernel task sleep end====================================;; 
-
-
-
-
-
-;;========================kernel task constant latency starting=============================;; 
-;used registers          : R18, R24, R25, R30(ZL), R31(ZH)                                     
-;arg registers           : R25:R24(SleepTime)                                                  
-;return registers        : None                                                                
-;unsafe access registers : R18, R24, R25, R30(ZL), R31(ZH)                                     
-Kernel_Task_Constant_Latency:                             ;total 3.50uS @8MHz     ( 28 clocks) 
-		;create next task wakeup time (args R25:R24)                                           
-		CLI                                               ;disable interrupt      (  1 clock ) 
-		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_WORD                            ;offset calc            (  6 clocks) 
-		STD   Z+0                , R24                    ;save sleep time low    (  2 clocks) 
-		STD   Z+1                , R25                    ;save sleep time high   (  2 clocks) 
-		;update task scheduler status as constant latency                                      
-		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R18                , TASK_CONS_LAT          ;save as cons_lat       (  1 clock ) 
-		STD   Z+0                , R18                    ;save block flag        (  2 clocks) 
-		SEI                                               ;enable interrupt       (  1 clock ) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;=============================kernel task constant latency end=============================;; 
-
-
-
-
-
-;;=======================kernel task constant latency sleep starting========================;; 
-;used registers          : R0~R31                                                              
-;arg registers           : R25:R24(SleepTime)                                                  
-;return registers        : None                                                                
-;unsafe access registers : R18, R19, R20, R24, R25, R30(ZL), R31(ZH)                           
-Kernel_Task_Constant_Latency_Sleep:                       ;total 35.75uS @8MHz    (286 clocks) 
-		;save current context                                                                  
-        KER_CONTEXT_SAVE_THREAD                           ;save context           ( 69 clocks) 
-		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		;update task scheduler status as blocked                                               
-		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		KER_CALC_ADDR_OFF_BYTES                           ;offset calc            (  5 clocks) 
-        LDI   R18                , TASK_BLOCKED           ;blocked until cnt=0    (  1 clock ) 
-		STD   Z+0                , R18                    ;save block flag        (  2 clocks) 
-		;run scheduler, load next task sp, restore context                                     
-		LDI    R24               , SCH_MODE_THREAD        ;set sch mode           (  1 clock ) 
-		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
-		KER_LOAD_TASK_ID_AND_SP                           ;load next task id, SP  ( 14 clocks) 
-		KER_CONTEXT_RESTORE_THREAD                        ;restore context        ( 68 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;=============================kernel task constant latency end=============================;; 
-
-
-
-
-
-;;=========================kernel call func before sleep starting===========================;; 
-;used registers          : R24, R25, R30(ZL), R31(ZH)                                          
-;arg registers           : R25:R24(FunctionPtr)                                                
-;return registers        : None                                                                
-;unsafe access registers : R24, R25, R30(ZL), R31(ZH)                                          
-Kernel_PreSleep_Hook:                                     ;total 1.00uS @8MHz     (  8 clocks) 
-        MOVW  R30                , R24                    ;move pointer to Z      (  1 clock ) 
-		ICALL                                             ;indirect call          (  3 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;============================kernel call func before sleep end=============================;; 
 
 
 
@@ -1379,221 +1258,4 @@ Kernel_Clock_Prescale:                                    ;total 1.75uS @8MHz   
 		RET                                               ;return from subroutine (  4 clocks) 
 ;;==========================kernel main clock prescaler set end=============================;; 
 
-
-
-
-
-;;===========================kernel task sleep time get starting============================;; 
-;used registers          : R18, R24, R25, R30(ZL), R31(ZH)                                     
-;arg registers           : R24(TaskID)                                                         
-;return registers        : R25:R24(SleepTime)                                                  
-;unsafe access registers : R18, R24, R25, R30(ZL), R31(ZH)                                     
-Kernel_Task_Sleep_Time_Get:                               ;total 1.88uS @8MHz     ( 15 clocks) 
-		MOV   R18                , R24                    ;copy                   (  1 clock ) 
-		LSL   R18                                         ;x2                     (  1 clock ) 
-		LDI   R30                , lo8(KerSchSlp)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSlp)         ;load high byte         (  1 clock ) 
-		ADD   R30                , R18                    ;add low bytes          (  1 clock ) 
-		LDI   R18                , 0x00                   ;load 0                 (  1 clock ) 
-		ADC   R31                , R18                    ;add high byte+carry    (  1 clock ) 
-		LDD   R24                , Z+0                    ;load sleep time        (  2 clocks) 
-		LDD   R25                , Z+1                    ;load sleep time        (  2 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;==============================kernel task sleep time get end==============================;; 
-
-
-
-
-
-;;==============================kernel task status get starting=============================;; 
-;used registers          : R18, R24, R30(ZL), R31(ZH)                                          
-;arg registers           : R24(TaskID)                                                         
-;return registers        : R24(TaskSts)                                                        
-;unsafe access registers : R18, R24, R30(ZL), R31(ZH)                                          
-Kernel_Task_Status_Get:                                   ;total 1.50uS @8MHz     ( 12 clocks) 
-		MOV   R18                , R24                    ;copy                   (  1 clock ) 
-		LDI   R30                , lo8(KerSchSts)         ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchSts)         ;load high byte         (  1 clock ) 
-		ADD   R30                , R18                    ;add low bytes          (  1 clock ) 
-		LDI   R18                , 0x00                   ;load 0                 (  1 clock ) 
-		ADC   R31                , R18                    ;add high byte+carry    (  1 clock ) 
-		LD    R24                , Z                      ;load task status       (  2 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;================================kernel task status get end================================;; 
-
-
-
-
-
-;;================================kernel ntask get starting=================================;; 
-;used registers          : R24                                                                 
-;arg registers           : None                                                                
-;return registers        : R24(NTask)                                                          
-;unsafe access registers : R24                                                                 
-Kernel_NTask_Get:                                         ;total 0.75uS @8MHz     (  6 clocks) 
-		LDS   R24                 , KerBase+OFB_NTSK      ;load ntask             (  2 clock ) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;===================================kernel ntask get end===================================;; 
-
-
-
-
-
-;;=============================kernel task priority get starting============================;; 
-;used registers          : R18, R24, R30(ZL), R31(ZH)                                          
-;arg registers           : R24(TaskID)                                                         
-;return registers        : R24(TaskPriority)                                                   
-;unsafe access registers : R18, R24, R30(ZL), R31(ZH)                                          
-Kernel_Task_Prio_Get:                                     ;total 1.50uS @8MHz     ( 12 clocks) 
-		;get priority of the task id, arg (task_id->R24), return R24                           
-		MOV   R18                , R24                    ;copy task_id           (  1 clock ) 
-		LDI   R30                , lo8(KerSchPr)          ;load low byte          (  1 clock ) 
-		LDI   R31                , hi8(KerSchPr)          ;load high byte         (  1 clock ) 
-		ADD   R30                , R18                    ;add low bytes          (  1 clock ) 
-		LDI   R18                , 0x00                   ;clear reg              (  1 clock ) 
-		ADC   R31                , R18                    ;add high byte+carry    (  1 clock ) 
-		LD    R24                , Z                      ;load priority          (  2 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;================================kernel task priority get end==============================;; 
-
-
-
-
-
-;;============================kernel lowest priority get starting===========================;; 
-;used registers          : R24                                                                 
-;arg registers           : None                                                                
-;return registers        : R24(LowestPriorityVal)                                              
-;unsafe access registers : R24                                                                 
-Kernel_Lowest_Prio_Get:                                   ;total 0.75uS @8MHz     (  6 clocks) 
-		LDS   R24                , KerBase+OFB_LPR        ;load lowest priority   (  2 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;===============================kernel lowest priority get end=============================;; 
-
-
-
-
-
-;;===========================kernel high priority task id starting==========================;; 
-;used registers          : R24                                                                 
-;arg registers           : None                                                                
-;return registers        : R24(HighstPriorityTaskID)->UserTaskID (Excluding Idle Task)         
-;unsafe access registers : R24                                                                 
-Kernel_High_Prio_Task_ID_Get:                             ;total 0.88uS @8MHz     (  7 clocks) 
-		LDS   R24                , KerBase+OFB_PTID       ;load priority tak_id   (  2 clocks) 
-		DEC   R24                                         ;decrement by 1         (  1 clock ) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;==============================kernel high priority task id end============================;; 
-
-
-
-
-
-;;=========================kernel abs high priority task id starting========================;; 
-;used registers          : R24                                                                 
-;arg registers           : None                                                                
-;return registers        : R24(HighstPriorityTaskID)->AbsoluteTaskID (Including Idle Task)     
-;unsafe access registers : R24                                                                 
-Kernel_Abs_High_Prio_Task_ID_Get:                         ;total 0.75uS @8MHz     (  6 clocks) 
-		LDS   R24                , KerBase+OFB_PTID       ;load priority tak_id   (  2 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;============================kernel abs high priority task id end==========================;; 
-
-
-
-
-
-;;================================kernel cpu usage get starting=============================;; 
-;used registers          : R24                                                                 
-;arg registers           : None                                                                
-;return registers        : R24(CurrentCpuUsage)->In percentage                                 
-;unsafe access registers : R24                                                                 
-Kernel_CPU_Usage_Get:                                     ;total 0.75uS @8MHz     (  6 clocks) 
-		;get cpu usage, return R24                                                             
-		LDS   R24                , KerBase+OFB_USAGE      ;load cpu usage         (  2 clocks) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;==================================kernel cpu usage get end================================;; 
-
-
-
-
-
-;;=================================kernel tick val get starting=============================;; 
-;used registers          : R22, R23, R24, R25                                                  
-;arg registers           : None                                                                
-;return registers        : R25:R22(TickVal)                                                    
-;unsafe access registers : R22, R23, R24, R25                                                  
-Kernel_Tick_Val_Get:                                      ;total 0.75uS @8MHz     (  6 clocks) 
-        IN    R18                , IOSREG                 ;save SREG              (  1 clock ) 
-		CLI                                               ;disable interrupt      (  1 clock ) 
-		LDS   R22                , KerBase+OFB_TICK0      ;load tick count        (  2 clocks) 
-		LDS   R23                , KerBase+OFB_TICK1      ;load tick count        (  2 clocks) 
-		LDS   R24                , KerBase+OFB_TICK2      ;load tick count        (  2 clocks) 
-		LDS   R25                , KerBase+OFB_TICK3      ;load tick count        (  2 clocks) 
-		OUT   IOSREG             , R18                    ;restore SREG           (  1 clock ) 
-		RET                                               ;return from subroutine (  4 clocks) 
-;;===================================kernel tick val get end================================;; 
-
-
-;;================================run scheduler starting====================================;; 
-;used registers          : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
-;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
-;return registers        : None                                                                
-;unsafe access registers : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
-;.macro  KER_RUN_SCHEDULER                                 ;total 13.25uS @8MHz    (106 clocks) 
-;		LDI   R16                , 0x00                   ;task_id from 0         (  1 clock ) 
-;		LDS   R17                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
-;		LDI   R18                , 0xFF                   ;lowest priority        (  1 clock ) 
-;		LDI   R19                , 0x00                   ;hi prio task_id=0      (  1 clock ) 
-;		LDI   R26                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
-;		LDI   R27                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
-;		LDI   R28                , lo8(KerSchPr)          ;load low addr          (  1 clock ) 
-;		LDI   R29                , hi8(KerSchPr)          ;load high addr         (  1 clock ) 
-;		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
-;		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
-;	_KER_SCH_LOOP\@:                                                                           
-;	    LDD   R24                , Z+0                    ;load val low byte      (  2 clocks) 
-;		LDD   R25                , Z+1                    ;load val high byte     (  2 clocks) 
-;       MOV   R20                , R24                    ;copy reg               (  1 clock ) 
-;		OR    R20                , R25                    ;or two reg             (  1 clock ) 
-;		BREQ  _VAL_NULL\@                                                                      
-;		CPI   R21                , SCH_MODE_THREAD        ;R21 argument           (  1 clock ) 
-;		BREQ  _VAL_NOT_NULL\@                                                                  
-;		SBIW  R24                , 0x01                   ;sutract sleep val      (  2 clocks) 
-;		STD   Z+0                , R24                    ;store low byte         (  2 clocks) 
-;		STD   Z+1                , R25                    ;store high byte        (  2 clocks) 
-;		MOV   R20                , R24                    ;copy                   (  1 clock ) 
-;		OR    R20                , R25                    ;or high & low bytes    (  1 clock ) 
-;		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
-;	_VAL_NULL\@:                                                                               
-;		LDI   R20                , TASK_READY             ;set TASK_READY         (  1 clock ) 
-;		ST    X                  , R20                    ;update flag            (  2 clocks) 
-;		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
-;   _VAL_NOT_NULL\@:                                                                           
-;	    LD    R20                , X                      ;return sts             (  2 clocks) 
-;   _EXIT_SLP_TIME\@:                                                                          
-;       ADIW  R30                , 0x02                   ;add 2 with addr        (  2 clocks) 
-;		ADIW  R26                , 0x01                   ;add 1 with addr        (  2 clocks) 
-;   
-;	    CPI   R20                , TASK_READY             ;compare                (  1 clock ) 
-;       BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
-;       CPI   R20                , TASK_CONS_LAT          ;compare                (  1 clock ) 
-;		BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
-;		RJMP  _KER_SCH_NEXT\@                             ;next task id           (  2 clocks) 
-;
-;	_KER_CALC_PRIO\@:
-;	    LD    R20                , Y                      ;read priority          (  2 clocks) 
-;		CP    R20                , R18                    ;compare                (  1 clock ) 
-;       BRSH  _KER_SCH_NEXT\@                             ;next                   (  1 clock ) 
-;		ST    Y                  , R18                    ;store prio val         (  2 clocks) 
-;       MOV   R19                , R16                    ;store prio task_id     (  1 clock ) 
-;      
-;   _KER_SCH_NEXT\@:                                                                           
-;		INC   R16                                         ;increment by 1         (  1 clock ) 
-;		CP    R16                , R17                    ;compare with ntask     (  2 clocks) 
-;		BRLO  _KER_SCH_LOOP\@                             ;if task_id<ntask       (  2 clocks) 
-;	_KER_SCH_EXIT\@:                                                                           
-;		STS   KerBase+OFB_TID    , R19                    ;for test only          (  2 clocks) 
-;.endm                                                                                          
-;;===================================run scheduler end======================================;; 
 
