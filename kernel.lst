@@ -2116,67 +2116,72 @@
  1568               	;;===================================kernel tick val get end================================;; 
  1569               	
  1570               	
- 1571               	;;================================run scheduler starting====================================;; 
- 1572               	;used registers          : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
- 1573               	;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
- 1574               	;return registers        : None                                                                
- 1575               	;unsafe access registers : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
- 1576               	;.macro  KER_RUN_SCHEDULER                                 ;total 13.25uS @8MHz    (106 clocks) 
- 1577               	;		LDI   R16                , 0x00                   ;task_id from 0         (  1 clock ) 
- 1578               	;		LDS   R17                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
- 1579               	;		LDI   R18                , 0xFF                   ;lowest priority        (  1 clock ) 
- 1580               	;		LDI   R19                , 0x00                   ;hi prio task_id=0      (  1 clock ) 
- 1581               	;		LDI   R26                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
- 1582               	;		LDI   R27                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
- 1583               	;		LDI   R28                , lo8(KerSchPr)          ;load low addr          (  1 clock ) 
- 1584               	;		LDI   R29                , hi8(KerSchPr)          ;load high addr         (  1 clock ) 
- 1585               	;		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
- 1586               	;		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
- 1587               	;	_KER_SCH_LOOP\@:                                                                           
- 1588               	;	    LDD   R24                , Z+0                    ;load val low byte      (  2 clocks) 
- 1589               	;		LDD   R25                , Z+1                    ;load val high byte     (  2 clocks) 
- 1590               	;       MOV   R20                , R24                    ;copy reg               (  1 clock ) 
- 1591               	;		OR    R20                , R25                    ;or two reg             (  1 clock ) 
- 1592               	;		BREQ  _VAL_NULL\@                                                                      
- 1593               	;		CPI   R21                , SCH_MODE_THREAD        ;R21 argument           (  1 clock ) 
- 1594               	;		BREQ  _VAL_NOT_NULL\@                                                                  
- 1595               	;		SBIW  R24                , 0x01                   ;sutract sleep val      (  2 clocks) 
- 1596               	;		STD   Z+0                , R24                    ;store low byte         (  2 clocks) 
- 1597               	;		STD   Z+1                , R25                    ;store high byte        (  2 clocks) 
- 1598               	;		MOV   R20                , R24                    ;copy                   (  1 clock ) 
- 1599               	;		OR    R20                , R25                    ;or high & low bytes    (  1 clock ) 
- 1600               	;		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
- 1601               	;	_VAL_NULL\@:                                                                               
- 1602               	;		LDI   R20                , TASK_READY             ;set TASK_READY         (  1 clock ) 
- 1603               	;		ST    X                  , R20                    ;update flag            (  2 clocks) 
- 1604               	;		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
- 1605               	;   _VAL_NOT_NULL\@:                                                                           
- 1606               	;	    LD    R20                , X                      ;return sts             (  2 clocks) 
- 1607               	;   _EXIT_SLP_TIME\@:                                                                          
- 1608               	;       ADIW  R30                , 0x02                   ;add 2 with addr        (  2 clocks) 
- 1609               	;		ADIW  R26                , 0x01                   ;add 1 with addr        (  2 clocks) 
- 1610               	;   
- 1611               	;	    CPI   R20                , TASK_READY             ;compare                (  1 clock ) 
- 1612               	;       BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
- 1613               	;       CPI   R20                , TASK_CONS_LAT          ;compare                (  1 clock ) 
- 1614               	;		BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
- 1615               	;		RJMP  _KER_SCH_NEXT\@                             ;next task id           (  2 clocks) 
- 1616               	;
- 1617               	;	_KER_CALC_PRIO\@:
- 1618               	;	    LD    R20                , Y                      ;read priority          (  2 clocks) 
- 1619               	;		CP    R20                , R18                    ;compare                (  1 clock ) 
- 1620               	;       BRSH  _KER_SCH_NEXT\@                             ;next                   (  1 clock ) 
- 1621               	;		ST    Y                  , R18                    ;store prio val         (  2 clocks) 
- 1622               	;       MOV   R19                , R16                    ;store prio task_id     (  1 clock ) 
- 1623               	;      
- 1624               	;   _KER_SCH_NEXT\@:                                                                           
- 1625               	;		INC   R16                                         ;increment by 1         (  1 clock ) 
- 1626               	;		CP    R16                , R17                    ;compare with ntask     (  2 clocks) 
- 1627               	;		BRLO  _KER_SCH_LOOP\@                             ;if task_id<ntask       (  2 clocks) 
- 1628               	;	_KER_SCH_EXIT\@:                                                                           
- 1629               	;		STS   KerBase+OFB_TID    , R19                    ;for test only          (  2 clocks) 
- 1630               	;.endm                                                                                          
- 1631               	;;===================================run scheduler end======================================;; 
+ 1571               	
+ 1572               	
+ 1573               	
+ 1574               	
+ 1575               	
+ 1576               	;;================================run scheduler starting====================================;; 
+ 1577               	;used registers          : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
+ 1578               	;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
+ 1579               	;return registers        : None                                                                
+ 1580               	;unsafe access registers : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
+ 1581               	;.macro  KER_RUN_SCHEDULER                                 ;total 13.25uS @8MHz    (106 clocks) 
+ 1582               	;		LDI   R16                , 0x00                   ;task_id from 0         (  1 clock ) 
+ 1583               	;		LDS   R17                , KerBase+OFB_NTSK       ;load ntask             (  2 clocks) 
+ 1584               	;		LDI   R18                , 0xFF                   ;lowest priority        (  1 clock ) 
+ 1585               	;		LDI   R19                , 0x00                   ;hi prio task_id=0      (  1 clock ) 
+ 1586               	;		LDI   R26                , lo8(KerSchSts)         ;fetch base pos low     (  1 clock ) 
+ 1587               	;		LDI   R27                , hi8(KerSchSts)         ;fetch base pos high    (  1 clock ) 
+ 1588               	;		LDI   R28                , lo8(KerSchPr)          ;load low addr          (  1 clock ) 
+ 1589               	;		LDI   R29                , hi8(KerSchPr)          ;load high addr         (  1 clock ) 
+ 1590               	;		LDI   R30                , lo8(KerSchSlp)         ;fetch base pos low     (  1 clock ) 
+ 1591               	;		LDI   R31                , hi8(KerSchSlp)         ;fetch base pos high    (  1 clock ) 
+ 1592               	;	_KER_SCH_LOOP\@:                                                                           
+ 1593               	;	    LDD   R24                , Z+0                    ;load val low byte      (  2 clocks) 
+ 1594               	;		LDD   R25                , Z+1                    ;load val high byte     (  2 clocks) 
+ 1595               	;       MOV   R20                , R24                    ;copy reg               (  1 clock ) 
+ 1596               	;		OR    R20                , R25                    ;or two reg             (  1 clock ) 
+ 1597               	;		BREQ  _VAL_NULL\@                                                                      
+ 1598               	;		CPI   R21                , SCH_MODE_THREAD        ;R21 argument           (  1 clock ) 
+ 1599               	;		BREQ  _VAL_NOT_NULL\@                                                                  
+ 1600               	;		SBIW  R24                , 0x01                   ;sutract sleep val      (  2 clocks) 
+ 1601               	;		STD   Z+0                , R24                    ;store low byte         (  2 clocks) 
+ 1602               	;		STD   Z+1                , R25                    ;store high byte        (  2 clocks) 
+ 1603               	;		MOV   R20                , R24                    ;copy                   (  1 clock ) 
+ 1604               	;		OR    R20                , R25                    ;or high & low bytes    (  1 clock ) 
+ 1605               	;		BRNE  _VAL_NOT_NULL\@                             ;val!=0                 (  2 clocks) 
+ 1606               	;	_VAL_NULL\@:                                                                               
+ 1607               	;		LDI   R20                , TASK_READY             ;set TASK_READY         (  1 clock ) 
+ 1608               	;		ST    X                  , R20                    ;update flag            (  2 clocks) 
+ 1609               	;		RJMP  _EXIT_SLP_TIME\@                            ;jump to exit           (  2 clocks) 
+ 1610               	;   _VAL_NOT_NULL\@:                                                                           
+ 1611               	;	    LD    R20                , X                      ;return sts             (  2 clocks) 
+ 1612               	;   _EXIT_SLP_TIME\@:                                                                          
+ 1613               	;       ADIW  R30                , 0x02                   ;add 2 with addr        (  2 clocks) 
+ 1614               	;		ADIW  R26                , 0x01                   ;add 1 with addr        (  2 clocks) 
+ 1615               	;   
+ 1616               	;	    CPI   R20                , TASK_READY             ;compare                (  1 clock ) 
+ 1617               	;       BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
+ 1618               	;       CPI   R20                , TASK_CONS_LAT          ;compare                (  1 clock ) 
+ 1619               	;		BREQ  _KER_CALC_PRIO\@                            ;calculate priority     (  2 clocks) 
+ 1620               	;		RJMP  _KER_SCH_NEXT\@                             ;next task id           (  2 clocks) 
+ 1621               	;
+ 1622               	;	_KER_CALC_PRIO\@:
+ 1623               	;	    LD    R20                , Y                      ;read priority          (  2 clocks) 
+ 1624               	;		CP    R20                , R18                    ;compare                (  1 clock ) 
+ 1625               	;       BRSH  _KER_SCH_NEXT\@                             ;next                   (  1 clock ) 
+ 1626               	;		ST    Y                  , R18                    ;store prio val         (  2 clocks) 
+ 1627               	;       MOV   R19                , R16                    ;store prio task_id     (  1 clock ) 
+ 1628               	;      
+ 1629               	;   _KER_SCH_NEXT\@:                                                                           
+ 1630               	;		INC   R16                                         ;increment by 1         (  1 clock ) 
+ 1631               	;		CP    R16                , R17                    ;compare with ntask     (  2 clocks) 
+ 1632               	;		BRLO  _KER_SCH_LOOP\@                             ;if task_id<ntask       (  2 clocks) 
+ 1633               	;	_KER_SCH_EXIT\@:                                                                           
+ 1634               	;		STS   KerBase+OFB_TID    , R19                    ;for test only          (  2 clocks) 
+ 1635               	;.endm                                                                                          
+ 1636               	;;===================================run scheduler end======================================;; 
 DEFINED SYMBOLS
             kernel.S:30     *ABS*:000003e8 KER_TR
             kernel.S:31     *ABS*:00000003 KER_PRS

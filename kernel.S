@@ -1568,6 +1568,11 @@ Kernel_Tick_Val_Get:                                      ;total 0.75uS @8MHz   
 ;;===================================kernel tick val get end================================;; 
 
 
+
+
+
+
+
 ;;================================run scheduler starting====================================;; 
 ;used registers          : R18, R19, R20, R21, R24, R25, R30(ZL), R31(ZH)                      
 ;arg registers           : R24 (SCH_MODE_HANDLER/SCH_MODE_THREAD)                              
