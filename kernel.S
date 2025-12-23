@@ -719,36 +719,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 
 
 
-;;==============================increment tick counter starting=============================;; 
-;used registers          : R18, R19                                                            
-;arg registers           : None                                                                
-;return registers        : None                                                                
-;unsafe access registers : R18, R19                                                            
-.macro  KER_TICK_INCREMENT                                ;total 3.25uS @8MHz     ( 27 clocks) 
-        LDI   R18                , 0x01                   ;load 1                 (  1 clock ) 
-		LDS   R19                , KerBase+OFB_TICK0      ;load Byte0             (  2 clocks) 
-		ADD   R19                , R18                    ;add 1 with current val (  1 clock ) 
-		STS   KerBase+OFB_TICK0  , R19                    ;set Byte0              (  2 clocks) 
-		LDI   R18                , 0x00                   ;clear reg              (  1 clock ) 
-		LDS   R19                , KerBase+OFB_TICK1      ;load Byte1             (  2 clocks) 
-		ADC   R19                , R18                    ;add carry with Byte1   (  1 clock ) 
-		STS   KerBase+OFB_TICK1  , R19                    ;set Byte1              (  2 clocks) 
-		LDS   R19                , KerBase+OFB_TICK2      ;load Byte2             (  2 clocks) 
-		ADC   R19                , R18                    ;add carry with Byte2   (  1 clock ) 
-		STS   KerBase+OFB_TICK2  , R19                    ;set Byte2              (  2 clocks) 
-		LDS   R19                , KerBase+OFB_TICK3      ;load Byte3             (  2 clocks) 
-		ADC   R19                , R18                    ;add carry with Byte3   (  1 clock ) 
-		STS   KerBase+OFB_TICK3  , R19                    ;set Byte3              (  2 clocks) 
-		LDS   R19                , KerBase+OFB_TICK4      ;load Byte4             (  2 clocks) 
-		ADC   R19                , R18                    ;add carry with Byte4   (  1 clock ) 
-		STS   KerBase+OFB_TICK4  , R19                    ;set Byte4              (  2 clocks) 
-.endm                                                                                          
-;;=================================increment tick counter end===============================;; 
-
-
-
-
-
 ;;==============================load task id & sp starting==================================;; 
 ;used registers          : R18, R19, R30(ZL), R31(ZH)                                          
 ;arg registers           : None                                                                
@@ -1061,7 +1031,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
 		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
 		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
@@ -1079,7 +1048,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
 		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
 		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
@@ -1094,7 +1062,6 @@ KerStack:  .skip KER_STK_SZ*KER_MX_NTSK                   ;KER_STK_SZ bytes for 
 		KER_EXIT_SLEEP                                    ;exit sleep if enabled  (  5 clocks) 
         KER_CONTEXT_SAVE_HANDLER                          ;save context           ( 68 clocks) 
 		KER_SAVE_CURR_TASK_SP                             ;save current task SP   ( 14 clocks) 
-		KER_TICK_INCREMENT                                ;increment tick counter ( 26 clocks) 
 		LDI    R24               , SCH_MODE_HANDLER       ;set sch mode           (  1 clock ) 
 		KER_RUN_SCHEDULER                                 ;run scheduler          (106 clocks) 
 		KER_CPU_USAGE                                     ;calc cpu usage         ( 26 clocks) 
