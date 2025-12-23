@@ -85,11 +85,8 @@
 .equ     SRTCCR2B,        0xB1                            ;manually defined TCCR2B in SRAM     
 .equ     SRTCCR2A,        0xB0                            ;manually defined TCCR2A in SRAM     
 .equ     SRADMUX ,        0x7C                            ;manually defined ADMUX in SRAM      
-.equ     SRADCSRB,        0x7B                            ;manually defined ADCSRB in SRAM     
 .equ     SRADCSRA,        0x7A                            ;manually defined ADCSRA in SRAM     
 .equ     SRTIMSK2,        0x70                            ;manually defined TIMSK2 in SRAM     
-.equ     SRTIMSK1,        0x6F                            ;manually defined TIMSK1 in SRAM     
-.equ     SRTIMSK0,        0x6E                            ;manually defined TIMSK0 in SRAM     
 .equ     SRCLKPR ,        0x61                            ;manually defined CLKPR in SRAM      
 .equ     SRWDTCSR,        0x60                            ;manually defined WDTCSR in SRAM     
 .equ     SRSREG  ,        0x5F                            ;manually defined SREG in SRAM       
@@ -100,8 +97,6 @@
 .equ     SRSMCR  ,        0x53                            ;manually defined SMCR in SRAM       
 .equ     SRACSR  ,        0x50                            ;manually defined ACSR in SRAM       
 .equ     SRTIFR2 ,        0x37                            ;manually defined TIFR2 in SRAM      
-.equ     SRTIFR1 ,        0x36                            ;manually defined TIFR1 in SRAM      
-.equ     SRTIFR0 ,        0x35                            ;manually defined TIFR0 in SRAM      
 ;IO Mapped Addresses, IN/OUT commands can be used                                              
 .equ     IOSREG  ,        0x3F                            ;manually defined SREG in IO         
 .equ     IOSPH   ,        0x3E                            ;manually defined SPH in IO          
@@ -110,8 +105,6 @@
 .equ     IOMCUSR ,        0x34                            ;manually defined MCUSR in IO        
 .equ     IOSMCR  ,        0x33                            ;manually defined SMCR in IO         
 .equ     IOTIFR2 ,        0x17                            ;manually defined TIFR2 in IO        
-.equ     IOTIFR1 ,        0x16                            ;manually defined TIFR1 in IO        
-.equ     IOTIFR0 ,        0x15                            ;manually defined TIFR0 in IO        
 ;;==============================define hardware reg address end=============================;; 
 
 
